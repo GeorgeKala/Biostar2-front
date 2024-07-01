@@ -4,6 +4,7 @@ import './App.css'
 import Login from './pages/Auth/Login/Login';
 import Register from './pages/Auth/Register/Register';
 import Home from './pages/Home/Home';
+import EmployeeCreate from './pages/Employee/Create/EmployeeCreate';
 
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
           <Route path='/login' element={<Login/>}/>
           <Route path='/register' element={<Register/>}/>
           <Route path='/' element={<Home/>}/>
+          <Route path='/employees/create' element={<EmployeeCreate/>}/>
         </Routes>
       </Router>
     </>

@@ -6,7 +6,7 @@ const AuthenticatedLayout = ({children}) => {
   return (
     <div className='h-full'>
         <Navbar/>
-        <div className='h-full'>
+        <div className='h-full flex'>
             <Sidebar/>
             {children}
         </div>

@@ -12,12 +12,12 @@ const Sidebar = () => {
             <img src={BiostarLogo} className='w-[90px]'/>
         </div>
         <div className='flex flex-col h-[100vh] gap-6 px-4'>
-            <p className='flex items-center gap-3 text-white text-[14px]'><img src={ArrowRight}/> თანამშრომლის დამატება/ცვლილება</p>
-            <p className='flex items-center gap-3 text-white text-[14px]'><img src={ArrowRight}/> პერიოდის რეპორტი (დეტალური) </p>
-            <p className='flex items-center gap-3 text-white text-[14px]'><img src={ArrowRight}/> პერიოდის რეპორტი (ზოგადი) </p>
-            <p className='flex items-center gap-3 text-white text-[14px]'><img src={ArrowRight}/> კომენტარების ანალიზი </p>
-            <p className='flex items-center gap-3 text-white text-[14px]'><img src={ArrowRight}/> თანამშრომლის დამატება/ცვლილება</p>
-            <p className='flex items-center gap-3 text-white text-[14px]'><img src={ArrowRight}/> თანამშრომლის დამატება/ცვლილება</p>
+            <p className='flex items-center gap-3 text-white text-[14px]'><img src={ArrowRight}/>თანამშრომლის დამატება/ცვლილება</p>
+            <p className='flex items-center gap-3 text-white text-[14px]'><img src={ArrowRight}/>პერიოდის რეპორტი (დეტალური) </p>
+            <p className='flex items-center gap-3 text-white text-[14px]'><img src={ArrowRight}/>პერიოდის რეპორტი (ზოგადი) </p>
+            <p className='flex items-center gap-3 text-white text-[14px]'><img src={ArrowRight}/>კომენტარების ანალიზი </p>
+            <p className='flex items-center gap-3 text-white text-[14px]'><img src={ArrowRight}/>თანამშრომლის დამატება/ცვლილება</p>
+            <p className='flex items-center gap-3 text-white text-[14px]'><img src={ArrowRight}/>თანამშრომლის დამატება/ცვლილება</p>
         </div>
         <div className='flex gap-2 items-center justify-center'>
             <img src={LogoutIcon} alt="" />
