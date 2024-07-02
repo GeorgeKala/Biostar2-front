@@ -9,6 +9,8 @@ import DetailedReport from './pages/Report/Detailed/DetailedReport';
 import CommentAnalyze from './pages/Comment/Analyze/CommentAnalyze';
 import CommentTable from './pages/Comment/Table/CommentTable';
 import Direct from './pages/Direct/Direct';
+import Order from './pages/Order/Order';
+import CreatedEmployees from './pages/Employee/Created/CreatedEmployees';
 
 
 function App() {
@@ -26,6 +28,8 @@ function App() {
           <Route path='/comments/analyze' element={<CommentAnalyze/>}/>
           <Route path='/comments/table' element={<CommentTable/>}/>
           <Route path='/direct' element={<Direct/>}/>
+          <Route path='/orders' element={<Order/>}/>
+          <Route path='/employees' element={<CreatedEmployees/>}/>
         </Routes>
       </Router>
     </>
