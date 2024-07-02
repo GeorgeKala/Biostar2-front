@@ -8,6 +8,7 @@ import GeneralReport from './pages/Report/General/GeneralReport';
 import DetailedReport from './pages/Report/Detailed/DetailedReport';
 import CommentAnalyze from './pages/Comment/Analyze/CommentAnalyze';
 import CommentTable from './pages/Comment/Table/CommentTable';
+import Direct from './pages/Direct/Direct';
 
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
           <Route path='/reports/detailed' element={<DetailedReport/>}/>
           <Route path='/comments/analyze' element={<CommentAnalyze/>}/>
           <Route path='/comments/table' element={<CommentTable/>}/>
+          <Route path='/direct' element={<Direct/>}/>
         </Routes>
       </Router>
     </>

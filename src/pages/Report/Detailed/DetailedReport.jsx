@@ -13,7 +13,6 @@ const DetailedReport = () => {
         { id: 4, name: 'Bob', firstname: 'Doe', lastname: 'Davis', age: 30, city: 'Houston', email: 'bob@example.com', phone: '456-789-0123', occupation: 'Doctor', group: 'Scientist' },
         { id: 5, name: 'Charlie', firstname: 'Doe', lastname: 'Wilson', age: 27, city: 'Phoenix', email: 'charlie@example.com', phone: '567-890-1234', occupation: 'Lawyer', group: 'Scientist' },
         { id: 6, name: 'Eve', firstname: 'Doe', lastname: 'Miller', age: 22, city: 'Philadelphia', email: 'eve@example.com', phone: '678-901-2345', occupation: 'Developer', group: 'Scientist' },
-    
         { id: 7, name: 'Frank', firstname: 'Doe', lastname: 'Garcia', age: 32, city: 'San Antonio', email: 'frank@example.com', phone: '789-012-3456', occupation: 'Architect', group: 'Scientist' },
         { id: 8, name: 'Grace', firstname: 'Doe', lastname: 'Martinez', age: 26, city: 'Dallas', email: 'grace@example.com', phone: '890-123-4567', occupation: 'Nurse', group: 'Scientist' },
         { id: 9, name: 'Hank', firstname: 'Doe', lastname: 'Rodriguez', age: 29, city: 'San Diego', email: 'hank@example.com', phone: '901-234-5678', occupation: 'Pilot', group: 'Scientist' },
@@ -25,7 +24,7 @@ const DetailedReport = () => {
             <div className='w-full px-20 py-4 flex flex-col gap-8'>
                 <div className="flex justify-between w-full">
                     <h1 className="text-[#1976D2] font-medium text-[23px]">
-                        თანამშრომლის დამატება/ცვლილება
+                        პერიოდის რეპორტი (დეტალური)
                     </h1>
                     <button className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">
                         Download Data

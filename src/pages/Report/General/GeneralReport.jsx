@@ -56,7 +56,7 @@ const GeneralReport = () => {
             <div className='w-full px-20 py-4 flex flex-col gap-8'>
                 <div className="flex justify-between w-full">
                     <h1 className="text-[#1976D2] font-medium text-[23px]">
-                        თანამშრომლის დამატება/ცვლილება
+                        პერიოდის რეპორტი (ზოგადი)
                     </h1>
                     <button className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">
                         Download Data
