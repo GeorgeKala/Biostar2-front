@@ -7,17 +7,48 @@ import GeneralSelectGroup from '../../../components/GeneralSelectGroup'
 
 const GeneralReport = () => {
     const data = [
-        { id: 1, name: 'John', firstname: 'Doe', lastname: 'Smith', age: 25, city: 'New York', email: 'john@example.com', phone: '123-456-7890', occupation: 'Engineer', group: 'Scientist' },
-        { id: 2, name: 'Jane', firstname: 'Doe', lastname: 'Johnson', age: 28, city: 'Los Angeles', email: 'jane@example.com', phone: '234-567-8901', occupation: 'Designer', group: 'Scientist' },
-        { id: 3, name: 'Alice', firstname: 'Doe', lastname: 'Brown', age: 23, city: 'Chicago', email: 'alice@example.com', phone: '345-678-9012', occupation: 'Teacher', group: 'Scientist' },
-        { id: 4, name: 'Bob', firstname: 'Doe', lastname: 'Davis', age: 30, city: 'Houston', email: 'bob@example.com', phone: '456-789-0123', occupation: 'Doctor', group: 'Scientist' },
-        { id: 5, name: 'Charlie', firstname: 'Doe', lastname: 'Wilson', age: 27, city: 'Phoenix', email: 'charlie@example.com', phone: '567-890-1234', occupation: 'Lawyer', group: 'Scientist' },
-        { id: 6, name: 'Eve', firstname: 'Doe', lastname: 'Miller', age: 22, city: 'Philadelphia', email: 'eve@example.com', phone: '678-901-2345', occupation: 'Developer', group: 'Scientist' },
-    
-        { id: 7, name: 'Frank', firstname: 'Doe', lastname: 'Garcia', age: 32, city: 'San Antonio', email: 'frank@example.com', phone: '789-012-3456', occupation: 'Architect', group: 'Scientist' },
-        { id: 8, name: 'Grace', firstname: 'Doe', lastname: 'Martinez', age: 26, city: 'Dallas', email: 'grace@example.com', phone: '890-123-4567', occupation: 'Nurse', group: 'Scientist' },
-        { id: 9, name: 'Hank', firstname: 'Doe', lastname: 'Rodriguez', age: 29, city: 'San Diego', email: 'hank@example.com', phone: '901-234-5678', occupation: 'Pilot', group: 'Scientist' },
-        { id: 10, name: 'Ivy', firstname: 'Doe', lastname: 'Hernandez', age: 24, city: 'San Jose', email: 'ivy@example.com', phone: '012-345-6789', occupation: 'Scientist', group: 'Scientist' },
+        {
+            id: 1,
+            name: 'John Doe',
+            department: 'Engineering',
+            position: 'Software Engineer',
+            date: '2024-07-02',
+            arrivalTime: '09:00 AM',
+            previousArrival: '08:45 AM',
+            nextArrival: '09:15 AM',
+            delayedMinutes: '15',
+            departureTime: '06:00 PM',
+            previousDeparture: '05:45 PM',
+            nextDeparture: '06:15 PM',
+            workingHours: '8',
+            dayType: 'Weekday',
+            weekday: 'Monday',
+            overtimeMinutes: '30',
+            overtimeHours: '0.5',
+            schedule: 'Regular',
+            comment: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+        },
+        {
+            id: 2,
+            name: 'Jane Smith',
+            department: 'Marketing',
+            position: 'Marketing Specialist',
+            date: '2024-07-02',
+            arrivalTime: '08:30 AM',
+            previousArrival: '08:15 AM',
+            nextArrival: '08:45 AM',
+            delayedMinutes: '15',
+            departureTime: '05:30 PM',
+            previousDeparture: '05:15 PM',
+            nextDeparture: '05:45 PM',
+            workingHours: '8',
+            dayType: 'Weekday',
+            weekday: 'Monday',
+            overtimeMinutes: '0',
+            overtimeHours: '0',
+            schedule: 'Regular',
+            comment: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+        },
     ];
 
     return (
@@ -55,35 +86,50 @@ const GeneralReport = () => {
                     <SearchButton></SearchButton>
                 </div>
                 <div className="container mx-auto mt-10 overflow-x-auto">
-                    <div>
-                        <div className="min-w-max">
-                            <div className="grid grid-cols-9 gap-2 bg-[#1976D2] text-white py-6 px-4  min-w-max">
-                                <div>თანამშრომელი</div>
-                                <div>გატარების დრო</div>
-                                <div>მოწყობილობა</div>
-                                <div>ოპერაციის ტიპი</div>
-                                <div>დეპარტამენტი</div>
-                                <div>დაშვებულია</div>
-                                <div>შენობის სახელი</div>
-                                <div>თანამდებობა</div>
-                                <div>ჯგუფი</div>
-                               
-                            </div>
-                            <div className="h-100 min-w-max">
-                                {data.map((item) => (
-                                    <div key={item.id} className="grid grid-cols-9 gap-2 py-2 px-4 border-b min-w-max">
-                                        <div>{item.name}</div>
-                                        <div>{item.firstname}</div>
-                                        <div>{item.lastname}</div>
-                                        <div>{item.age}</div>
-                                        <div>{item.city}</div>
-                                        <div>{item.email}</div>
-                                        <div>{item.phone}</div>
-                                        <div>{item.occupation}</div>
-                                        <div>{item.group}</div> 
-                                    </div>
-                                ))}
-                            </div>
+                    <div className="min-w-max">
+                        <div className="grid grid-cols-custom gap-2 bg-[#1976D2] text-white py-6 px-4 min-w-max">
+                            <div>სახელი/გვარი</div>
+                            <div>დეპარტამენტი</div>
+                            <div>თანამდებობა</div>
+                            <div>თარიღი</div>
+                            <div>მოსვლის დრო</div>
+                            <div>ადრე მოსვლა</div>
+                            <div>გვიან მოსვლა</div>
+                            <div>დაგვიანებული წუთები</div>
+                            <div>წასვლის დრო</div>
+                            <div>ადრე წასვლა</div>
+                            <div>გვიან წასვლა</div>
+                            <div>ნამუშევარი საათები</div>
+                            <div>დღის ტიპი</div>
+                            <div>კვირის დღე</div>
+                            <div>საპატიო წუთები</div>
+                            <div>საპატიო დრო</div>
+                            <div>განრიგი</div>
+                            <div>კომენტარი</div>
+                        </div>
+                        <div className="h-100 min-w-max">
+                            {data.map((item) => (
+                                <div key={item.id} className="grid grid-cols-custom gap-2 py-2 px-4 border-b min-w-max">
+                                    <div>{item.name}</div>
+                                    <div>{item.department}</div>
+                                    <div>{item.position}</div>
+                                    <div>{item.date}</div>
+                                    <div>{item.arrivalTime}</div>
+                                    <div>{item.previousArrival}</div>
+                                    <div>{item.nextArrival}</div>
+                                    <div>{item.delayedMinutes}</div>
+                                    <div>{item.departureTime}</div>
+                                    <div>{item.previousDeparture}</div>
+                                    <div>{item.nextDeparture}</div>
+                                    <div>{item.workingHours}</div>
+                                    <div>{item.dayType}</div>
+                                    <div>{item.weekday}</div>
+                                    <div>{item.overtimeMinutes}</div>
+                                    <div>{item.overtimeHours}</div>
+                                    <div>{item.schedule}</div>
+                                    <div>{item.comment}</div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>

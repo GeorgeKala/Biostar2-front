@@ -50,3 +50,8 @@
 
   scrollbar-color: #555 transparent;
 } */
+
+.grid-cols-custom {
+  display: grid;
+  grid-template-columns: repeat(18, minmax(0, 0.7fr));
+}
