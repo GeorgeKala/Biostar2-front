@@ -48,15 +48,28 @@ const Sidebar = () => {
                     <img src={ArrowRight} alt="Arrow Right Icon" />
                     დეპარტამენტები
                 </Link>
-                <Link to="/regulations" className='flex items-center gap-3 text-white text-[14px]'>
+                <Link
+                    to="/schedules"
+                    className="flex items-center gap-3 text-white text-[14px]"
+                >
                     <img src={ArrowRight} alt="Arrow Right Icon" />
                     განრიგები
+                </Link>
+                <Link
+                    to="/groups"
+                    className="flex items-center gap-3 text-white text-[14px]"
+                >
+                    <img src={ArrowRight} alt="Arrow Right Icon" />
+                    ჯგუფები
                 </Link>
                 <Link to="/users" className='flex items-center gap-3 text-white text-[14px]'>
                     <img src={ArrowRight} alt="Arrow Right Icon" />
                     მომხმარებლები
                 </Link>
-                <Link to="/areas" className='flex items-center gap-3 text-white text-[14px]'>
+                <Link
+                    to="/buildings"
+                    className="flex items-center gap-3 text-white text-[14px]"
+                >
                     <img src={ArrowRight} alt="Arrow Right Icon" />
                     შენობები
                 </Link>

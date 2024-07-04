@@ -11,7 +11,9 @@ import CommentTable from './pages/Comment/Table/CommentTable';
 import Direct from './pages/Direct/Direct';
 import Order from './pages/Order/Order';
 import CreatedEmployees from './pages/Employee/Created/CreatedEmployees';
-
+import Schedule from './pages/Schedule/Schedule';
+import Group from './pages/Group/Group';
+import Building from './pages/Building/Building';
 
 function App() {
 
@@ -30,6 +32,9 @@ function App() {
           <Route path='/direct' element={<Direct/>}/>
           <Route path='/orders' element={<Order/>}/>
           <Route path='/employees' element={<CreatedEmployees/>}/>
+          <Route path='/schedules' element={<Schedule/>}/>
+          <Route path='/groups' element={<Group/>}/>
+          <Route path='/buildings' element={<Building/>}/>
         </Routes>
       </Router>
     </>
