@@ -73,7 +73,7 @@ const Sidebar = () => {
                     <img src={ArrowRight} alt="Arrow Right Icon" />
                     შენობები
                 </Link>
-                <Link to="/department_distribution" className='flex items-center gap-3 text-white text-[14px]'>
+                <Link to="/departments-distributions" className='flex items-center gap-3 text-white text-[14px]'>
                     <img src={ArrowRight} alt="Arrow Right Icon" />
                     დეპარტამენტების განაწილება
                 </Link>

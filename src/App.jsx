@@ -14,6 +14,9 @@ import CreatedEmployees from './pages/Employee/Created/CreatedEmployees';
 import Schedule from './pages/Schedule/Schedule';
 import Group from './pages/Group/Group';
 import Building from './pages/Building/Building';
+import Department from './pages/Department/Department';
+import User from './pages/User/User';
+import DepartmentDistribution from './pages/DepartmentDistribution/DepartmentDistribution';
 
 function App() {
 
@@ -35,6 +38,9 @@ function App() {
           <Route path='/schedules' element={<Schedule/>}/>
           <Route path='/groups' element={<Group/>}/>
           <Route path='/buildings' element={<Building/>}/>
+          <Route path='/departments' element={<Department/>}/>
+          <Route path='/users' element={<User/>}/>
+          <Route path='/departments-distributions' element={<DepartmentDistribution/>}/>
         </Routes>
       </Router>
     </>
