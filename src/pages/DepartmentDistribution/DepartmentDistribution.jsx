@@ -4,8 +4,11 @@ import GeneralInputGroup from '../../components/GeneralInputGroup';
 import GeneralSelectGroup from '../../components/GeneralSelectGroup';
 import SearchButton from '../../components/SearchButton';
 import AuthenticatedLayout from '../../Layouts/AuthenticatedLayout';
+import DeleteIcon from '../../assets/delete.png'
+import EditIcon from '../../assets/edit.png'
 
 const DepartmentDistribution = () => {
+    
     const data = [
         {
             id: 1,
@@ -30,12 +33,20 @@ const DepartmentDistribution = () => {
         <div className='w-full px-20 py-4 flex flex-col gap-8'>
             <div className="flex justify-between w-full">
                 <h1 className="text-[#1976D2] font-medium text-[23px]">
-                    მომხმარებლები
+                    დეპარტამენტების განაწილება
                 </h1>
                 <div className='flex items-center gap-8'>
                     <button className="bg-[#5CB85C] text-white px-4 py-2 rounded-md flex items-center gap-2">
                         <img src={NewIcon} />
                         New
+                    </button>
+                    <button className="bg-[#1976D2] text-white px-4 py-2 rounded-md flex items-center gap-2">
+                        <img src={EditIcon} />
+                        Edit
+                    </button>
+                    <button className="bg-[#D9534F] text-white px-4 py-2 rounded-md flex items-center gap-2">
+                        <img src={DeleteIcon} />
+                        Delete
                     </button>
                     <button className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">
                         Download Data

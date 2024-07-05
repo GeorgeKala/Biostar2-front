@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import AuthenticatedLayout from '../../../Layouts/AuthenticatedLayout'
 import CloseIcon from '../../../assets/close.png'
 import InputGroup from '../../../components/employee/InputGroup'
@@ -9,6 +9,7 @@ import EditIcon from '../../../assets/edit.png'
 import SelectGroup from '../../../components/employee/SelectGroup'
 
 const EmployeeCreate = () => {
+
   return (
     <AuthenticatedLayout>
       <div className="w-full px-20 py-4 flex flex-col gap-8">
@@ -80,9 +81,11 @@ const EmployeeCreate = () => {
             />
           </div>
           <div className="flex justify-between gap-8">
-            <SelectGroup
+          <InputGroup
               label="პოზიცია"
-              options={["Option 1", "Option 2", "Option 3"]}
+              name="position"
+              placeholder="პოზიცია"
+              type="text"
             />
             <SelectGroup
               label="ჯგუფი"
@@ -94,9 +97,11 @@ const EmployeeCreate = () => {
               label="განრიგი"
               options={["Option 1", "Option 2", "Option 3"]}
             />
-            <SelectGroup
-              label="საპატიო წუთები დღეში"
-              options={["Option 1", "Option 2", "Option 3"]}
+            <InputGroup
+              label="საპატიო წუთები"
+              name="honorable_minutes"
+              placeholder="საპატიო წუთები"
+              type="text"
             />
           </div>
           <div className="flex justify-between gap-8">
