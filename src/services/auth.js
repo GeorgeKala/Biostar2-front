@@ -1,11 +1,14 @@
+import axios from "axios";
 import axiosInstance from "../Config/axios";
 
 
-export const login = async (email, password) => {
+export const login = async (username, password) => {
   try {
-    const response = await axiosInstance.post('/login', { email, password });
+    const response = await axiosInstance.post('/login', { username, password });
     const { data } = response;
+    console.log(data);
     sessionStorage.setItem('token', data.token);
+    sessionStorage.setItem('sessionToken', data['bs-session-id'])
     return data;
   } catch (error) {
     throw error.response.data;
