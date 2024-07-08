@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import AuthenticatedLayout from "../../Layouts/AuthenticatedLayout";
-import NewIcon from "../../assets/new.png";
+
 import ArrowDownIcon from "../../assets/arrow-down-2.png";
 import CreateIcon from "../../assets/create.png";
 import DeleteIcon from "../../assets/delete-2.png";
 
 const Department = () => {
+  
   const [scheduleItems, setScheduleItems] = useState([
     { description: "1 ჯგუფი - 09:00 - შესვენება 1 საათი" },
     { description: "2 ჯგუფი - დილა - საღამო" },

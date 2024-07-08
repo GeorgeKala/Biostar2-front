@@ -15,38 +15,83 @@ import Building from './pages/Building/Building';
 import Department from './pages/Department/Department';
 import User from './pages/User/User';
 import DepartmentDistribution from './pages/DepartmentDistribution/DepartmentDistribution';
+import { useDispatch, useSelector } from 'react-redux';
+import { useEffect } from 'react';
+import { fetchAsyncUser } from './redux/userDataSlice';
 
 
+
+const ProtectedRoute = ({ element }) => {
+  const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
+  return isAuthenticated ? element : <Navigate to="/" />;
+};
 
 function App() {
-  
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(fetchAsyncUser());
+  }, [dispatch]);
 
   return (
-    <>
-       <Router>
+    <Router>
       <Routes>
-        <Route path='/' element={<Login />} />
-          <>
-            {/* <Route path='/employees/create' element={<EmployeeCreate/>}/> */}
-            <Route path='/employees/create' element={<EmployeeCreate/>} />
-            <Route path='/reports/general' element={<GeneralReport />} />
-            <Route path='/reports/detailed' element={<DetailedReport />} />
-            <Route path='/comments/analyze' element={<CommentAnalyze />} />
-            <Route path='/comments/table' element={<CommentTable />} />
-            <Route path='/direct' element={<Direct />} />
-            <Route path='/orders' element={<Order />} />
-            <Route path='/employees' element={<CreatedEmployees />} />
-            <Route path='/schedules' element={<Schedule />} />
-            <Route path='/groups' element={<Group />} />
-            <Route path='/buildings' element={<Building />} />
-            <Route path='/departments' element={<Department />} />
-            <Route path='/users' element={<User />} />
-            <Route path='/departments-distributions' element={<DepartmentDistribution />} />
-          </>
+        <Route path="/" element={<Login />} />
+        <Route
+          path="/employees/create"
+          element={<EmployeeCreate/>}
+        />
+        <Route
+          path="/reports/general"
+          element={<ProtectedRoute element={<GeneralReport />} />}
+        />
+        <Route
+          path="/reports/detailed"
+          element={<ProtectedRoute element={<DetailedReport />} />}
+        />
+        <Route
+          path="/comments/analyze"
+          element={<ProtectedRoute element={<CommentAnalyze />} />}
+        />
+        <Route
+          path="/comments/table"
+          element={<ProtectedRoute element={<CommentTable />} />}
+        />
+        <Route
+          path="/direct"
+          element={<ProtectedRoute element={<Direct />} />}
+        />
+        <Route
+          path="/orders"
+          element={<ProtectedRoute element={<Order />} />}
+        />
+        <Route
+          path="/employees"
+          element={<ProtectedRoute element={<CreatedEmployees />} />}
+        />
+        <Route
+          path="/schedules"
+          element={<ProtectedRoute element={<Schedule />} />}
+        />
+        <Route
+          path="/groups"
+          element={<ProtectedRoute element={<Group />} />}
+        />
+        <Route
+          path="/buildings"
+          element={<ProtectedRoute element={<Building />} />}
+        />
+        <Route
+          path="/departments"
+          element={<ProtectedRoute element={<Department />} />}
+        />
+        <Route path="/users" element={<ProtectedRoute element={<User />} />} />
+        <Route
+          path="/departments-distributions"
+          element={<ProtectedRoute element={<DepartmentDistribution />} />}
+        />
       </Routes>
     </Router>
-    </>
-  )
+  );
 }
 
-export default App
+export default App;

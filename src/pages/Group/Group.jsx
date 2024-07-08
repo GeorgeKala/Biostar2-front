@@ -1,20 +1,62 @@
-import React from "react";
+// src/pages/Group.js
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import AuthenticatedLayout from "../../Layouts/AuthenticatedLayout";
 import NewIcon from "../../assets/new.png";
 import ArrowDownIcon from "../../assets/arrow-down-2.png";
 import CreateIcon from "../../assets/create.png";
 import DeleteIcon from "../../assets/delete-2.png";
+import Modal from "../../components/Modal";
+import {
+  fetchGroups,
+  createGroup,
+  updateGroup,
+  deleteGroup,
+} from "../../redux/groupSlice";
 
 const Group = () => {
-  const scheduleItems = [
-    { description: "1 ჯგუფი - 09:00 - შესვენება 1 საათი" },
-    { description: "2 ჯგუფი - დილა - საღამო" },
-    { description: "3 ჯგუფი - დილით მოსვლა" },
-    { description: "4 ჯგუფი - შეუძლებელია კონტროლი" },
-    { description: "5 ჯგუფი - თავისუფალი გრაფიკი" },
-    { description: "6 ჯგუფი - მუშაობენ ცვლებში" },
-    { description: "სხვა გრაფიკი" },
-  ];
+  const dispatch = useDispatch();
+  const groupItems = useSelector((state) => state.groups.items);
+  const groupStatus = useSelector((state) => state.groups.status);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editItemId, setEditItemId] = useState(null);
+
+  useEffect(() => {
+    if (groupStatus === "idle") {
+      dispatch(fetchGroups());
+    }
+  }, [groupStatus, dispatch]);
+
+  const openModal = (id) => {
+    setEditItemId(id);
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+    setEditItemId(null);
+  };
+
+  const handleSaveGroup = async (value) => {
+    if (editItemId) {
+      dispatch(updateGroup({ id: editItemId, groupData: { name: value } }));
+    } else {
+      dispatch(createGroup({ name: value }));
+    }
+    closeModal();
+  };
+
+  const handleDeleteGroup = (id) => {
+    dispatch(deleteGroup(id));
+  };
+
+  if (groupStatus === "loading") {
+    return <p>Loading...</p>;
+  }
+
+  if (groupStatus === "failed") {
+    return <p>Error loading groups</p>;
+  }
 
   return (
     <AuthenticatedLayout>
@@ -22,7 +64,10 @@ const Group = () => {
         <div className="flex justify-between w-full">
           <h1 className="text-[#1976D2] font-medium text-[23px]">ჯგუფები</h1>
           <div className="flex items-center gap-8">
-            <button className="bg-[#FBD15B]  text-white px-4 py-4 rounded-md flex items-center gap-2">
+            <button
+              className="bg-[#FBD15B]  text-white px-4 py-4 rounded-md flex items-center gap-2"
+              onClick={() => setModalOpen(true)}
+            >
               + დაამატე ახალი ჯგუფი
             </button>
             <button className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">
@@ -33,26 +78,38 @@ const Group = () => {
           </div>
         </div>
         <div className="p-4">
-          {scheduleItems.map((item, index) => (
+          {groupItems.map((item) => (
             <div
-              key={index}
+              key={item.id}
               className="flex justify-between items-center mb-2 border-b py-2 border-black"
             >
               <div className="flex-1 text-sm text-gray-700 font-medium">
-                {item.description}
+                {item.name}
               </div>
               <div className="flex space-x-2">
-                <button>
-                  <img src={CreateIcon} alt="" />
+                <button onClick={() => openModal(item.id)}>
+                  <img src={CreateIcon} alt="Edit Icon" />
                 </button>
-                <button>
-                  <img src={DeleteIcon} alt="" />
+                <button onClick={() => handleDeleteGroup(item.id)}>
+                  <img src={DeleteIcon} alt="Delete Icon" />
                 </button>
               </div>
             </div>
           ))}
         </div>
       </div>
+
+      <Modal
+        isOpen={modalOpen}
+        onClose={closeModal}
+        onSave={handleSaveGroup}
+        title={editItemId ? "Edit Group Item" : "Add Group Item"}
+        initialValue={
+          editItemId
+            ? groupItems.find((item) => item.id === editItemId)?.name
+            : ""
+        }
+      />
     </AuthenticatedLayout>
   );
 };
