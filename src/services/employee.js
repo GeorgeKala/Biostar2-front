@@ -42,11 +42,17 @@ const employeeService = {
 
   deleteEmployee: async (id) => {
     try {
-      await axiosInstance.delete(`/employees/${id}`);
+      const response = await axiosInstance.delete(`/employees/${id}`, {
+        headers: {
+          'bs-session-id': sessionStorage.getItem('sessionToken')
+        }
+    });
     } catch (error) {
       throw error;
     }
   },
+
+  
 };
 
 export default employeeService;

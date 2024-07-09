@@ -1,12 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { fetchUser, login } from "../services/auth";
-
-const initialData = {
-  loading: false,
-  user: null,
-  error: "",
-  isAuthenticated: false,
-};
+import userService from "../services/users";
 
 export const fetchAsyncUser = createAsyncThunk("user/fetchUser", async () => {
   try {
@@ -16,7 +10,6 @@ export const fetchAsyncUser = createAsyncThunk("user/fetchUser", async () => {
     throw error;
   }
 });
-
 
 export const loginAsync = createAsyncThunk(
   "user/login",
@@ -30,9 +23,57 @@ export const loginAsync = createAsyncThunk(
   }
 );
 
+export const fetchUsers = createAsyncThunk(
+  "users/fetchUsers",
+  async () => {
+    const response = await userService.getAllUsers();
+    return response;
+  }
+);
+
+export const createUser = createAsyncThunk(
+  "users/createUser",
+  async (userData) => {
+    const response = await userService.createUser(userData);
+    return response;
+  }
+);
+
+export const updateUser = createAsyncThunk(
+  "users/updateUser",
+  async ({ id, userData }) => {
+    const response = await userService.updateUser(id, userData);
+    return response;
+  }
+);
+
+export const deleteUser = createAsyncThunk(
+  "users/deleteUser",
+  async (id) => {
+    await userService.deleteUser(id);
+    return id;
+  }
+);
+
+const initialUserState = {
+  loading: false,
+  user: null,
+  error: "",
+  isAuthenticated: false,
+};
+
+const initialUserDataState = {
+  items: [],
+  status: "idle",
+  error: null,
+};
+
 const userSlice = createSlice({
   name: "user",
-  initialState: initialData,
+  initialState: {
+    ...initialUserState,
+    users: initialUserDataState,
+  },
   reducers: {
     setUser(state, action) {
       state.user = action.payload;
@@ -72,11 +113,36 @@ const userSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
         state.isAuthenticated = false;
+      })
+      .addCase(fetchUsers.pending, (state) => {
+        state.users.status = "loading";
+      })
+      .addCase(fetchUsers.fulfilled, (state, action) => {
+        state.users.status = "succeeded";
+        state.users.items = action.payload;
+      })
+      .addCase(fetchUsers.rejected, (state, action) => {
+        state.users.status = "failed";
+        state.users.error = action.error.message;
+      })
+      .addCase(createUser.fulfilled, (state, action) => {
+        state.users.items.push(action.payload);
+      })
+      .addCase(updateUser.fulfilled, (state, action) => {
+        const index = state.users.items.findIndex(
+          (item) => item.id === action.payload.id
+        );
+        if (index !== -1) {
+          state.users.items[index] = action.payload;
+        }
+      })
+      .addCase(deleteUser.fulfilled, (state, action) => {
+        state.users.items = state.users.items.filter((item) => item.id !== action.payload);
       });
   },
 });
-
-export const selectUser = (state) => state.user
+export const selectUser = (state) => state.user;
+export const selectUsers = (state) => state.user.users.items;
 
 export const { setUser, clearUser } = userSlice.actions;
 

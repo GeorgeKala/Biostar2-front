@@ -1,37 +1,30 @@
 import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
+import { fetchEmployees, deleteEmployee } from '../../../redux/employeeSlice';
 import AuthenticatedLayout from '../../../Layouts/AuthenticatedLayout';
 import ArrowDownIcon from '../../../assets/arrow-down-2.png';
 import NewIcon from '../../../assets/new.png';
+import DeleteIcon from "../../../assets/delete.png";
+import EditIcon from "../../../assets/edit.png";
 import GeneralInputGroup from '../../../components/GeneralInputGroup';
 import GeneralSelectGroup from '../../../components/GeneralSelectGroup';
 import SearchButton from '../../../components/SearchButton';
-import employeeService from "../../../services/employee";
-import { Link } from 'react-router-dom';
-import DeleteIcon from "../../../assets/delete.png";
-import EditIcon from "../../../assets/edit.png";
 
 const CreatedEmployees = () => {
-    const [employees, setEmployees] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const dispatch = useDispatch();
+    const employees = useSelector((state) => state.employees.items);
+    const status = useSelector((state) => state.employees.status);
     const [selectedId, setSelectedId] = useState(null);
     const [expandedCell, setExpandedCell] = useState(null);
-
+    
     useEffect(() => {
-        const fetchEmployees = async () => {
-            try {
-                const data = await employeeService.getAllEmployees();
-                setEmployees(data)
-                setLoading(false);
-            } catch (error) {
-                console.error('Error fetching employees:', error);
-                setLoading(false);
-            }
-        };
+        if (status === 'idle') {
+            dispatch(fetchEmployees());
+        }
+    }, [status, dispatch]);
 
-        fetchEmployees();
-    }, []);
-
-    if (loading) {
+    if (status === 'loading') {
         return <div>Loading...</div>;
     }
 
@@ -42,6 +35,15 @@ const CreatedEmployees = () => {
     const handleDoubleClick = (index) => {
         setExpandedCell(index === expandedCell ? null : index);
     };
+
+    const handleDelete = () => {
+        if (selectedId) {
+            dispatch(deleteEmployee(selectedId)).then(() => {
+                setSelectedId(null);
+            });
+        }
+    };
+
 
     return (
         <AuthenticatedLayout>
@@ -59,7 +61,7 @@ const CreatedEmployees = () => {
                             <img src={EditIcon} alt="Edit" />
                             Edit
                         </Link>
-                        <button className="bg-[#D9534F] text-white px-4 py-2 rounded-md flex items-center gap-2">
+                        <button onClick={handleDelete} className="bg-[#D9534F] text-white px-4 py-2 rounded-md flex items-center gap-2">
                             <img src={DeleteIcon} alt="Delete" />
                             Delete
                         </button>
@@ -83,7 +85,7 @@ const CreatedEmployees = () => {
                     <SearchButton />
                 </div>
                 <div className="container mx-auto mt-10 overflow-x-auto">
-                    <table className="min-w-max">
+                    <table className="w-full">
                         <thead>
                             <tr className="bg-[#1976D2] text-[13px] font-normal text-white py-6 px-4">
                                 <th>სახელი/გვარი</th>
