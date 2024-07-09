@@ -4,7 +4,8 @@ const buildingService = {
   getAllBuildings: async () => {
     try {
       const response = await axiosInstance.get("/buildings");
-      return response.data.buildings;
+     
+      return response.data;
     } catch (error) {
       throw error;
     }
@@ -13,7 +14,7 @@ const buildingService = {
   getBuildingById: async (id) => {
     try {
       const response = await axiosInstance.get(`/buildings/${id}`);
-      return response.data.building;
+      return response.data;
     } catch (error) {
       throw error;
     }
@@ -22,7 +23,7 @@ const buildingService = {
   createBuilding: async (buildingData) => {
     try {
       const response = await axiosInstance.post("/buildings", buildingData);
-      return response.data.building;
+      return response.data;
     } catch (error) {
       throw error;
     }
@@ -31,7 +32,7 @@ const buildingService = {
   updateBuilding: async (id, buildingData) => {
     try {
       const response = await axiosInstance.put(`/buildings/${id}`, buildingData);
-      return response.data.building;
+      return response.data;
     } catch (error) {
       throw error;
     }

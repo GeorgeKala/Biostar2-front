@@ -29,6 +29,7 @@ export const logout = async () => {
   try {
     await axiosInstance.post('/logout');
     sessionStorage.removeItem('token');
+    sessionStorage.removeItem('sessionToken');
   } catch (error) {
     console.error('Logout error:', error);
     throw error.response.data;

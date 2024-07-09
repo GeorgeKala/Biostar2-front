@@ -31,8 +31,10 @@ const EmployeeEdit = () => {
     device: "",
     card_number: "",
     checksum: "",
-    session_id: sessionStorage.getItem('sessionToken')
+    session_id: sessionStorage.getItem('sessionToken') || ""
   });
+
+  
 
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
@@ -49,7 +51,7 @@ const EmployeeEdit = () => {
         setSchedules(schedulesData);
 
         const employeeData = await employeeService.getEmployeeById(id);
-        setFormData(employeeData); // Assuming employeeService returns an object with employee data
+        setFormData(employeeData); 
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -66,13 +68,20 @@ const EmployeeEdit = () => {
   };
 
   const handleSubmit = async () => {
+    const updatedFormData = {
+      ...formData,
+      session_id: sessionStorage.getItem('sessionToken')
+    };
     try {
-      await employeeService.updateEmployee(id, formData);
+      console.log(formData);
+      await employeeService.updateEmployee(id, updatedFormData);
       setShowSuccessPopup(true);
     } catch (error) {
       console.error("Error updating employee:", error);
     }
   };
+
+  console.log('Form Data:', formData)
 
   return (
     <AuthenticatedLayout>

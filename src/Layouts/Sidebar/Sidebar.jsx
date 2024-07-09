@@ -1,10 +1,22 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import BiostarIcon from '../../assets/biostar-icon.png';
 import ArrowRight from '../../assets/arrow-right.png';
 import BiostarLogo from '../../assets/Biostar.png';
 import LogoutIcon from '../../assets/logout-icon.png';
+import { logout } from '../../services/auth';
 
 const Sidebar = () => {
+
+    const navigate = useNavigate();
+
+    const handleLogout = async () => {
+        try {
+            await logout();
+            navigate('/'); 
+        } catch (error) {
+            console.error('Logout error:', error);
+        }
+    };
     return (
         <div className='bg-[#1976D2] w-[18%] flex flex-col gap-8 py-4 min-h-full'>
             <div className='flex justify-center gap-2 '>
@@ -93,7 +105,7 @@ const Sidebar = () => {
             <div className='flex gap-2 items-center justify-center'>
                 <img src={LogoutIcon} alt="Logout Icon" />
                 <p className='text-white text-[16px]'>
-                    <Link to="/logout" className="text-white">Logout</Link>
+                    <button onClick={handleLogout} className="text-white">Logout</button>
                 </p>
             </div>
         </div>

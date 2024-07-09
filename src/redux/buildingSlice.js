@@ -1,11 +1,11 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import buildingService from "../services/buildingService";
+import buildingService from "../services/building";
 
 export const fetchBuildings = createAsyncThunk(
   "buildings/fetchBuildings",
   async () => {
     const response = await buildingService.getAllBuildings();
-    return response;
+    return response.data;
   }
 );
 
@@ -13,7 +13,7 @@ export const createBuilding = createAsyncThunk(
   "buildings/createBuilding",
   async (buildingData) => {
     const response = await buildingService.createBuilding(buildingData);
-    return response;
+    return response.data;
   }
 );
 
@@ -21,7 +21,7 @@ export const updateBuilding = createAsyncThunk(
   "buildings/updateBuilding",
   async ({ id, buildingData }) => {
     const response = await buildingService.updateBuilding(id, buildingData);
-    return response;
+    return response.data; 
   }
 );
 
@@ -55,21 +55,22 @@ const buildingSlice = createSlice({
         state.error = action.error.message;
       })
       .addCase(createBuilding.fulfilled, (state, action) => {
-        state.items.push(action.payload);
+        state.status = "succeeded";
+        state.items.push(action.payload); // Add the newly created building to the state
       })
       .addCase(updateBuilding.fulfilled, (state, action) => {
-        const index = state.items.findIndex(
-          (item) => item.id === action.payload.id
-        );
+        state.status = "succeeded";
+        const updatedBuilding = action.payload;
+        const index = state.items.findIndex((item) => item.id === updatedBuilding.id);
         if (index !== -1) {
-          state.items[index] = action.payload;
+          state.items[index] = updatedBuilding; // Update the building in the state
         }
       })
       .addCase(deleteBuilding.fulfilled, (state, action) => {
+        state.status = "succeeded";
         state.items = state.items.filter((item) => item.id !== action.payload);
       });
   },
 });
 
 export default buildingSlice.reducer;
-

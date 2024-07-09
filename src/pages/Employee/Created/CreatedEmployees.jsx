@@ -14,6 +14,7 @@ const CreatedEmployees = () => {
     const [employees, setEmployees] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedId, setSelectedId] = useState(null);
+    const [expandedCell, setExpandedCell] = useState(null);
 
     useEffect(() => {
         const fetchEmployees = async () => {
@@ -37,7 +38,10 @@ const CreatedEmployees = () => {
     const handleClick = (id) => {
         setSelectedId(id === selectedId ? null : id);
     };
-    
+
+    const handleDoubleClick = (index) => {
+        setExpandedCell(index === expandedCell ? null : index);
+    };
 
     return (
         <AuthenticatedLayout>
@@ -47,7 +51,7 @@ const CreatedEmployees = () => {
                         თანამშრომლები
                     </h1>
                     <div className='flex items-center gap-8'>
-                        <Link to='/employees/create'  className="bg-[#5CB85C] text-white px-4 py-2 rounded-md flex items-center gap-2">
+                        <Link to='/employees/create' className="bg-[#5CB85C] text-white px-4 py-2 rounded-md flex items-center gap-2">
                             <img src={NewIcon} alt="New Icon" />
                             New
                         </Link>
@@ -79,43 +83,45 @@ const CreatedEmployees = () => {
                     <SearchButton />
                 </div>
                 <div className="container mx-auto mt-10 overflow-x-auto">
-                    <div className="min-w-max">
-                        <div className="grid grid-cols-11 gap-2 bg-[#1976D2] text-white py-6 px-4">
-                            <div className="col-span-1">სახელი/გვარი</div>
-                            <div className="col-span-1">დეპარტამენტი</div>
-                            <div className="col-span-1">პოზიცია</div>
-                            <div className="col-span-1">პირადი ნომერი/ID</div>
-                            <div className="col-span-1">ტელეფონის ნომერი</div>
-                            <div className="col-span-1">ბარათის ნომერი</div>
-                            <div className="col-span-1">სტატუსი</div>
-                            <div className="col-span-1">მომხმარებელი</div>
-                            <div className="col-span-1">ჯგუფი</div>
-                            <div className="col-span-1">განრიგი</div>
-                            <div className="col-span-1">საპატიო წუთები</div>
-                        </div>
-                    </div>
-
-                    <div className="h-100 min-w-max">
-                        {employees.map((employee) => (
-                            <div
-                                key={employee.id}
-                                onClick={() => handleClick(employee.id)}
-                                className={`grid grid-cols-11 gap-2 py-2 px-4 border-b min-w-max ${selectedId === employee.id ? 'bg-blue-200' : ''}`}
-                            >
-                                <div className="col-span-1 overflow-hidden overflow-ellipsis whitespace-nowrap">{employee.fullname}</div>
-                                <div className="col-span-1">{employee?.department?.name}</div>
-                                <div className="col-span-1">{employee.position}</div>
-                                <div className="col-span-1">{employee.personal_id}</div>
-                                <div className="col-span-1">{employee.phone_number}</div>
-                                <div className="col-span-1">{employee.card_number}</div>
-                                <div className="col-span-1">შეჩერებული</div>
-                                <div className="col-span-1">" "</div>
-                                <div className="col-span-1">{employee?.group?.name}</div>
-                                <div className="col-span-1">{employee?.schedule?.name}</div>
-                                <div className="col-span-1">{employee.honorable_minutes_per_day}</div>
-                            </div>
-                        ))}
-                    </div>
+                    <table className="min-w-max">
+                        <thead>
+                            <tr className="bg-[#1976D2] text-[13px] font-normal text-white py-6 px-4">
+                                <th>სახელი/გვარი</th>
+                                <th>დეპარტამენტი</th>
+                                <th>პოზიცია</th>
+                                <th>პირადი ნომერი</th>
+                                <th>phone</th>
+                                <th>ბარათის ნომერი</th>
+                                <th>სტატუსი</th>
+                                <th>მომხმარებელი</th>
+                                <th>ჯგუფი</th>
+                                <th>განრიგი</th>
+                                <th>საპატიო წუთები</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {employees.map((employee, index) => (
+                                <tr
+                                    key={employee.id}
+                                    onClick={() => handleClick(employee.id)}
+                                    onDoubleClick={() => handleDoubleClick(index)}
+                                    className={`border-b ${selectedId === employee.id ? 'bg-blue-200' : ''}`}
+                                >
+                                    <td className={`py-2 px-4 ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>{employee.fullname}</td>
+                                    <td className={`py-2 px-4 ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>{employee?.department?.name}</td>
+                                    <td className={`py-2 px-4 ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>{employee.position}</td>
+                                    <td className={`py-2 px-4 ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>{employee.personal_id}</td>
+                                    <td className={`py-2 px-4 ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>{employee.phone_number}</td>
+                                    <td className={`py-2 px-4 ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>{employee.card_number}</td>
+                                    <td className={`py-2 px-4 ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>შეჩერებული</td>
+                                    <td className={`py-2 px-4 ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>" "</td>
+                                    <td className={`py-2 px-4 ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>{employee?.group?.name}</td>
+                                    <td className={`py-2 px-4 ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>{employee?.schedule?.name}</td>
+                                    <td className={`py-2 px-4 ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>{employee.honorable_minutes_per_day}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </AuthenticatedLayout>

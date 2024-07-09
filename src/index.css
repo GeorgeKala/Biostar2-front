@@ -55,3 +55,16 @@
   display: grid;
   grid-template-columns: repeat(18, minmax(0, 0.7fr));
 }
+
+.truncate-cell {
+  max-width: 250px; /* Adjust as per your design */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.expanded-cell {
+  max-width: none;
+  overflow: auto;
+  white-space: normal;
+}
