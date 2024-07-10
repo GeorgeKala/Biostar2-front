@@ -47,6 +47,16 @@ const departmentService = {
       throw error;
     }
   },
+
+  getNestedDepartments: async () => {
+    try {
+      const response = await axiosInstance.get("/departments/nested");
+      return response.data.departments;
+    } catch (error) {
+      throw error;
+    }
+  },
+  
 };
 
 export default departmentService;

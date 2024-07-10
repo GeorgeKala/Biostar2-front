@@ -58,7 +58,7 @@ const EmployeeEdit = () => {
     };
     fetchData();
   }, [id]);
-
+  
   const handleInput = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -73,7 +73,6 @@ const EmployeeEdit = () => {
       session_id: sessionStorage.getItem('sessionToken')
     };
     try {
-      console.log(formData);
       await employeeService.updateEmployee(id, updatedFormData);
       setShowSuccessPopup(true);
     } catch (error) {
@@ -81,7 +80,7 @@ const EmployeeEdit = () => {
     }
   };
 
-  console.log('Form Data:', formData)
+
 
   return (
     <AuthenticatedLayout>

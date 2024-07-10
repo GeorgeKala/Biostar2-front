@@ -3,70 +3,83 @@ import { useSelector, useDispatch } from 'react-redux';
 import AuthenticatedLayout from '../../Layouts/AuthenticatedLayout';
 import NewIcon from '../../assets/new.png';
 import ArrowDownIcon from '../../assets/arrow-down-2.png';
-import EditIcon from '../../assets/edit.png';
 import CreateIcon from "../../assets/create.png";
 import DeleteIcon from "../../assets/delete-2.png";
 import GeneralInputGroup from '../../components/GeneralInputGroup';
 import GeneralSelectGroup from '../../components/GeneralSelectGroup';
 import SearchButton from '../../components/SearchButton';
 import { fetchUsers, createUser, updateUser, deleteUser } from '../../redux/userDataSlice';
+import { fetchUserTypes } from '../../redux/userTypeSlice';
 
 const User = () => {
   const dispatch = useDispatch();
   const users = useSelector(state => state.user.users.items);
+  const userTypes = useSelector(state => state.userType.items);
+  const [formData, setFormData] = useState({
+    name: '',
+    username: '',
+    userType: '',
+    department: '',
+    employee:''
+  });
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('create');
-  const [name, setName] = useState('');
-  const [username, setUsername] = useState('');
-  const [userType, setUserType] = useState('');
-  const [department, setDepartment] = useState('');
 
   useEffect(() => {
     dispatch(fetchUsers());
+    dispatch(fetchUserTypes());
+
   }, [dispatch]);
 
   const openAddModal = () => {
     setIsAddModalOpen(true);
     setModalMode('create');
-    setName('');
-    setUsername('');
-    setUserType('');
-    setDepartment('');
+    setFormData({
+      name: '',
+      username: '',
+      userType: '',
+      department: '',
+      employee:''
+    });
   };
 
   const openUpdateModal = (user) => {
     setIsAddModalOpen(true);
     setModalMode('update');
     setSelectedUserId(user.id);
-    setName(user.name);
-    setUsername(user.username);
-    setUserType(user.user_type.name);
-    setDepartment(user.department.name);
+    setFormData({
+      name: user.name,
+      username: user.username,
+      userType: user.user_type.id, 
+      department: user.department,
+      employee:user.employee
+    });
   };
 
   const closeAddModal = () => {
     setIsAddModalOpen(false);
     setModalMode('create');
     setSelectedUserId(null);
-    setName('');
-    setUsername('');
-    setUserType('');
-    setDepartment('');
+    setFormData({
+      name: '',
+      username: '',
+      userType: '',
+      department: '',
+      employee:''
+    });
   };
 
   const handleSave = (e) => {
     e.preventDefault();
-    if (!name.trim() || !username.trim() || !userType.trim() || !department.trim()) {
-      alert("Please fill in all fields.");
-      return;
-    }
+    const { name, username, userType, department, employee } = formData;
 
     const userData = {
-      name: name.trim(),
-      username: username.trim(),
-      user_type: userType.trim(),
-      department: department.trim(),
+      name: name,
+      username: username,
+      user_type_id: userType,
+      department: department,
+      employee: employee
     };
 
     if (modalMode === 'create') {
@@ -103,6 +116,14 @@ const User = () => {
     setSelectedUserId(userId === selectedUserId ? null : userId);
   };
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prevState => ({
+      ...prevState,
+      [name]: value
+    }));
+  };
+
   return (
     <AuthenticatedLayout>
       <div className='w-full px-20 py-4 flex flex-col gap-8'>
@@ -124,9 +145,16 @@ const User = () => {
         </div>
         <div className='flex items-center gap-4'>
           <GeneralInputGroup
-            name="employee"
-            placeholder="თანამშრომელი"
+            name="name"
+            placeholder="სახელი"
             type="text"
+            
+          />
+          <GeneralInputGroup
+            name="username"
+            placeholder="მომხმარებელი"
+            type="text"
+            
           />
           <GeneralSelectGroup
             label="დეპარტამენტი"
@@ -142,7 +170,7 @@ const User = () => {
               <div>მომხმარებლის ტიპი</div>
               <div>დეპარტამენტი</div>
               <div>თანამშრომელი</div>
-              <div className='flex gap-4 items-center justify-center'>განახლება/წაშლა</div> {/* Added for edit and delete icons */}
+              <div className='flex gap-4 items-center justify-center'>განახლება/წაშლა</div>
             </div>
             <div className="h-100 min-w-max">
               {users && users.map((user) => (
@@ -153,7 +181,7 @@ const User = () => {
                 >
                   <div>{user?.username}</div>
                   <div>{user?.name}</div>
-                  <div>{user?.user_type.name}</div>
+                  <div>{user?.user_type?.name}</div>
                   <div>{user?.department?.name}</div>
                   <div>{user?.employee}</div>
                   <div className="flex gap-4 items-center justify-center">
@@ -171,7 +199,6 @@ const User = () => {
         </div>
       </div>
 
-      {/* Add/Edit Modal */}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
           <div className="bg-white rounded-lg max-w-md w-full ">
@@ -189,9 +216,10 @@ const User = () => {
                 <input
                   type="text"
                   id="name"
+                  name="name"
                   className="mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  value={formData.name}
+                  onChange={handleChange}
                   required
                 />
               </div>
@@ -200,32 +228,49 @@ const User = () => {
                 <input
                   type="text"
                   id="username"
+                  name="username"
                   className="mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  value={formData.username}
+                  onChange={handleChange}
                   required
                 />
               </div>
               <div className="mb-4">
                 <label htmlFor="userType" className="block text-sm font-medium text-gray-700">მომხმარებლის ტიპი:</label>
-                <input
-                  type="text"
+                <select
                   id="userType"
-                  className="mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                  value={userType}
-                  onChange={(e) => setUserType(e.target.value)}
+                  name="userType"
+                  className="mt-1 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                  value={formData.userType}
+                  onChange={handleChange}
                   required
-                />
+                >
+                  <option value="">Select User Type</option>
+                  {userTypes && userTypes.map(type => (
+                    <option key={type.id} value={type.id}>{type.name}</option>
+                  ))}
+                </select>
               </div>
               <div className="mb-4">
                 <label htmlFor="department" className="block text-sm font-medium text-gray-700">დეპარტამენტი:</label>
                 <input
                   type="text"
                   id="department"
+                  name="department"
                   className="mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                  value={department}
-                  onChange={(e) => setDepartment(e.target.value)}
-                  required
+                  value={formData.department}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="mb-4">
+                <label htmlFor="employee" className="block text-sm font-medium text-gray-700">თანამშრომელი:</label>
+                <input
+                  type="text"
+                  id="employee"
+                  name="employee"
+                  className="mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                  value={formData.employee}
+                  onChange={handleChange}
                 />
               </div>
               <div className="flex justify-end mt-4">

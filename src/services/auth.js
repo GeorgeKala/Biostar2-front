@@ -6,7 +6,7 @@ export const login = async (username, password) => {
   try {
     const response = await axiosInstance.post('/login', { username, password });
     const { data } = response;
-    console.log(data);
+    
     sessionStorage.setItem('token', data.token);
     sessionStorage.setItem('sessionToken', data['bs-session-id'])
     return data;

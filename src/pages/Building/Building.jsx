@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import AuthenticatedLayout from "../../Layouts/AuthenticatedLayout";
-import NewIcon from "../../assets/new.png";
 import ArrowDownIcon from "../../assets/arrow-down-2.png";
 import CreateIcon from "../../assets/create.png";
 import DeleteIcon from "../../assets/delete-2.png";
@@ -90,7 +89,6 @@ const Building = () => {
     }
   };
 
-  console.log(buildingIdToUpdate)
 
   return (
     <AuthenticatedLayout>

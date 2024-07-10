@@ -82,7 +82,7 @@ const EmployeeCreate = () => {
       error = "ბარათის ნომერი აუცილებელია";
     }
 
-    console.log(error);
+  
 
     setErrors((prevErrors) => ({
       ...prevErrors,
