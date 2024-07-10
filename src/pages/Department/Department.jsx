@@ -29,9 +29,7 @@ const Department = () => {
   const toggleSubMenu = (e) => {
     e.stopPropagation();
     const submenu = e.currentTarget.querySelector("ul");
-
     if (!submenu) return;
-
     submenu.style.display = submenu.style.display === "none" || submenu.style.display === "" ? "block" : "none";
   };
 
@@ -57,7 +55,6 @@ const Department = () => {
 
   const handleSave = async (e) => {
     e.preventDefault();
-
     try {
       if (modalMode === 'create') {
         const createdDepartment = await departmentService.createDepartment(formData);
@@ -88,6 +85,7 @@ const Department = () => {
       }
     }
   };
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prevState => ({
@@ -95,6 +93,7 @@ const Department = () => {
       [name]: value
     }));
   };
+
 
 
   const renderSubMenu = (subMenu, level = 1) => {

@@ -2,7 +2,7 @@ import React from 'react'
 import useFetchUser from '../hooks/useFetchUser';
 
 const DataProvider = ({ children }) => {
-  useFetchUser();
+  // useFetchUser();
 
   return <>{children}</>;
 };

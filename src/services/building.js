@@ -45,6 +45,45 @@ const buildingService = {
       throw error;
     }
   },
+
+  attachDepartment: async (buildingId, departmentId) => {
+    try {
+      const response = await axiosInstance.post(`/buildings/${buildingId}/attach-department`, { department_id: departmentId });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  detachDepartment: async (buildingId, departmentId) => {
+    try {
+      const response = await axiosInstance.post(`/buildings/${buildingId}/detach-department`, { department_id: departmentId });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  updateDepartmentBuilding: async (buildingId, departmentId) => {
+    try {
+      const response = await axiosInstance.post(`/buildings/${buildingId}/update-department`, { department_id: departmentId });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getBuildingsWithDepartments: async () => {
+    try {
+      const response = await axiosInstance.get("/buildings/departments");
+      console.log(response);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+
 };
 
 export default buildingService;

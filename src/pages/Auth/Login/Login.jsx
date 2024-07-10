@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { fetchGroups } from '../../../redux/groupSlice';
 import { fetchSchedules } from '../../../redux/scheduleSlice';
+import { fetchAsyncUser } from '../../../redux/userDataSlice';
 
 
 const Login = () => {
@@ -13,14 +14,18 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState(null);
     const navigate = useNavigate();
-    const dispatch = useDispatch()
+    const dispatch = useDispatch();
+
     const handleLogin = async () => {
         try {
             const response = await login(email, password);
+            console.log(response);
             if(response.status == 200){
-                navigate('/employees/create')
                 dispatch(fetchGroups());
                 dispatch(fetchSchedules());
+                dispatch(fetchAsyncUser())
+                navigate('/employees/create')
+                
             }
         } catch (error) {
             setError(error.message || 'An error occurred during login.');

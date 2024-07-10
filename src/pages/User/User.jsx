@@ -8,13 +8,16 @@ import DeleteIcon from "../../assets/delete-2.png";
 import GeneralInputGroup from '../../components/GeneralInputGroup';
 import GeneralSelectGroup from '../../components/GeneralSelectGroup';
 import SearchButton from '../../components/SearchButton';
-import { fetchUsers, createUser, updateUser, deleteUser } from '../../redux/userDataSlice';
+import { fetchUsers } from '../../redux/userDataSlice';
 import { fetchUserTypes } from '../../redux/userTypeSlice';
+import { fetchDepartments } from '../../redux/departmentsSlice';
+import userService from '../../services/users';
 
 const User = () => {
   const dispatch = useDispatch();
-  const users = useSelector(state => state.user.users.items);
+  const usersData = useSelector(state => state.user.users.items);
   const userTypes = useSelector(state => state.userType.items);
+  const { departments } = useSelector((state) => state.departments);
   const [formData, setFormData] = useState({
     name: '',
     username: '',
@@ -25,12 +28,18 @@ const User = () => {
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('create');
+  const [users, setUsers] = useState([]);
 
   useEffect(() => {
     dispatch(fetchUsers());
     dispatch(fetchUserTypes());
+    dispatch(fetchDepartments());
 
-  }, [dispatch]);
+  }, []);
+
+  useEffect(() => {
+    setUsers(usersData)
+  },[usersData])
 
   const openAddModal = () => {
     setIsAddModalOpen(true);
@@ -70,45 +79,93 @@ const User = () => {
     });
   };
 
-  const handleSave = (e) => {
-    e.preventDefault();
-    const { name, username, userType, department, employee } = formData;
+  
 
+
+  // const handleSave = (e) => {
+  //   e.preventDefault();
+  //   const { name, username, userType, department, employee } = formData;
+
+  //   const userData = {
+  //     name: name,
+  //     username: username,
+  //     user_type_id: userType,
+  //     department_id: department,
+  //     employee: employee
+  //   };
+
+  //   if (modalMode === 'create') {
+  //     dispatch(createUser(userData))
+  //       .then(() => {
+  //         closeAddModal();
+  //       })
+  //       .catch(error => {
+  //         alert("Failed to create user: " + error.message);
+  //       });
+  //   } else if (modalMode === 'update' && selectedUserId) {
+  //     dispatch(updateUser({ id: selectedUserId, userData }))
+  //       .then(() => {
+  //         closeAddModal();
+  //       })
+  //       .catch(error => {
+  //         alert("Failed to update user: " + error.message);
+  //       });
+  //   }
+  // };
+
+  // const handleDelete = (userId) => {
+  //   if (window.confirm("Are you sure you want to delete this user?")) {
+  //     dispatch(deleteUser(userId))
+  //       .then(() => {
+  //       })
+  //       .catch(error => {
+  //         alert("Failed to delete user: " + error.message);
+  //       });
+  //   }
+  // };
+
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+  
+    const { name, username, userType, department, employee } = formData;
+  
     const userData = {
       name: name,
       username: username,
       user_type_id: userType,
-      department: department,
+      department_id: department,
       employee: employee
     };
-
-    if (modalMode === 'create') {
-      dispatch(createUser(userData))
-        .then(() => {
-          closeAddModal();
-        })
-        .catch(error => {
-          alert("Failed to create user: " + error.message);
-        });
-    } else if (modalMode === 'update' && selectedUserId) {
-      dispatch(updateUser({ id: selectedUserId, userData }))
-        .then(() => {
-          closeAddModal();
-        })
-        .catch(error => {
-          alert("Failed to update user: " + error.message);
-        });
+  
+    try {
+      if (modalMode === 'create') {
+        const createdUser = await userService.createUser(userData);
+        setUsers([...users, createdUser]);
+        closeAddModal();
+      } else if (modalMode === 'update' && selectedUserId) {
+        const updatedUser = await userService.updateUser(selectedUserId, formData);
+        const updatedIndex = users.findIndex(user => user.id === selectedUserId);
+        if (updatedIndex !== -1) {
+          const updatedUsers = [...users];
+          updatedUsers[updatedIndex] = updatedUser;
+          setUsers(updatedUsers);
+        }
+        closeAddModal();
+      }
+    } catch (error) {
+      alert("Failed to save user: " + error.message);
     }
   };
-
-  const handleDelete = (userId) => {
+  
+  const handleDelete = async (userId) => {
     if (window.confirm("Are you sure you want to delete this user?")) {
-      dispatch(deleteUser(userId))
-        .then(() => {
-        })
-        .catch(error => {
-          alert("Failed to delete user: " + error.message);
-        });
+      try {
+        await userService.deleteUser(userId);
+        setUsers(users.filter(user => user.id !== userId));
+      } catch (error) {
+        alert("Failed to delete user: " + error.message);
+      }
     }
   };
 
@@ -245,23 +302,29 @@ const User = () => {
                   onChange={handleChange}
                   required
                 >
-                  <option value="">Select User Type</option>
+                  <option value="">აირჩიე მომხმარებლის ტიპი</option>
                   {userTypes && userTypes.map(type => (
                     <option key={type.id} value={type.id}>{type.name}</option>
                   ))}
                 </select>
               </div>
               <div className="mb-4">
-                <label htmlFor="department" className="block text-sm font-medium text-gray-700">დეპარტამენტი:</label>
-                <input
-                  type="text"
+                <label htmlFor="userType" className="block text-sm font-medium text-gray-700">დეპარტამენტი:</label>
+                <select
                   id="department"
                   name="department"
-                  className="mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                  className="mt-1 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
                   value={formData.department}
                   onChange={handleChange}
-                />
+                  required
+                >
+                  <option value="">აირჩიე დეპარტამენტი</option>
+                  {departments && departments.map(item => (
+                    <option key={item.id} value={item.id}>{item.name}</option>
+                  ))}
+                </select>
               </div>
+             
               <div className="mb-4">
                 <label htmlFor="employee" className="block text-sm font-medium text-gray-700">თანამშრომელი:</label>
                 <input

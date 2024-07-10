@@ -31,6 +31,7 @@ function App() {
   const [initialLoad, setInitialLoad] = useState(true);
   const dispatch = useDispatch();
   const isLoading = useSelector(state => state.user.isLoading);
+
   useEffect(() => {
     if (initialLoad) {
       dispatch(fetchAsyncUser()).then(() => {
@@ -58,7 +59,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="/employees/create" element={<ProtectedRoute element={<EmployeeCreate />} />} />
+        <Route path="/employees/create" element={<EmployeeCreate />} />
         <Route path="/reports/general" element={<ProtectedRoute element={<GeneralReport />} />} />
         <Route path="/reports/detailed" element={<ProtectedRoute element={<DetailedReport />} />} />
         <Route path="/comments/analyze" element={<ProtectedRoute element={<CommentAnalyze />} />} />
