@@ -12,6 +12,7 @@ import groupService from "../../../services/group";
 import scheduleService from "../../../services/schedule";
 import employeeService from "../../../services/employee";
 import SuccessPopup from "../../../components/SuccessPopup";
+import MultiSelect from "../../../components/MultiSelect";
 
 const EmployeeCreate = () => {
   const [departments, setDepartments] = useState([]);
@@ -342,6 +343,7 @@ const EmployeeCreate = () => {
               onChange={handleInput}
               error={errors.checksum}
             />
+            <MultiSelect/>
           </div>
         </div>
         {showSuccessPopup && (

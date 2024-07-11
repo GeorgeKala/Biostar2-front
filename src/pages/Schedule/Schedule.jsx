@@ -5,7 +5,6 @@ import NewIcon from "../../assets/new.png";
 import ArrowDownIcon from "../../assets/arrow-down-2.png";
 import CreateIcon from "../../assets/create.png";
 import DeleteIcon from "../../assets/delete-2.png";
-import Modal from "../../components/Modal";
 import {
   fetchSchedules,
   createSchedule,
@@ -20,6 +19,19 @@ const Schedule = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editItemId, setEditItemId] = useState(null);
 
+  // Form fields and validation
+  const [formData, setFormData] = useState({
+    name: '',
+    start_date: '',
+    end_date: '',
+    repetition_unit: '',
+    interval: '',
+    comment: ''
+  });
+
+  // Validation errors state
+  const [errors, setErrors] = useState({});
+
   useEffect(() => {
     if (scheduleStatus === "idle") {
       dispatch(fetchSchedules());
@@ -29,26 +41,63 @@ const Schedule = () => {
   const openModal = (id) => {
     setEditItemId(id);
     setModalOpen(true);
+    const editItem = scheduleItems.find(item => item.id === id);
+    if (editItem) {
+      setFormData({
+        name: editItem.name,
+        start_date: editItem.start_date,
+        end_date: editItem.end_date,
+        repetition_unit: editItem.repetition_unit,
+        interval: editItem.interval,
+        comment: editItem.comment
+      });
+    }
   };
 
   const closeModal = () => {
     setModalOpen(false);
     setEditItemId(null);
+    setFormData({
+      name: '',
+      start_date: '',
+      end_date: '',
+      repetition_unit: '',
+      interval: '',
+      comment: ''
+    });
+    setErrors({});
   };
 
-  const handleSaveSchedule = async (value) => {
+  const handleSaveSchedule = async () => {
+    const validationErrors = validateForm(formData);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
     if (editItemId) {
       dispatch(
-        updateSchedule({ id: editItemId, scheduleData: { name: value } })
+        updateSchedule({ id: editItemId, scheduleData: formData })
       );
     } else {
-      dispatch(createSchedule({ name: value }));
+      dispatch(createSchedule(formData));
     }
     closeModal();
   };
 
   const handleDeleteSchedule = (id) => {
     dispatch(deleteSchedule(id));
+  };
+
+  const validateForm = (data) => {
+    const errors = {};
+    if (!data.name.trim()) {
+      errors.name = "Name is required";
+    } else if (scheduleItems.some(item => item.name === data.name && item.id !== editItemId)) {
+      errors.name = "Name must be unique";
+    }
+
+    return errors;
   };
 
   if (scheduleStatus === "loading") {
@@ -79,38 +128,161 @@ const Schedule = () => {
             </button>
           </div>
         </div>
-        <div className="p-4">
-          {scheduleItems.map((item) => (
-            <div
-              key={item.id}
-              className="flex justify-between items-center mb-2 border-b py-2 border-black"
-            >
-              <div className="flex-1 text-sm text-gray-700 font-medium">
-                {item.name}
-              </div>
-              <div className="flex space-x-2">
-                <button onClick={() => openModal(item.id)}>
-                  <img src={CreateIcon} alt="Edit Icon" />
-                </button>
-                <button onClick={() => handleDeleteSchedule(item.id)}>
-                  <img src={DeleteIcon} alt="Delete Icon" />
-                </button>
-              </div>
+        <div className="overflow-x-auto">
+            <table className="min-w-max w-full divide-y divide-gray-200">
+              <thead className="bg-blue-500 text-white">
+                <tr>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                    განრიგის სახელი
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                    დაწყების თარიღი
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                    დასრულების თარიღი
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                    გამეორების ერთეული
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                    ინტერვალი
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                    კომენტარი
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                    განახლება/წაშლა
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {scheduleItems.map((item) => (
+                  <tr key={item.id} className="cursor-pointer">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">{item.name}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">{item.start_date}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">{item.end_date}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">{item.repetition_unit}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">{item.interval}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">{item.comment}</div>
+                    </td>
+                    <td className="px-6 py-4 flex justify-center gap-3 whitespace-nowrap text-center text-sm font-medium">
+                      <button onClick={() => openModal(item.id)} className="text-blue-600 hover:text-blue-900 focus:outline-none">
+                        <img src={CreateIcon} alt="Edit" className="w-5 h-5" />
+                      </button>
+                      <button onClick={() => handleDeleteSchedule(item.id)} className="text-red-600 hover:text-red-900 focus:outline-none">
+                        <img src={DeleteIcon} alt="Delete" className="w-5 h-5" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          </div>
+      {modalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
+          <div className="bg-white rounded-lg max-w-md w-full ">
+            <div className="flex justify-between items-center p-3 bg-blue-500 text-white rounded-t-lg">
+              <h2 className="text-lg font-semibold">{editItemId ? 'შეცვალე განრიგი' : 'დაამატე ახალი განრიგი'}</h2>
+              <button onClick={closeModal} className="hover:text-gray-200 focus:outline-none">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
             </div>
-          ))}
+            <form onSubmit={handleSaveSchedule} className='p-3'>
+              <div className="mb-4">
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700">სახელი:</label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  className={`mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 ${errors.name && 'border-red-500'}`}
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  required
+                />
+                {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+              </div>
+              <div className="mb-4">
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700">დაწყების თარიღი:</label>
+                <input
+                  type="date"
+                  id="start_date"
+                  name="start_date"
+                  className={`mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 ${errors.name && 'border-red-500'}`}
+                  value={formData.start_date}
+                  onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
+                />
+                {errors.start_date && <p className="text-red-500 text-sm mt-1">{errors.start_date}</p>}
+              </div>
+              <div className="mb-4">
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700">დამთავრების თარიღი:</label>
+                <input
+                  type="date"
+                  id="end_date"
+                  name="end_date"
+                  className={`mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 ${errors.name && 'border-red-500'}`}
+                  value={formData.end_date}
+                  onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
+                />
+                {errors.end_date && <p className="text-red-500 text-sm mt-1">{errors.end_date}</p>}
+              </div>
+              <div className="mb-4">
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700">გამეორების ერთეული:</label>
+                <input
+                  type="number"
+                  id="repetition_unit"
+                  name="repetition_unit"
+                  className={`mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 ${errors.name && 'border-red-500'}`}
+                  value={formData.repetition_unit}
+                  onChange={(e) => setFormData({ ...formData, repetition_unit: e.target.value })}
+                />
+                {errors.repetition_unit && <p className="text-red-500 text-sm mt-1">{errors.repetition_unit}</p>}
+              </div>
+              <div className="mb-4">
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700">ინტერვალი:</label>
+                <input
+                  type="number"
+                  id="interval"
+                  name="interval"
+                  className={`mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 ${errors.name && 'border-red-500'}`}
+                  value={formData.interval}
+                  onChange={(e) => setFormData({ ...formData, interval: e.target.value })}
+                />
+                {errors.interval && <p className="text-red-500 text-sm mt-1">{errors.interval}</p>}
+              </div>
+              <div className="mb-4">
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700">კომენტარი:</label>
+                <input
+                  type="text"
+                  id="comment"
+                  name="comment"
+                  className={`mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 ${errors.name && 'border-red-500'}`}
+                  value={formData.comment}
+                  onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
+                />
+                {errors.comment && <p className="text-red-500 text-sm mt-1">{errors.comment}</p>}
+              </div>
+              <div className="flex justify-end mt-4">
+                <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md mr-2">Save</button>
+                <button type="button" onClick={closeModal} className="bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-4 rounded-md">Cancel</button>
+              </div>
+            </form>
+          </div>
         </div>
-      </div>
-      <Modal
-        isOpen={modalOpen}
-        onClose={closeModal}
-        onSave={handleSaveSchedule}
-        title={editItemId ? "შეცვალე განრიგი" : "დაამატე ახალი განრიგი"}
-        initialValue={
-          editItemId
-            ? scheduleItems.find((item) => item.id === editItemId)?.name
-            : ""
-        }
-      />
+      )}
     </AuthenticatedLayout>
   );
 };

@@ -97,6 +97,10 @@ const Sidebar = () => {
                     <img src={ArrowRight} alt="Arrow Right Icon" />
                     სამზარეულოს რეპორტი
                 </Link>
+                <Link to="/user-types" className='flex items-center gap-3 text-white text-[14px]'>
+                    <img src={ArrowRight} alt="Arrow Right Icon" />
+                    მომხმარებლის ტიპები
+                </Link>
                 <Link to="/sms" className='flex items-center gap-3 text-white text-[14px]'>
                     <img src={ArrowRight} alt="Arrow Right Icon" />
                     SMS

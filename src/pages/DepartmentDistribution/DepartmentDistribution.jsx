@@ -4,7 +4,7 @@ import ArrowDownIcon from '../../assets/arrow-down-2.png';
 import NewIcon from '../../assets/new.png';
 import GeneralInputGroup from '../../components/GeneralInputGroup';
 import GeneralSelectGroup from '../../components/GeneralSelectGroup';
-import SearchButton from '../../components/SearchButton';
+import SearchIcon from '../../assets/search.png'
 import DeleteIcon from '../../assets/delete.png';
 import EditIcon from '../../assets/edit.png';
 import buildingService from '../../services/building';
@@ -130,7 +130,9 @@ const DepartmentDistribution = () => {
                         value={selectedDepartmentId}
                         onChange={(e) => setSelectedDepartmentId(e.target.value)}
                     />
-                    <SearchButton />
+                    <button className='bg-[#1AB7C1] rounded-lg px-6 py-2'>
+                        <img src={SearchIcon} className='w-[80px]'/>
+                    </button>
                 </div>
                 <div className="container mx-auto mt-10 overflow-x-auto">
                     <div className="min-w-max">

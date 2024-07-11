@@ -1,4 +1,3 @@
-
 import SearchIcon from '../assets/search.png'
 
 const SearchButton = () => {

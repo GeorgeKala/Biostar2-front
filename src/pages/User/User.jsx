@@ -79,51 +79,6 @@ const User = () => {
     });
   };
 
-  
-
-
-  // const handleSave = (e) => {
-  //   e.preventDefault();
-  //   const { name, username, userType, department, employee } = formData;
-
-  //   const userData = {
-  //     name: name,
-  //     username: username,
-  //     user_type_id: userType,
-  //     department_id: department,
-  //     employee: employee
-  //   };
-
-  //   if (modalMode === 'create') {
-  //     dispatch(createUser(userData))
-  //       .then(() => {
-  //         closeAddModal();
-  //       })
-  //       .catch(error => {
-  //         alert("Failed to create user: " + error.message);
-  //       });
-  //   } else if (modalMode === 'update' && selectedUserId) {
-  //     dispatch(updateUser({ id: selectedUserId, userData }))
-  //       .then(() => {
-  //         closeAddModal();
-  //       })
-  //       .catch(error => {
-  //         alert("Failed to update user: " + error.message);
-  //       });
-  //   }
-  // };
-
-  // const handleDelete = (userId) => {
-  //   if (window.confirm("Are you sure you want to delete this user?")) {
-  //     dispatch(deleteUser(userId))
-  //       .then(() => {
-  //       })
-  //       .catch(error => {
-  //         alert("Failed to delete user: " + error.message);
-  //       });
-  //   }
-  // };
-
 
   const handleSave = async (e) => {
     e.preventDefault();

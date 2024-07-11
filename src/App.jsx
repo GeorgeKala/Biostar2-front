@@ -20,6 +20,7 @@ import DepartmentDistribution from './pages/DepartmentDistribution/DepartmentDis
 import EmployeeEdit from './pages/Employee/Edit/EmployeeEdit';
 import useAuth from './hooks/useAuth';
 import { fetchAsyncUser } from "../src/redux/userDataSlice"; 
+import UserType from './pages/UserType/UserType';
 
 const ProtectedRoute = ({ element }) => {
   const { isAuthenticated } = useAuth();
@@ -74,6 +75,7 @@ function App() {
         <Route path="/departments" element={<ProtectedRoute element={<Department />} />} />
         <Route path="/users" element={<ProtectedRoute element={<User />} />} />
         <Route path="/departments-distributions" element={<ProtectedRoute element={<DepartmentDistribution />} />} />
+        <Route path="/user-types" element={<ProtectedRoute element={<UserType />} />} />
       </Routes>
     </Router>
   );

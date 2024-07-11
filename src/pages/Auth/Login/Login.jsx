@@ -43,14 +43,14 @@ const Login = () => {
             <div className="flex flex-col justify-center items-center mt-6 gap-12 w-[575px]">
                 <input
                     type="text"
-                    placeholder="Email"
+                    placeholder="მომხმარებლის სახელი"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="bg-transparent text-white outline-none border-b border-white w-full py-2 placeholder-white"
                 />
                 <input
                     type="password"
-                    placeholder="Password"
+                    placeholder="პაროლი"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="bg-transparent text-white outline-none border-b border-white w-full py-2 placeholder-white"
