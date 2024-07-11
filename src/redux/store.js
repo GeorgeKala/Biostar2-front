@@ -6,6 +6,7 @@ import employeeReducer from "./employeeSlice";
 import buildingReducer from "./buildingSlice";
 import userTypeReducer from "./userTypeSlice";
 import departmentsReducer from './departmentsSlice';
+import commandTypeReducer from './commandTypeSlice';
 
 export const store = configureStore({
   reducer: {
@@ -16,5 +17,6 @@ export const store = configureStore({
     building: buildingReducer,
     userType: userTypeReducer,
     departments: departmentsReducer,
+    commandTypes: commandTypeReducer,
   },
 });

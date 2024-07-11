@@ -4,77 +4,78 @@ import ArrowDownIcon from '../../assets/arrow-down-2.png';
 import CreateIcon from '../../assets/create.png';
 import DeleteIcon from '../../assets/delete-2.png';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchUserTypes } from '../../redux/userTypeSlice'; 
-import userTypeService from '../../services/userType'; 
+import { fetchCommandTypes } from '../../redux/commandTypeSlice';
+import commandTypeService from '../../services/commandType';
 
-const UserType = () => {
+const CommandType = () => {
   const dispatch = useDispatch();
-  const userTypes = useSelector(state => state.userType.items);
+  const commandTypes = useSelector(state => state.commandTypes.items);
   const [formData, setFormData] = useState({ name: '' });
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('create');
-  const [userTypeList, setUserTypeList] = useState([]);
-  const [selectedUserTypeId, setSelectedUserTypeId] = useState(null);
+  const [commandTypeList, setCommandTypeList] = useState([]);
+  const [selectedCommandTypeId, setSelectedCommandTypeId] = useState(null);
 
+  
   useEffect(() => {
-    dispatch(fetchUserTypes());
+    dispatch(fetchCommandTypes());
   }, [dispatch]);
 
   useEffect(() => {
-    setUserTypeList(userTypes);
-  }, [userTypes]);
+    setCommandTypeList(commandTypes);
+  }, [commandTypes]);
 
   const openAddModal = () => {
     setIsAddModalOpen(true);
     setModalMode('create');
     setFormData({ name: '' });
-    setSelectedUserTypeId(null);
+    setSelectedCommandTypeId(null);
   };
 
-  const openEditModal = (userType) => {
+  const openEditModal = (commandType) => {
     setIsAddModalOpen(true);
     setModalMode('update');
-    setFormData({ name: userType.name });
-    setSelectedUserTypeId(userType.id);
+    setFormData({ name: commandType.name });
+    setSelectedCommandTypeId(commandType.id);
   };
 
   const closeAddModal = () => {
     setIsAddModalOpen(false);
     setModalMode('create');
     setFormData({ name: '' });
-    setSelectedUserTypeId(null);
+    setSelectedCommandTypeId(null);
   };
 
   const handleSave = async (e) => {
     e.preventDefault();
     try {
       if (modalMode === 'create') {
-         await userTypeService.createUserType(formData);
-        setUserTypeList([...userTypeList, formData]);
+        await commandTypeService.createCommandType(formData);
+        setCommandTypeList([...commandTypeList, formData]);
         closeAddModal();
-      } else if (modalMode === 'update' && selectedUserTypeId) {
-        await userTypeService.updateUserType(selectedUserTypeId, formData);
-        const updatedUserTypes = userTypeList.map(ut => {
-          if (ut.id === selectedUserTypeId) {
-            return { ...ut, name: formData.name };
+      } else if (modalMode === 'update' && selectedCommandTypeId) {
+        await commandTypeService.updateCommandType(selectedCommandTypeId, formData);
+        const updatedCommandTypes = commandTypeList.map(ct => {
+          if (ct.id === selectedCommandTypeId) {
+            return { ...ct, name: formData.name };
           }
-          return ut;
+          return ct;
         });
-        setUserTypeList(updatedUserTypes);
+        setCommandTypeList(updatedCommandTypes);
         closeAddModal();
       }
     } catch (error) {
-      alert('Failed to save user type: ' + error.message);
+      alert('Failed to save command type: ' + error.message);
     }
   };
 
-  const handleDelete = async (userTypeId) => {
-    if (window.confirm('Are you sure you want to delete this user type?')) {
+  const handleDelete = async (commandTypeId) => {
+    if (window.confirm('Are you sure you want to delete this command type?')) {
       try {
-        await userTypeService.deleteUserType(userTypeId);
-        setUserTypeList(userTypeList.filter((ut) => ut.id !== userTypeId));
+        await commandTypeService.deleteCommandType(commandTypeId);
+        setCommandTypeList(commandTypeList.filter((ct) => ct.id !== commandTypeId));
       } catch (error) {
-        alert('Failed to delete user type: ' + error.message);
+        alert('Failed to delete command type: ' + error.message);
       }
     }
   };
@@ -91,13 +92,13 @@ const UserType = () => {
     <AuthenticatedLayout>
       <div className="w-full px-20 py-4 flex flex-col gap-8">
         <div className="flex justify-between w-full">
-          <h1 className="text-[#1976D2] font-medium text-[23px]">მომხმარებლის ტიპები</h1>
+          <h1 className="text-[#1976D2] font-medium text-[23px]">ბრძანების ტიპები</h1>
           <div className="flex items-center gap-8">
             <button
               className="bg-[#FBD15B] text-[#1976D2] px-4 py-4 rounded-md flex items-center gap-2"
               onClick={openAddModal}
             >
-              + დაამატე ახალი მომხმარებელის ტიპი
+              + დაამატე ახალი ბრძანება
             </button>
             <button className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">
               Download Data
@@ -107,17 +108,17 @@ const UserType = () => {
           </div>
         </div>
         <div className="p-4">
-          {userTypeList &&
-            userTypeList.map((userType, index) => (
+          {commandTypeList &&
+            commandTypeList.map((commandType, index) => (
               <div key={index} className="flex justify-between items-center mb-2 border-b py-2 border-black">
                 <div className="flex items-center gap-2 text-sm">
-                  <p className="text-gray-700 font-medium">{userType.name}</p>
+                  <p className="text-gray-700 font-medium">{commandType.name}</p>
                 </div>
                 <div className="flex space-x-2">
-                  <button onClick={() => openEditModal(userType)}>
+                  <button onClick={() => openEditModal(commandType)}>
                     <img src={CreateIcon} alt="Edit Icon" />
                   </button>
-                  <button onClick={() => handleDelete(userType.id)}>
+                  <button onClick={() => handleDelete(commandType.id)}>
                     <img src={DeleteIcon} alt="Delete Icon" />
                   </button>
                 </div>
@@ -129,7 +130,7 @@ const UserType = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
           <div className="bg-white rounded-lg max-w-md w-full">
             <div className="flex justify-between items-center p-3 bg-blue-500 text-white rounded-t-lg">
-              <h2 className="text-lg font-semibold">{modalMode === 'create' ? 'დაამატე მომხმარებლის ტიპი' : 'შეცვალე მომხმარებლის ტიპი'}</h2>
+              <h2 className="text-lg font-semibold">{modalMode === 'create' ? 'დაამატე ახალი ბრძანება' : 'შეცვალე ბრძანების ტიპი'}</h2>
               <button onClick={closeAddModal} className="hover:text-gray-200 focus:outline-none">
                 <svg
                   className="w-6 h-6"
@@ -162,14 +163,14 @@ const UserType = () => {
                   type="submit"
                   className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md mr-2"
                 >
-                  Save
+                  შენახვა
                 </button>
                 <button
                   type="button"
                   onClick={closeAddModal}
                   className="bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-4 rounded-md"
                 >
-                  Cancel
+                  გაუქმება
                 </button>
               </div>
             </form>
@@ -180,4 +181,4 @@ const UserType = () => {
   );
 };
 
-export default UserType;
+export default CommandType;
