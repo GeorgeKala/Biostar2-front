@@ -13,6 +13,10 @@ import scheduleService from "../../../services/schedule";
 import employeeService from "../../../services/employee";
 import SuccessPopup from "../../../components/SuccessPopup";
 import MultiSelect from "../../../components/MultiSelect";
+import { fetchHolidays, selectHolidays } from "../../../redux/holidaySlice";
+import { useDispatch, useSelector } from "react-redux";
+import fetchDevices from "../../../services/device";
+import deviceService from "../../../services/device";
 
 const EmployeeCreate = () => {
   const [departments, setDepartments] = useState([]);
@@ -29,14 +33,47 @@ const EmployeeCreate = () => {
     group_id: "",
     schedule_id: "",
     honorable_minutes_per_day: "",
-    device: "",
+    device_id: "",
     card_number: "",
     checksum: "",
-    session_id: sessionStorage.getItem('sessionToken')
+    session_id: sessionStorage.getItem('sessionToken'),
+    holidays: []
   });
 
   const [errors, setErrors] = useState({});
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const dispatch = useDispatch();
+  const holidays = useSelector(selectHolidays);
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedOptions, setSelectedOptions] = useState([]);
+  const [devices, setDevices] = useState([]);
+  const [selectedDevice, setSelectedDevice] = useState("")
+
+  useEffect(() => {
+      dispatch(fetchHolidays());
+  }, [dispatch]);
+
+  const toggleDropdown = () => {
+      setIsOpen(!isOpen);
+  };
+
+  const handleOptionToggle = (optionId) => {
+    if (formData.holidays.includes(optionId)) {
+      // If already selected, remove from holidays
+      setFormData(prevData => ({
+        ...prevData,
+        holidays: prevData.holidays.filter(item => item !== optionId)
+      }));
+    } else {
+      // If not selected, add to holidays
+      setFormData(prevData => ({
+        ...prevData,
+        holidays: [...prevData.holidays, optionId]
+      }));
+    }
+  };
+
+
   
   useEffect(() => {
     const fetchData = async () => {
@@ -145,6 +182,62 @@ const EmployeeCreate = () => {
     card_number: "ბარათის ნომერი",
     checksum: "საკონტროლო ჯამი",
   };
+
+
+  
+
+    const renderHolidays = () => {
+      return (
+          <div>
+              {holidays && holidays.map(holiday => (
+                  <div key={holiday.id}>
+                      <input
+                           type="checkbox"
+                          id={holiday.id}
+                          checked={formData.holidays.includes(holiday.id)}
+                          onChange={() => handleOptionToggle(holiday.id)}
+                      />
+                      <label htmlFor={holiday.id}>{holiday.name}</label>
+                  </div>
+              ))}
+          </div>
+      );
+  };
+
+
+  useEffect(() => {
+    const fetchDevices = async () => {
+      const devices = await deviceService.fetchDevices()
+      setDevices(devices)
+    }
+
+    fetchDevices()
+  },[])
+
+
+  const handleDeviceSelect = (e) => {
+    const deviceId = e.target.value;
+    setSelectedDevice(deviceId); 
+    const updatedFormData = {
+      ...formData,
+      device_id: deviceId
+    };
+
+    setFormData(updatedFormData)
+  };
+
+  const handleScanCard = async () => {
+    const scanResult = await deviceService.scanCard(selectedDevice);
+    console.log(scanResult);
+    const updatedFormData = {
+      ...formData,
+      card_number: scanResult.Card.card_id,
+      display_card_id: scanResult.Card.display_card_id
+    };
+
+    setFormData(updatedFormData);
+    
+  }
 
   
   return (
@@ -317,21 +410,38 @@ const EmployeeCreate = () => {
             />
           </div>
           <div className="flex justify-between gap-8">
-            {/* <SelectGroup
-              label="აირჩიეთ მოწყობილობა"
-              name="device"
-              value={formData.device}
-              onChange={handleInput}
-            /> */}
-            <InputGroup
-              label="ბარათის ნომერი"
-              name="card_number"
-              placeholder="ბარათის ნომერი"
-              type="text"
-              value={formData.card_number}
-              onChange={handleInput}
-              error={errors.card_number}
-            />
+          <div className="w-full flex flex-col gap-2">
+              <label className="text-[#105D8D] font-medium">აირჩიე მოწყობილობა</label>
+              <select
+                value={selectedDevice} 
+                onChange={handleDeviceSelect}
+                className="bg-white border border-[#105D8D] outline-none rounded-xl py-3  px-4 w-full"
+                
+              >
+                <option value="">აირჩიე მოწყობილობა</option>
+                {devices &&
+                  devices.map((item) => (
+                    <option key={item.id} value={item.id} >
+                      {item.name}
+                    </option>
+                  ))}
+              </select>
+              {errors.schedule_id && (
+                <p className="text-red-500 text-sm">{errors.schedule_id}</p>
+              )}
+            </div>
+            <div className="w-full flex gap-3 items-center">
+              <InputGroup
+                label="ბარათის ნომერი"
+                name="card_number"
+                placeholder="ბარათის ნომერი"
+                type="text"
+                value={formData.card_number}
+                onChange={handleInput}
+                error={errors.card_number}
+              />
+              <button className="bg-[#5CB85C] mt-8 text-white rounded-lg py-2" onClick={handleScanCard}>+ ბარათის დამატება</button>
+            </div>
           </div>
           <div className="flex justify-between gap-8">
             <InputGroup
@@ -343,7 +453,33 @@ const EmployeeCreate = () => {
               onChange={handleInput}
               error={errors.checksum}
             />
-            <MultiSelect/>
+            <div className="relative w-full flex flex-col gap-2">
+            <label className='text-[#105D8D] font-medium'>დასვენების დღეები</label>
+            <div className='relative'>
+                <button
+                    type="button"
+                    className="w-full flex justify-between items-center relative bg-white border border-[#105D8D] outline-none rounded-xl py-3  px-4 "
+                    onClick={toggleDropdown}
+                >
+                    აირჩიე დასვენების დღეები
+                    <svg
+                        className="-mr-1 ml-2 h-5 w-5"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                    >
+                        <select name="" id=""></select>
+                    </svg>
+                </button>
+            </div>
+            {isOpen && (
+                <div className=" w-full rounded-md bg-white shadow-lg">
+                    <div className="flex flex-col flex-wrap p-2">
+                        {renderHolidays()}
+                    </div>
+                </div>
+            )}
+        </div>
           </div>
         </div>
         {showSuccessPopup && (

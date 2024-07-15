@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import BiostarIcon from '../../assets/biostar-icon.png';
 import BiostarLogo from '../../assets/Biostar.png';
 import LogoutIcon from '../../assets/logout-icon.png';
 import ArrowRight from '../../assets/arrow-right.png';
+import { logout } from '../../services/auth';
 
 const Sidebar = () => {
   const location = useLocation();
-  
+  const navigate = useNavigate();
   const [sections, setSections] = useState({
     employees: false,
     reports: false,
@@ -227,12 +228,10 @@ const Sidebar = () => {
         </div>
       </div>
       <div className="flex gap-2 items-center justify-center">
+      <button onClick={handleLogout} className="text-white flex gap-2">
         <img src={LogoutIcon} alt="Logout Icon" />
-        <p className="text-white text-[16px]">
-          <button onClick={handleLogout} className="text-white">
             Logout
-          </button>
-        </p>
+        </button>
       </div>
     </div>
   );

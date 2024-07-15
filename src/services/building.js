@@ -76,7 +76,6 @@ const buildingService = {
   getBuildingsWithDepartments: async () => {
     try {
       const response = await axiosInstance.get("/buildings/departments");
-      console.log(response);
       return response.data;
     } catch (error) {
       throw error;

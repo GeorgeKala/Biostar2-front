@@ -19,7 +19,7 @@ const Login = () => {
     const handleLogin = async () => {
         try {
             const response = await login(email, password);
-            console.log(response);
+        
             if(response.status == 200){
                 dispatch(fetchGroups());
                 dispatch(fetchSchedules());

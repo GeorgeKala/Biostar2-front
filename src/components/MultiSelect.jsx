@@ -1,32 +1,60 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchHolidays, selectHolidays, selectLoading, selectError } from '../redux/holidaySlice'
 
 const MultiSelect = () => {
+    const dispatch = useDispatch();
+    const holidays = useSelector(selectHolidays);
+    const loading = useSelector(selectLoading);
+    const error = useSelector(selectError);
+    
     const [isOpen, setIsOpen] = useState(false);
     const [selectedOptions, setSelectedOptions] = useState([]);
+
+    useEffect(() => {
+        dispatch(fetchHolidays());
+    }, [dispatch]);
 
     const toggleDropdown = () => {
         setIsOpen(!isOpen);
     };
 
-    const handleOptionToggle = (option) => {
-        if (selectedOptions.includes(option)) {
-            setSelectedOptions(selectedOptions.filter(item => item !== option));
+    const handleOptionToggle = (optionId) => {
+        console.log(optionId);
+        if (selectedOptions.includes(optionId)) {
+            setSelectedOptions(prevOptions => prevOptions.filter(item => item !== optionId));
         } else {
-            setSelectedOptions([...selectedOptions, option]);
+            setSelectedOptions(prevOptions => [...prevOptions, optionId]);
         }
     };
 
-    const options = [
-        { id: 1, label: 'ორშაბათი' },
-        { id: 2, label: 'სამშაბათი' },
-        { id: 3, label: 'ოთხშაბათი' },
-        { id: 4, label: 'ხუთშაბათი' },
-        { id: 5, label: 'პარასკევი' },
-        { id: 6, label: 'შაბათი' },
-        { id: 7, label: 'კვირა' },
-    ];
+    const renderHolidays = () => {
+        if (loading) {
+            return <div>Loading holidays...</div>;
+        }
 
-    console.log(selectedOptions)
+        if (error) {
+            return <div>Error: {error}</div>;
+        }
+
+        return (
+            <div>
+                {holidays.map(holiday => (
+                    <div key={holiday.id}>
+                        <input
+                            type="checkbox"
+                            id={holiday.id}
+                            checked={selectedOptions.includes(holiday.id)}
+                            onChange={(e) => handleOptionToggle(e.target.id)}
+                        />
+                        <label htmlFor={holiday.id}>{holiday.name}</label>
+                    </div>
+                ))}
+            </div>
+        );
+    };
+
+   
 
     return (
         <div className="relative w-full flex flex-col gap-2">
@@ -51,18 +79,7 @@ const MultiSelect = () => {
             {isOpen && (
                 <div className=" w-full rounded-md bg-white shadow-lg">
                     <div className="flex flex-col flex-wrap p-2">
-                        {options.map(option => (
-                            <label key={option.id} className="inline-flex items-center w-full md:w-1/2 lg:w-1/3 xl:w-1/4">
-                                <input
-                                    type="checkbox"
-                                    className="form-checkbox h-5 w-5 text-blue-600"
-                                    value={option.id}
-                                    checked={selectedOptions.includes(option.id)}
-                                    onChange={() => handleOptionToggle(option.id)}
-                                />
-                                <span className="ml-2">{option.label}</span>
-                            </label>
-                        ))}
+                        {renderHolidays()}
                     </div>
                 </div>
             )}

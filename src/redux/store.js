@@ -7,6 +7,7 @@ import buildingReducer from "./buildingSlice";
 import userTypeReducer from "./userTypeSlice";
 import departmentsReducer from './departmentsSlice';
 import commandTypeReducer from './commandTypeSlice';
+import holidaysReducer from './holidaySlice';
 
 export const store = configureStore({
   reducer: {
@@ -18,5 +19,6 @@ export const store = configureStore({
     userType: userTypeReducer,
     departments: departmentsReducer,
     commandTypes: commandTypeReducer,
+    holidays: holidaysReducer,
   },
 });
