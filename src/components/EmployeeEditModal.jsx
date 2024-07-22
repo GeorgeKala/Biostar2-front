@@ -1,9 +1,5 @@
 import React, { useEffect, useState } from "react";
-import CloseIcon from "../assets/close.png";
-
 import InputGroup from "./employee/InputGroup";
-import EditIcon from "../assets/edit.png";
-import SelectGroup from "./employee/SelectGroup";
 import departmentService from "../services/department";
 import groupService from "../services/group";
 import scheduleService from "../services/schedule";
@@ -11,8 +7,7 @@ import employeeService from "../services/employee";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchHolidays, selectHolidays } from "../redux/holidaySlice";
 import deviceService from "../services/device";
-// import fetchDevices from "../../services/device";
-// import deviceService from "../../services/device";
+
 
 const EmployeeEditModal = ({ employee, isOpen, onClose }) => {
   const [departments, setDepartments] = useState([]);
@@ -242,7 +237,9 @@ console.log(errors);
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-[#1976D2] font-medium text-[23px]">თანამშრომლის ცვლილება</h2>
           <button onClick={onClose}>
-            <img src={CloseIcon} alt="Close" />
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-6 h-6">
+              <path fill="currentColor" d="M18.364 5.636a.999.999 0 0 0-1.414 0L12 10.586 7.05 5.636a.999.999 0 1 0-1.414 1.414L10.586 12l-4.95 4.95a.999.999 0 1 0 1.414 1.414L12 13.414l4.95 4.95a.999.999 0 1 0 1.414-1.414L13.414 12l4.95-4.95c.39-.39.39-1.023 0-1.414z"/>
+            </svg>
           </button>
         </div>
         <div className="flex flex-col gap-4">

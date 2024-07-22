@@ -35,3 +35,22 @@ export const logout = async () => {
     throw error.response.data;
   }
 };
+
+
+export const reportLogin = async () => {
+  const sessionToken = sessionStorage.getItem('sessionToken');
+
+  try {
+    const response = await axiosInstance.post('/reports/login',{} ,{
+      headers: {
+        'bs-session-id': sessionToken
+      }
+    });
+    sessionStorage.setItem('bs_id_token', response.data[0].Value)
+  
+    
+    return data;
+  } catch (error) {
+    throw error.response.data;
+  }
+};

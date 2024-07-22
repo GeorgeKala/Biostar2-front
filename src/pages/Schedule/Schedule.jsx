@@ -24,9 +24,17 @@ const Schedule = () => {
     name: '',
     start_date: '',
     end_date: '',
+    start_time: '',
+    end_time: '',
     repetition_unit: '',
     interval: '',
     comment: ''
+  });
+
+  // Filter state
+  const [filters, setFilters] = useState({
+    start_time: '',
+    end_time: ''
   });
 
   // Validation errors state
@@ -47,6 +55,8 @@ const Schedule = () => {
         name: editItem.name,
         start_date: editItem.start_date,
         end_date: editItem.end_date,
+        start_time: editItem.start_time,
+        end_time: editItem.end_time,
         repetition_unit: editItem.repetition_unit,
         interval: editItem.interval,
         comment: editItem.comment
@@ -61,6 +71,8 @@ const Schedule = () => {
       name: '',
       start_date: '',
       end_date: '',
+      start_time: '',
+      end_time: '',
       repetition_unit: '',
       interval: '',
       comment: ''
@@ -100,6 +112,20 @@ const Schedule = () => {
     return errors;
   };
 
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters({
+      ...filters,
+      [name]: value
+    });
+  };
+
+  const filteredScheduleItems = scheduleItems.filter(item => {
+    const startTimeFilter = filters.start_time ? new Date(`1970-01-01T${item.start_time}`) >= new Date(`1970-01-01T${filters.start_time}`) : true;
+    const endTimeFilter = filters.end_time ? new Date(`1970-01-01T${item.end_time}`) <= new Date(`1970-01-01T${filters.end_time}`) : true;
+    return startTimeFilter && endTimeFilter;
+  });
+
   if (scheduleStatus === "loading") {
     return <p>Loading...</p>;
   }
@@ -128,6 +154,10 @@ const Schedule = () => {
             </button>
           </div>
         </div>
+        <div className="flex justify-between gap-4 mb-4">
+          
+          
+        </div>
         <div className="overflow-x-auto">
             <table className="min-w-max w-full divide-y divide-gray-200">
               <thead className="bg-blue-500 text-white">
@@ -140,6 +170,12 @@ const Schedule = () => {
                   </th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                     დასრულების თარიღი
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                    დაწყების დრო
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
+                    დამთავრების დრო
                   </th>
                   <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
                     გამეორების ერთეული
@@ -156,7 +192,7 @@ const Schedule = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {scheduleItems.map((item) => (
+                {filteredScheduleItems.map((item) => (
                   <tr key={item.id} className="cursor-pointer">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">{item.name}</div>
@@ -166,6 +202,12 @@ const Schedule = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">{item.end_date}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">{item.start_time}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">{item.end_time}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">{item.repetition_unit}</div>
@@ -216,60 +258,84 @@ const Schedule = () => {
                 {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
               </div>
               <div className="mb-4">
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700">დაწყების თარიღი:</label>
+                <label htmlFor="start_date" className="block text-sm font-medium text-gray-700">დაწყების თარიღი:</label>
                 <input
                   type="date"
                   id="start_date"
                   name="start_date"
-                  className={`mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 ${errors.name && 'border-red-500'}`}
+                  className={`mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 ${errors.start_date && 'border-red-500'}`}
                   value={formData.start_date}
                   onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
                 />
                 {errors.start_date && <p className="text-red-500 text-sm mt-1">{errors.start_date}</p>}
               </div>
               <div className="mb-4">
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700">დამთავრების თარიღი:</label>
+                <label htmlFor="end_date" className="block text-sm font-medium text-gray-700">დამთავრების თარიღი:</label>
                 <input
                   type="date"
                   id="end_date"
                   name="end_date"
-                  className={`mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 ${errors.name && 'border-red-500'}`}
+                  className={`mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 ${errors.end_date && 'border-red-500'}`}
                   value={formData.end_date}
                   onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
                 />
                 {errors.end_date && <p className="text-red-500 text-sm mt-1">{errors.end_date}</p>}
               </div>
               <div className="mb-4">
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700">გამეორების ერთეული:</label>
+                <label htmlFor="start_time" className="block text-sm font-medium text-gray-700">დაწყების დრო:</label>
+                <input
+                  type="time"
+                  id="start_time"
+                  name="start_time"
+                  className={`mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 ${errors.start_time && 'border-red-500'}`}
+                  value={formData.start_time}
+                  onChange={(e) => setFormData({ ...formData, start_time: e.target.value })}
+                />
+                {errors.start_time && <p className="text-red-500 text-sm mt-1">{errors.start_time}</p>}
+              </div>
+              <div className="mb-4">
+                <label htmlFor="end_time" className="block text-sm font-medium text-gray-700">დამთავრების დრო:</label>
+                <input
+                  type="time"
+                  id="end_time"
+                  name="end_time"
+                  className={`mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 ${errors.end_time && 'border-red-500'}`}
+                  value={formData.end_time}
+                  onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
+                />
+                {errors.end_time && <p className="text-red-500 text-sm mt-1">{errors.end_time}</p>}
+              </div>
+              <div className="mb-4">
+                <label htmlFor="repetition_unit" className="block text-sm font-medium text-gray-700">გამეორების ერთეული:</label>
                 <input
                   type="number"
                   id="repetition_unit"
                   name="repetition_unit"
-                  className={`mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 ${errors.name && 'border-red-500'}`}
+                  className={`mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 ${errors.repetition_unit && 'border-red-500'}`}
                   value={formData.repetition_unit}
                   onChange={(e) => setFormData({ ...formData, repetition_unit: e.target.value })}
                 />
                 {errors.repetition_unit && <p className="text-red-500 text-sm mt-1">{errors.repetition_unit}</p>}
               </div>
               <div className="mb-4">
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700">ინტერვალი:</label>
+                <label htmlFor="interval" className="block text-sm font-medium text-gray-700">ინტერვალი:</label>
                 <input
                   type="number"
                   id="interval"
                   name="interval"
-                  className={`mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 ${errors.name && 'border-red-500'}`}
+                  className={`mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 ${errors.interval && 'border-red-500'}`}
                   value={formData.interval}
                   onChange={(e) => setFormData({ ...formData, interval: e.target.value })}
                 />
                 {errors.interval && <p className="text-red-500 text-sm mt-1">{errors.interval}</p>}
               </div>
               <div className="mb-4">
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700">კომენტარი:</label>
+                <label htmlFor="comment" className="block text-sm font-medium text-gray-700">კომენტარი:</label>
                 <input
                   type="text"
                   id="comment"
                   name="comment"
-                  className={`mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 ${errors.name && 'border-red-500'}`}
+                  className={`mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 ${errors.comment && 'border-red-500'}`}
                   value={formData.comment}
                   onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
                 />

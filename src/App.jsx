@@ -22,6 +22,7 @@ import useAuth from './hooks/useAuth';
 import { fetchAsyncUser } from "../src/redux/userDataSlice"; 
 import UserType from './pages/UserType/UserType';
 import CommandType from './pages/CommandType/CommandType';
+import ForgiveType from './pages/ForgiveType/ForgiveType';
 
 const ProtectedRoute = ({ element }) => {
   const { isAuthenticated } = useAuth();
@@ -78,6 +79,7 @@ function App() {
         <Route path="/departments-distributions" element={<ProtectedRoute element={<DepartmentDistribution />} />} />
         <Route path="/user-types" element={<ProtectedRoute element={<UserType />} />} />
         <Route path="/command-types" element={<ProtectedRoute element={<CommandType/>} />} />
+        <Route path="/forgive-types" element={<ProtectedRoute element={<ForgiveType/>} />} />
       </Routes>
     </Router>
   );

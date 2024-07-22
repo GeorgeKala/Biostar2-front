@@ -33,7 +33,7 @@ const Sidebar = () => {
 };
 
   return (
-    <div className="bg-[#1976D2] w-[18%] flex flex-col gap-8 py-4 h-[92vh]">
+    <div className="bg-[#1976D2] w-[18%]  flex flex-col gap-8 py-4">
       <div className="flex justify-center gap-2">
         <img src={BiostarIcon} alt="Biostar Icon" />
         <img src={BiostarLogo} className="w-[90px]" alt="Biostar Logo" />
@@ -54,6 +54,15 @@ const Sidebar = () => {
           {sections.employees && (
             <div className="pl-4 flex flex-col gap-4 mt-4">
               <Link
+                to="/reports/general"
+                className={`flex items-center gap-3 text-white text-[14px] ${
+                  location.pathname === '/reports/general' ? 'font-bold' : ''
+                }`}
+              >
+                <img src={ArrowRight} alt="Arrow Right Icon" />
+                პერიოდის რეპორტი
+              </Link>
+              <Link
                 to="/employees/create"
                 className={`flex items-center gap-3 text-white text-[14px] ${
                   location.pathname === '/employees/create' ? 'font-bold' : ''
@@ -70,6 +79,33 @@ const Sidebar = () => {
               >
                 <img src={ArrowRight} alt="Arrow Right Icon" />
                 თანამშრომლები
+              </Link>
+              <Link
+                to="/comments/table"
+                className={`flex items-center gap-3 text-white text-[14px] ${
+                  location.pathname === '/comments/table' ? 'font-bold' : ''
+                }`}
+              >
+                <img src={ArrowRight} alt="Arrow Right Icon" />
+                კომენტარების ცხრილი
+              </Link>
+              <Link
+                to="/comments/analyze"
+                className={`flex items-center gap-3 text-white text-[14px] ${
+                  location.pathname === '/comments/analyze' ? 'font-bold' : ''
+                }`}
+              >
+                <img src={ArrowRight} alt="Arrow Right Icon" />
+                კომენტარების ანალიზი
+              </Link>
+              <Link
+                to="/orders"
+                className={`flex items-center gap-3 text-white text-[14px] ${
+                  location.pathname === '/orders' ? 'font-bold' : ''
+                }`}
+              >
+                <img src={ArrowRight} alt="Arrow Right Icon" />
+                ბრძანებები
               </Link>
             </div>
           )}
@@ -133,7 +169,15 @@ const Sidebar = () => {
                 <img src={ArrowRight} alt="Arrow Right Icon" />
                 ბრძანების ტიპები
               </Link>
-              
+              <Link
+                to="/forgive-types"
+                className={`flex items-center gap-3 text-white text-[14px] ${
+                  location.pathname === '/forgive-types' ? 'font-bold' : ''
+                }`}
+              >
+                <img src={ArrowRight} alt="Arrow Right Icon" />
+                პატიების ტიპები
+              </Link>
             </div>
           )}
         </div>

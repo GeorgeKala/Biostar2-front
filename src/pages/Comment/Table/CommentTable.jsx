@@ -1,31 +1,94 @@
-import AuthenticatedLayout from '../../../Layouts/AuthenticatedLayout'
-import ArrowDownIcon from '../../../assets/arrow-down-2.png'
-import GeneralInputGroup from '../../../components/GeneralInputGroup'
-import SearchButton from '../../../components/SearchButton'
-import GeneralSelectGroup from '../../../components/GeneralSelectGroup'
+import AuthenticatedLayout from '../../../Layouts/AuthenticatedLayout';
+import ArrowDownIcon from '../../../assets/arrow-down-2.png';
+import GeneralInputGroup from '../../../components/GeneralInputGroup';
+import GeneralSelectGroup from '../../../components/GeneralSelectGroup';
+import SearchIcon from '../../../assets/search.png';
+import EmployeeModal from '../../../components/employee/EmployeeModal';
+import { useState, useEffect } from 'react';
+import commentService from '../../../services/comment';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchDepartments } from '../../../redux/departmentsSlice';
+import { fetchForgiveTypes } from '../../../redux/forgiveTypeSlice';
 
 
 const CommentTable = () => {
-    const columns = ["გაცდენილი წუთები", "პატიება", "კომენტარი", "მომხმარებელი", "დარღვევის ტიპი"];
+    const columns = ["თანამშრომელი", "დეპარტამენტი", "პატიების ტიპი", "მომხმარებელი", "ჩაწერის თარიღი", "კომენტარი"];
+    const dispatch = useDispatch();
+    const { departments } = useSelector((state) => state.departments);
+    const forgiveTypeItems = useSelector((state) => state.forgiveTypes.forgiveTypes);
+
+    const [filters, setFilters] = useState({
+        start_date: '',
+        end_date: '',
+        department_id: '',
+        forgive_type_id: '',
+        employee_id: ''
+    });
+
+    const [details, setDetails] = useState([]);
+    const [employeeModalOpen, setEmployeeModalOpen] = useState(false);
+
+    useEffect(() => {
+        dispatch(fetchDepartments());
+        dispatch(fetchForgiveTypes());
+    }, [dispatch]);
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFilters({
+            ...filters,
+            [name]: value.trim()
+        });
+    };
+
+    const handleSubmit = async (e) => {
+        const data = {};
     
-    const data = [
-        {
-            id: 1,
-            elapsed_minutes: '120',
-            allowances: 'Yes',
-            comments: 'Lorem ipsum dolor sit amet',
-            user: 'John Doe',
-            violation_type: 'Type A',
-        },
-        {
-            id: 2,
-            elapsed_minutes: '90',
-            allowances: 'No',
-            comments: 'Lorem ipsum dolor sit amet',
-            user: 'Jane Smith',
-            violation_type: 'Type B',
-        },
-    ];
+        if (filters.start_date) {
+            data.start_date = filters.start_date;
+        }
+    
+        if (filters.end_date) {
+            data.end_date = filters.end_date;
+        }
+    
+        if (filters.department_id) {
+            data.department_id = filters.department_id;
+        }
+    
+        if (filters.forgive_type_id) {
+            data.forgive_type_id = filters.forgive_type_id;
+        }
+    
+    
+        if (filters.employee_id) {
+            data.employee_id = filters.employee_id;
+        }
+    
+        e.preventDefault();
+        try {
+            const response = await commentService.fetchCommentedDetails(data);
+            setDetails(response.records);
+        } catch (error) {
+            console.error('Error fetching commented details:', error);
+        }
+    };
+
+    const openModal = () => {
+        setEmployeeModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setEmployeeModalOpen(false);
+    };
+
+    const handleEmployeeSelect = (employee) => {
+        setFilters({
+            ...filters,
+            employee_id: employee.id,
+            employee: employee.fullname
+        });
+    };
 
     return (
         <AuthenticatedLayout>
@@ -36,61 +99,110 @@ const CommentTable = () => {
                     </h1>
                     <button className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">
                         Download Data
-                        <img src={ArrowDownIcon} className="ml-3" alt="Arrow Down Icon"/>
+                        <img src={ArrowDownIcon} className="ml-3" alt="Arrow Down Icon" />
                         <span className="absolute inset-0 border border-white border-dashed rounded"></span>
                     </button>
                 </div>
                 <div className='flex items-center gap-4'>
                     <GeneralInputGroup
-                        name="date"
-                        placeholder="date"
+                        name="start_date"
+                        placeholder="Start Date"
                         type="date"
-                    />
-                    <GeneralSelectGroup
-                        label="დეპარტამენტი"
-                        options={["Option 1", "Option 2", "Option 3"]}
-                    />
-                    <GeneralSelectGroup
-                        label="პატიების ტიპი"
-                        options={["Option 1", "Option 2", "Option 3"]}
+                        value={filters.start_date}
+                        onChange={handleInputChange}
                     />
                     <GeneralInputGroup
-                        name="employee"
-                        placeholder="თანამშრომელი"
-                        type="text"
+                        name="end_date"
+                        placeholder="End Date"
+                        type="date"
+                        value={filters.end_date}
+                        onChange={handleInputChange}
                     />
-                    <SearchButton></SearchButton>
+                    <div className="w-full flex flex-col gap-2">
+                        <select
+                            id="department_id"
+                            name="department_id"
+                            value={filters.department_id}
+                            onChange={handleInputChange}
+                            className="bg-white border border-[#105D8D] outline-none rounded-md py-3 px-4 w-full"
+                        >
+                            <option value="">აირჩიეთ დეპარტამენტი</option>
+                            {departments &&
+                                departments.map((item) => (
+                                    <option key={item.id} value={item.id}>
+                                        {item.name}
+                                    </option>
+                                ))}
+                        </select>
+                    </div>
+                    <div className="w-full flex flex-col gap-2">
+                        <select
+                            id="forgive_type_id"
+                            name="forgive_type_id"
+                            value={filters.forgive_type_id}
+                            onChange={handleInputChange}
+                            className="bg-white border border-[#105D8D] outline-none rounded-md py-3 px-4 w-full"
+                        >
+                            <option value="">აირჩიეთ პატიების ტიპი</option>
+                            {forgiveTypeItems &&
+                                forgiveTypeItems.map((item) => (
+                                    <option key={item.id} value={item.id}>
+                                        {item.name}
+                                    </option>
+                                ))}
+                        </select>
+                    </div>
+                    <div onClick={openModal} className='w-full'>
+                        <GeneralInputGroup
+                            name="employee"
+                            placeholder="თანამშრომელი"
+                            type="text"
+                            value={filters.employee}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+                    <button className='bg-[#1AB7C1] rounded-lg px-8 py-4' onClick={handleSubmit}>
+                        <img src={SearchIcon} className='w-[100px]' alt="Search Icon" />
+                    </button>
                 </div>
                 <div className="container mx-auto mt-10 overflow-x-auto">
-                    <div>
-                        <div className="min-w-max">
-                            <div className="grid grid-cols-6 gap-2 bg-[#1976D2] text-white py-6 px-4  min-w-max">
-                                <div>თანამშრომელი</div>
-                                <div>დეპარტამენტი</div>
-                                <div>პატიების ტიპი</div>
-                                <div>მომხმარებელი</div>
-                                <div>ჩაწერის თარიღი</div>
-                                <div>კომენტარი</div>
-                               
-                            </div>
-                            <div className="h-100 min-w-max">
-                                {data.map((item) => (
-                                    <div key={item.id} className="grid grid-cols-6 gap-2 py-2 px-4 border-b min-w-max">
-                                        <div>{item.elapsed_minutes}</div>
-                                        <div>{item.allowances}</div>
-                                        <div>{item.comments}</div>
-                                        <div>{item.user}</div>
-                                        <div>{item.violation_type}</div>
-                                        <div>{item.comments}</div>
-                                    </div>
+                    <div className="min-w-max">
+                        <table className="min-w-full divide-y divide-gray-200 table-fixed border-collapse">
+                            <thead className="bg-[#1976D2] text-white">
+                                <tr>
+                                    {columns.map((header) => (
+                                        <th key={header} className="px-4 py-2 border border-gray-200 w-1/6 truncate">{header}</th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {details && details.map((item) => (
+                                    <tr key={item.id}>
+                                        <td className="px-4 py-2 border border-gray-200 w-1/6 truncate">{item.employee}</td>
+                                        <td className="px-4 py-2 border border-gray-200 w-1/6 truncate">{item.department}</td>
+                                        <td className="px-4 py-2 border border-gray-200 w-1/6 truncate">{item.forgive_type}</td>
+                                        <td className="px-4 py-2 border border-gray-200 w-1/6 truncate">{item.user}</td>
+                                        <td className="px-4 py-2 border border-gray-200 w-1/6 truncate">{item.created_at}</td>
+                                        <td className="px-4 py-2 border border-gray-200 w-1/6 truncate">{item.comment}</td>
+                                    </tr>
                                 ))}
-                            </div>
-                        </div>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
+            <EmployeeModal
+                isOpen={employeeModalOpen}
+                onClose={closeModal}
+                onSelectEmployee={handleEmployeeSelect}
+            />
         </AuthenticatedLayout>
-    )
-}
+    );
+};
 
-export default CommentTable
+export default CommentTable;
+
+
+
+
+

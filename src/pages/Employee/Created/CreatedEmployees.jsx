@@ -9,7 +9,7 @@ import DeleteIcon from "../../../assets/delete.png";
 import EditIcon from "../../../assets/edit.png";
 import GeneralInputGroup from '../../../components/GeneralInputGroup';
 import GeneralSelectGroup from '../../../components/GeneralSelectGroup';
-import SearchButton from '../../../components/SearchButton';
+import SearchIcon from '../../../assets/search.png'
 import EmployeeEditModal from '../../../components/EmployeeEditModal';
 
 const CreatedEmployees = () => {
@@ -20,29 +20,24 @@ const CreatedEmployees = () => {
     const [expandedCell, setExpandedCell] = useState(null);
     const [editModalOpen, setEditModalOpen] = useState(false);
 
-    // Fetch employees when component mounts or status changes to 'idle'
     useEffect(() => {
         if (status === 'idle') {
             dispatch(fetchEmployees());
         }
     }, [status, dispatch]);
 
-    // Render loading indicator while fetching data
     if (status === 'loading') {
         return <div>Loading...</div>;
     }
 
-    // Handle click event to select/unselect an employee
     const handleClick = (employee) => {
         setSelectedEmployee(selectedEmployee === employee ? null : employee);
     };
 
-    // Handle double click event to expand/collapse a table row
     const handleDoubleClick = (index) => {
         setExpandedCell(index === expandedCell ? null : index);
     };
 
-    // Handle delete button click to delete selected employee
     const handleDelete = () => {
         if (selectedEmployee) {
             dispatch(deleteEmployee(selectedEmployee.id)).then(() => {
@@ -57,7 +52,6 @@ const CreatedEmployees = () => {
         setEditModalOpen(true);
     };
 
-    // Close edit modal and reset selected employee state
     const closeEditModal = () => {
         setSelectedEmployee(null);
         setEditModalOpen(false);
@@ -100,26 +94,38 @@ const CreatedEmployees = () => {
                         label="დეპარტამენტი"
                         options={["Option 1", "Option 2", "Option 3"]}
                     />
-                    <SearchButton />
+                    <button className='bg-[#1AB7C1] rounded-lg px-6 py-2' >
+                        <img src={SearchIcon} className='w-[80px]' alt="Search Icon" />
+                    </button>
                 </div>
                 <div className="container mx-auto mt-10 overflow-x-auto">
-                    <table className="w-full border-collapse border border-gray-200 table-auto">
-                        <thead>
-                            <tr className="bg-[#1976D2] text-[13px] font-normal text-white py-6 px-4 border-b border-gray-300">
-                                <th className='text-center border-r border-gray-300'>სახელი/გვარი</th>
-                                <th className='text-center border-r border-gray-300'>დეპარტამენტი</th>
-                                <th className='text-center border-r border-gray-300'>პოზიცია</th>
-                                <th className='text-center border-r border-gray-300'>პირადი ნომერი</th>
-                                <th className='text-center border-r border-gray-300'>phone</th>
-                                <th className='text-center border-r border-gray-300'>ბარათის ნომერი</th>
-                                <th className='text-center border-r border-gray-300'>სტატუსი</th>
-                                <th className='text-center border-r border-gray-300'>მომხმარებელი</th>
-                                <th className='text-center border-r border-gray-300'>ჯგუფი</th>
-                                <th className='text-center border-r border-gray-300'>განრიგი</th>
-                                <th className='text-center'>საპატიო წუთები</th>
+                <table className="min-w-full divide-y divide-gray-200 table-fixed border-collapse">
+                        <thead className="bg-[#1976D2] text-white text-xs">
+                            <tr>
+                                {[
+                                    "სახელი/გვარი",
+                                    "დეპარტამენტი",
+                                    "პოზიცია",
+                                    "პირადი ნომერი",
+                                    "ტელეფონის ნომერი",
+                                    "ბარათის ნომერი",
+                                    "სტატუსი",
+                                    "მომხმარებელი",
+                                    "ჯგუფი",
+                                    "განრიგი",
+                                    "საპატიო წუთები",
+                                    "დასვენების დღეები"
+                                ].map((header) => (
+                                    <th key={header} className="px-2 py-1 border border-gray-200 w-20 text-center">
+                                        <div className="flex flex-col items-center">
+                                            <span>{header}</span>
+                                            
+                                        </div>
+                                    </th>
+                                ))}
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody className="bg-white divide-y divide-gray-200 text-xs">
                             {employees.map((employee, index) => (
                                 <tr
                                     key={employee.id}
@@ -127,7 +133,7 @@ const CreatedEmployees = () => {
                                     onDoubleClick={() => handleDoubleClick(index)}
                                     className={`text-center ${selectedEmployee && selectedEmployee.id === employee.id ? 'bg-blue-200' : ''}`}
                                 >
-                                    <td className={`text-center py-2 px-4 border-r border-gray-300 whitespace-normal ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>
+                                    <td className={`px-2 py-1 border border-gray-200 w-20 whitespace-normal ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>
                                         <input
                                             type="text"
                                             value={employee.fullname}
@@ -135,16 +141,21 @@ const CreatedEmployees = () => {
                                             readOnly
                                         />
                                     </td>
-                                    <td className={`py-2 px-4 border-r border-gray-300 ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>{employee?.department?.name}</td>
-                                    <td className={`py-2 px-4 border-r border-gray-300 ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>{employee.position}</td>
-                                    <td className={`py-2 px-4 border-r border-gray-300 ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>{employee.personal_id}</td>
-                                    <td className={`py-2 px-4 border-r border-gray-300 ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>{employee.phone_number}</td>
-                                    <td className={`py-2 px-4 border-r border-gray-300 ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>{employee.card_number}</td>
-                                    <td className={`py-2 px-4 border-r border-gray-300 ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>შეჩერებული</td>
-                                    <td className={`py-2 px-4 border-r border-gray-300 ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>" "</td>
-                                    <td className={`py-2 px-4 border-r border-gray-300 ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>{employee?.group?.name}</td>
-                                    <td className={`py-2 px-4 border-r border-gray-300 ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>{employee?.schedule?.name}</td>
-                                    <td className={`py-2 px-4 ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>{employee.honorable_minutes_per_day}</td>
+                                    <td className={`px-2 py-1 border border-gray-200 w-20 ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>{employee?.department?.name}</td>
+                                    <td className={`px-2 py-1 border border-gray-200 w-20 ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>{employee.position}</td>
+                                    <td className={`px-2 py-1 border border-gray-200 w-20 ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>{employee.personal_id}</td>
+                                    <td className={`px-2 py-1 border border-gray-200 w-20 ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>{employee.phone_number}</td>
+                                    <td className={`px-2 py-1 border border-gray-200 w-20 ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>{employee.card_number}</td>
+                                    <td className={`px-2 py-1 border border-gray-200 w-20 ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>{employee.expiry_datetime ? "შეჩერებულია" : "აქტიურია"}</td>
+                                    <td className={`px-2 py-1 border border-gray-200 w-20 ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>" "</td>
+                                    <td className={`px-2 py-1 border border-gray-200 w-20 ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>{employee?.group?.name}</td>
+                                    <td className={`px-2 py-1 border border-gray-200 w-20 ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>{employee?.schedule?.name}</td>
+                                    <td className={`px-2 py-1 border border-gray-200 w-20 ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>{employee.honorable_minutes_per_day}</td>
+                                    <td className={`px-2 py-1 border border-gray-200 w-20 ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>
+                                        {employee.holidays && employee.holidays.map((item, idx) => (
+                                            <span className='text-black' key={idx}>{item.name}, </span>
+                                        ))}
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
@@ -155,7 +166,7 @@ const CreatedEmployees = () => {
                 <EmployeeEditModal
                     employee={selectedEmployee}
                     isOpen={editModalOpen}
-                    closeModal={closeEditModal}
+                    onClose={closeEditModal}
                 />
             )}
         </AuthenticatedLayout>
