@@ -52,6 +52,31 @@ const employeeService = {
     }
   },
 
+  updateAccessGroups: async (accessGroupId, userId) => {
+    try {
+      const response = await axiosInstance.put(
+        `/access_groups/${accessGroupId}`,
+        {
+          "AccessGroup": {
+            "new_users": [
+              {
+                "user_id": userId
+              }
+            ]
+          }
+        },
+        {
+          headers: {
+            'bs-session-id': sessionStorage.getItem('sessionToken')
+          }
+        }
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   
 };
 

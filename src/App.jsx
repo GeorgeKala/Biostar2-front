@@ -23,6 +23,7 @@ import { fetchAsyncUser } from "../src/redux/userDataSlice";
 import UserType from './pages/UserType/UserType';
 import CommandType from './pages/CommandType/CommandType';
 import ForgiveType from './pages/ForgiveType/ForgiveType';
+import EmployeeAccess from './pages/EmployeeAccess/EmployeeAccess';
 
 const ProtectedRoute = ({ element }) => {
   const { isAuthenticated } = useAuth();
@@ -71,6 +72,7 @@ function App() {
         <Route path="/orders" element={<ProtectedRoute element={<Order />} />} />
         <Route path="/employees" element={<ProtectedRoute element={<CreatedEmployees />} />} />
         <Route path="/employees/edit/:id" element={<EmployeeEdit/>} />
+        <Route path="/employees/access" element={<EmployeeAccess/>} />
         <Route path="/schedules" element={<ProtectedRoute element={<Schedule />} />} />
         <Route path="/groups" element={<ProtectedRoute element={<Group />} />} />
         <Route path="/buildings" element={<ProtectedRoute element={<Building />} />} />
