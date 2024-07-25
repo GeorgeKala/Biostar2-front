@@ -24,6 +24,7 @@ import UserType from './pages/UserType/UserType';
 import CommandType from './pages/CommandType/CommandType';
 import ForgiveType from './pages/ForgiveType/ForgiveType';
 import EmployeeAccess from './pages/EmployeeAccess/EmployeeAccess';
+import ArchivedEmployee from './pages/Employee/Archived/ArchivedEmployee';
 
 const ProtectedRoute = ({ element }) => {
   const { isAuthenticated } = useAuth();
@@ -71,6 +72,7 @@ function App() {
         <Route path="/direct" element={<ProtectedRoute element={<Direct />} />} />
         <Route path="/orders" element={<ProtectedRoute element={<Order />} />} />
         <Route path="/employees" element={<ProtectedRoute element={<CreatedEmployees />} />} />
+        <Route path="/employees/archived" element={<ProtectedRoute element={<ArchivedEmployee />} />} />
         <Route path="/employees/edit/:id" element={<EmployeeEdit/>} />
         <Route path="/employees/access" element={<EmployeeAccess/>} />
         <Route path="/schedules" element={<ProtectedRoute element={<Schedule />} />} />

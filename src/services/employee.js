@@ -75,7 +75,16 @@ const employeeService = {
     } catch (error) {
       throw error;
     }
-  }
+  },
+
+  getArchivedEmployees: async () => {
+    try {
+      const response = await axiosInstance.get("/employees/archived");
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
 
   
 };
