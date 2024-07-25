@@ -30,6 +30,7 @@ export const logout = async () => {
     await axiosInstance.post('/logout');
     sessionStorage.removeItem('token');
     sessionStorage.removeItem('sessionToken');
+    sessionStorage.removeItem('bs_id_token');
   } catch (error) {
     console.error('Logout error:', error);
     throw error.response.data;

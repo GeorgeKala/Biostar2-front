@@ -57,6 +57,9 @@ const CreatedEmployees = () => {
         setEditModalOpen(false);
     };
 
+
+    console.log(employees);
+
     return (
         <AuthenticatedLayout>
             <div className='w-full px-20 py-4 flex flex-col gap-8'>
@@ -147,7 +150,7 @@ const CreatedEmployees = () => {
                                     <td className={`px-2 py-1 border border-gray-200 w-20 ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>{employee.phone_number}</td>
                                     <td className={`px-2 py-1 border border-gray-200 w-20 ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>{employee.card_number}</td>
                                     <td className={`px-2 py-1 border border-gray-200 w-20 ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>{employee.expiry_datetime ? "შეჩერებულია" : "აქტიურია"}</td>
-                                    <td className={`px-2 py-1 border border-gray-200 w-20 ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>" "</td>
+                                    <td className={`px-2 py-1 border border-gray-200 w-20 ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>{employee?.user?.name}</td>
                                     <td className={`px-2 py-1 border border-gray-200 w-20 ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>{employee?.group?.name}</td>
                                     <td className={`px-2 py-1 border border-gray-200 w-20 ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>{employee?.schedule?.name}</td>
                                     <td className={`px-2 py-1 border border-gray-200 w-20 ${expandedCell === index ? 'expanded-cell' : 'truncate-cell'}`}>{employee.honorable_minutes_per_day}</td>

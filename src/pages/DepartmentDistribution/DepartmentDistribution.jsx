@@ -73,7 +73,7 @@ const DepartmentDistribution = () => {
             setSelectedItemId(null);
             setSelectedDepartmentId('');
             setSelectedBuildingId('');
-            fetchData(); // Refetch data to update UI
+            fetchData(); 
           } catch (error) {
             console.error('Error adding/editing department to building:', error);
           }

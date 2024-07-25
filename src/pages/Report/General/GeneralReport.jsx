@@ -68,8 +68,9 @@ const GeneralReport = () => {
                 data.employee_id = formData.employee_id;
             }
            ;
-            const response =  await reportService.fetchReports(data);
-            setReports(response.data.records);
+            const response =  await reportService.fetchMonthlyReports(data);
+            
+            setReports(response.data);
         } catch (error) {
             console.error('Error fetching report data:', error);
         }
@@ -159,7 +160,8 @@ const GeneralReport = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await reportService.fetchReports() 
+                const response = await reportService.fetchMonthlyReports()
+              
                
             } catch (error) {
                 console.error('Error fetching report:', error);
@@ -266,6 +268,7 @@ const GeneralReport = () => {
                         </table>
                     </div>
                 </div>
+
 
                 {modalOpen && (
                     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">

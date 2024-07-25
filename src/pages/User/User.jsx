@@ -11,22 +11,27 @@ import SearchButton from '../../components/SearchButton';
 import { fetchUsers } from '../../redux/userDataSlice';
 import { fetchUserTypes } from '../../redux/userTypeSlice';
 import { fetchDepartments } from '../../redux/departmentsSlice';
+import { fetchEmployees } from '../../redux/employeeSlice';
 import userService from '../../services/users';
+import EmployeeModal from '../../components/employee/EmployeeModal';
 
 const User = () => {
   const dispatch = useDispatch();
   const usersData = useSelector(state => state.user.users.items);
   const userTypes = useSelector(state => state.userType.items);
   const { departments } = useSelector((state) => state.departments);
+  const employees = useSelector((state) => state.employees.items);
+
   const [formData, setFormData] = useState({
     name: '',
     username: '',
     userType: '',
     department: '',
-    employee:''
+    employeeId: ''
   });
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('create');
   const [users, setUsers] = useState([]);
 
@@ -34,12 +39,12 @@ const User = () => {
     dispatch(fetchUsers());
     dispatch(fetchUserTypes());
     dispatch(fetchDepartments());
-
-  }, []);
+    dispatch(fetchEmployees());
+  }, [dispatch]);
 
   useEffect(() => {
-    setUsers(usersData)
-  },[usersData])
+    setUsers(usersData);
+  }, [usersData]);
 
   const openAddModal = () => {
     setIsAddModalOpen(true);
@@ -49,7 +54,7 @@ const User = () => {
       username: '',
       userType: '',
       department: '',
-      employee:''
+      employeeId: ''
     });
   };
 
@@ -60,9 +65,9 @@ const User = () => {
     setFormData({
       name: user.name,
       username: user.username,
-      userType: user.user_type.id, 
-      department: user.department,
-      employee:user.employee
+      userType: user.user_type.id,
+      department: user.department ? user.department.id : '',
+      employeeId: user.employee ? user.employee.id : ''
     });
   };
 
@@ -75,31 +80,32 @@ const User = () => {
       username: '',
       userType: '',
       department: '',
-      employee:''
+      employeeId: ''
     });
   };
 
-
   const handleSave = async (e) => {
     e.preventDefault();
-  
-    const { name, username, userType, department, employee } = formData;
-  
+
+    const { name, username, userType, department, employeeId } = formData;
+
     const userData = {
       name: name,
       username: username,
       user_type_id: userType,
       department_id: department,
-      employee: employee
+      employee_id: employeeId
     };
-  
+
     try {
       if (modalMode === 'create') {
         const createdUser = await userService.createUser(userData);
+
+        console.log(createdUser);
         setUsers([...users, createdUser]);
         closeAddModal();
       } else if (modalMode === 'update' && selectedUserId) {
-        const updatedUser = await userService.updateUser(selectedUserId, formData);
+        const updatedUser = await userService.updateUser(selectedUserId, userData);
         const updatedIndex = users.findIndex(user => user.id === selectedUserId);
         if (updatedIndex !== -1) {
           const updatedUsers = [...users];
@@ -112,7 +118,7 @@ const User = () => {
       alert("Failed to save user: " + error.message);
     }
   };
-  
+
   const handleDelete = async (userId) => {
     if (window.confirm("Are you sure you want to delete this user?")) {
       try {
@@ -133,6 +139,17 @@ const User = () => {
     setFormData(prevState => ({
       ...prevState,
       [name]: value
+    }));
+  };
+
+  const handleEmployeeInputClick = () => {
+    setIsEmployeeModalOpen(true);
+  };
+
+  const handleSelectEmployee = (employee) => {
+    setFormData(prevState => ({
+      ...prevState,
+      employeeId: employee.id
     }));
   };
 
@@ -160,13 +177,11 @@ const User = () => {
             name="name"
             placeholder="სახელი"
             type="text"
-            
           />
           <GeneralInputGroup
             name="username"
             placeholder="მომხმარებელი"
             type="text"
-            
           />
           <GeneralSelectGroup
             label="დეპარტამენტი"
@@ -195,7 +210,7 @@ const User = () => {
                   <div>{user?.name}</div>
                   <div>{user?.user_type?.name}</div>
                   <div>{user?.department?.name}</div>
-                  <div>{user?.employee}</div>
+                  <div>{user?.employee?.fullname}</div>
                   <div className="flex gap-4 items-center justify-center">
                     <button onClick={() => openUpdateModal(user)} className="hover:text-gray-600 focus:outline-none">
                       <img src={CreateIcon} alt="Edit" className="w-6 h-6" />
@@ -213,7 +228,7 @@ const User = () => {
 
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
-          <div className="bg-white rounded-lg max-w-md w-full ">
+          <div className="bg-white rounded-lg max-w-md w-full">
             <div className="flex justify-between items-center p-3 bg-blue-500 text-white rounded-t-lg">
               <h2 className="text-lg font-semibold">{modalMode === 'create' ? 'დაამატე ახალი მომხმარებელი' : 'განაახლე მომხმარებელი'}</h2>
               <button onClick={closeAddModal} className="hover:text-gray-200 focus:outline-none">
@@ -264,14 +279,13 @@ const User = () => {
                 </select>
               </div>
               <div className="mb-4">
-                <label htmlFor="userType" className="block text-sm font-medium text-gray-700">დეპარტამენტი:</label>
+                <label htmlFor="department" className="block text-sm font-medium text-gray-700">დეპარტამენტი:</label>
                 <select
                   id="department"
                   name="department"
                   className="mt-1 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
                   value={formData.department}
                   onChange={handleChange}
-                  required
                 >
                   <option value="">აირჩიე დეპარტამენტი</option>
                   {departments && departments.map(item => (
@@ -279,16 +293,16 @@ const User = () => {
                   ))}
                 </select>
               </div>
-             
               <div className="mb-4">
-                <label htmlFor="employee" className="block text-sm font-medium text-gray-700">თანამშრომელი:</label>
+                <label htmlFor="employeeId" className="block text-sm font-medium text-gray-700">თანამშრომელი:</label>
                 <input
                   type="text"
-                  id="employee"
-                  name="employee"
+                  id="employeeId"
+                  name="employeeId"
                   className="mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                  value={formData.employee}
-                  onChange={handleChange}
+                  value={formData.employeeId}
+                  onClick={handleEmployeeInputClick}
+                  readOnly
                 />
               </div>
               <div className="flex justify-end mt-4">
@@ -299,6 +313,12 @@ const User = () => {
           </div>
         </div>
       )}
+
+      <EmployeeModal
+        isOpen={isEmployeeModalOpen}
+        onClose={() => setIsEmployeeModalOpen(false)}
+        onSelectEmployee={handleSelectEmployee}
+      />
     </AuthenticatedLayout>
   );
 };

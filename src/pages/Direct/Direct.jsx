@@ -1,38 +1,48 @@
+import React, { useEffect, useState } from 'react';
 import AuthenticatedLayout from '../../Layouts/AuthenticatedLayout';
 import ArrowDownIcon from '../../assets/arrow-down-2.png';
-import CustomTable from '../../components/CustomTable';
 import GeneralInputGroup from '../../components/GeneralInputGroup';
 import GeneralSelectGroup from '../../components/GeneralSelectGroup';
 import SearchButton from '../../components/SearchButton';
+import directService from '../../services/direct';
+import deviceService from '../../services/device';
 
 const Direct = () => {
-   
-    const data = [
-        {
-            id: 1,
-            elapsed_minutes: '120',
-            allowances: 'Yes',
-            comments: 'Lorem ipsum dolor sit amet',
-            user: 'John Doe',
-            violation_type: 'Type A',
-        },
-        {
-            id: 2,
-            elapsed_minutes: '90',
-            allowances: 'No',
-            comments: 'Lorem ipsum dolor sit amet',
-            user: 'Jane Smith',
-            violation_type: 'Type B',
-        },
-    ];
+    const [devices, setDevices] = useState([]);
+    const [selectedDevice, setSelectedDevice] = useState("");
+    const [events, setEvents] = useState([]);
 
-    const columns = [
-        { label: "გაცდენილი წუთები", key: "elapsed_minutes" },
-        { label: "პატიება", key: "allowances" },
-        { label: "კომენტარი", key: "comments" },
-        { label: "მომხმარებელი", key: "user" },
-        { label: "დარღვევის ტიპი", key: "violation_type" }
-    ];
+    useEffect(() => {
+        const fetchDevices = async () => {
+            try {
+                const devices = await deviceService.fetchDevices();
+                setDevices(devices);
+            } catch (error) {
+                console.error('Error fetching devices:', error);
+            }
+        };
+
+        fetchDevices();
+    }, []);
+
+    const fetchData = async () => {
+        if (selectedDevice) {
+            try {
+                const response = await directService.fetchEvents({ device_id: selectedDevice });
+                setEvents(response.data);
+            } catch (error) {
+                console.error('Error fetching events:', error);
+            }
+        } else {
+            console.error('No device selected');
+        }
+    };
+
+    const handleDeviceSelect = (e) => {
+        setSelectedDevice(e.target.value);
+    };
+
+    console.log(events.data);
 
     return (
         <AuthenticatedLayout>
@@ -48,24 +58,52 @@ const Direct = () => {
                     </button>
                 </div>
                 <div className='flex items-center gap-4'>
-                    <GeneralInputGroup
-                        name="employee"
-                        placeholder="თანამშრომელი"
-                        type="text"
-                    />
-                    <GeneralSelectGroup
-                        label="დეპარტამენტი"
-                        options={["Option 1", "Option 2", "Option 3"]}
-                    />
-                    <SearchButton></SearchButton>
+                    <select
+                        value={selectedDevice}
+                        onChange={handleDeviceSelect}
+                        className="bg-white border border-[#105D8D] outline-none rounded-md py-3 px-4 "
+                    >
+                        <option value="">აირჩიე მოწყობილობა</option>
+                        {devices.map((device) => (
+                            <option key={device.id} value={device.id}>
+                                {device.name}
+                            </option>
+                        ))}
+                    </select>
+                    <button
+                        onClick={fetchData}
+                        className="bg-[#1976D2] text-white px-4 py-2 rounded-md flex items-center gap-2"
+                    >
+                        ჩართვა
+                    </button>
                 </div>
-                <CustomTable
-                    columns={columns}
-                    data={data}
-                />
+                <div className="container mx-auto mt-10 overflow-x-auto">
+                    <div className="min-w-max">
+                        <table className="min-w-full divide-y divide-gray-200 table-fixed border-collapse">
+                            <thead className="bg-[#1976D2] text-white text-xs">
+                                <tr>
+                                    {["გატარების დრო", "თანამშრომელი", "დეპარტამენტი", "სტატუსი", "მოწყობილობა"].map((header) => (
+                                        <th key={header} className="px-2 py-1 border border-gray-200 break-all w-20">{header}</th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200 text-xs">
+                                {events.length > 0 && events?.map((item, index) => (
+                                    <tr key={index} className={`px-2 py-1 border border-gray-200 w-20 `}>
+                                        <td className="px-2 py-1 border border-gray-200 w-20">{item.datetime}</td>
+                                        <td className="px-2 py-1 border border-gray-200 w-20">{item.employee_name}</td>
+                                        <td className="px-2 py-1 border border-gray-200 w-20">{item.department}</td>
+                                        <td className="px-2 py-1 border border-gray-200 w-20">{item.employee_status}</td>
+                                        <td className="px-2 py-1 border border-gray-200 w-20">{item.device_name}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </AuthenticatedLayout>
-    )
-}
+    );
+};
 
 export default Direct;

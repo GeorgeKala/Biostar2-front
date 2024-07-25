@@ -63,6 +63,8 @@ const EmployeeModal = ({ isOpen, onClose, onSelectEmployee }) => {
         onClose();
     };
 
+    console.log(employees);
+
     return (
         <div className={`fixed inset-0 bg-black bg-opacity-50 z-50 ${isOpen ? "block" : "hidden"}`}>
             <div className="bg-white w-11/12 h-5/6 rounded-md absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
@@ -104,7 +106,7 @@ const EmployeeModal = ({ isOpen, onClose, onSelectEmployee }) => {
                                         <input
                                             type="text"
                                             name={header.key}
-                                            className="w-full text-black outline-none text-xs"
+                                            className="w-full  outline-none text-xs"
                                             value={filters[header.key]}
                                             onChange={handleFilterChange}
                                         />
@@ -114,18 +116,18 @@ const EmployeeModal = ({ isOpen, onClose, onSelectEmployee }) => {
                         </thead>
                         <tbody>
                             {filteredEmployees.map((employee) => (
-                                <tr key={employee.id} onClick={() => handleRowClick(employee)} className=''>
+                                <tr key={employee.id} onClick={() => handleRowClick(employee)}>
                                     <td className="border px-2 py-1 w-1/12 truncate text-xs">{employee.fullname}</td>
                                     <td className="border px-2 py-1 w-1/12 truncate text-xs">{employee?.department?.name}</td>
-                                    <td className="border px-2 py-1 w-1/12 truncate text-xs">{employee.position}</td>
-                                    <td className="border px-2 py-1 w-1/12 truncate text-xs">{employee.personal_id}</td>
-                                    <td className="border px-2 py-1 w-1/12 truncate text-xs">{employee.phone_number}</td>
-                                    <td className="border px-2 py-1 w-1/12 truncate text-xs">{employee.card_number}</td>
-                                    <td className="border px-2 py-1 w-1/12 truncate text-xs">{employee.expiry_datetime ? "შეჩერებულია" : "აქტიურია"}</td>
-                                    <td className="border px-2 py-1 w-1/12 truncate text-xs">{employee.user}</td>
+                                    <td className="border px-2 py-1 w-1/12 truncate text-xs">{employee?.position}</td>
+                                    <td className="border px-2 py-1 w-1/12 truncate text-xs">{employee?.personal_id}</td>
+                                    <td className="border px-2 py-1 w-1/12 truncate text-xs">{employee?.phone_number}</td>
+                                    <td className="border px-2 py-1 w-1/12 truncate text-xs">{employee?.card_number}</td>
+                                    <td className="border px-2 py-1 w-1/12 truncate text-xs">{employee?.expiry_datetime ? "შეჩერებულია" : "აქტიურია"}</td>
+                                    <td className="border px-2 py-1 w-1/12 truncate text-xs">{employee?.user?.name}</td>
                                     <td className="border px-2 py-1 w-1/12 truncate text-xs">{employee?.group?.name}</td>
                                     <td className="border px-2 py-1 w-1/12 truncate text-xs">{employee?.schedule?.name}</td>
-                                    <td className="border px-2 py-1 w-1/12 truncate text-xs">{employee.honorable_minutes_per_day}</td>
+                                    <td className="border px-2 py-1 w-1/12 truncate text-xs">{employee?.honorable_minutes_per_day}</td>
                                     <td className="border px-2 py-1 w-1/12 truncate text-xs">
                                         {employee.holidays && employee.holidays.map((item, idx) => (
                                             <span key={idx} className="truncate">{item.name}, </span>

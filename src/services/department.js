@@ -56,6 +56,16 @@ const departmentService = {
       throw error;
     }
   },
+
+
+  addAccessGroups: async (data) => {
+    try {
+      const response = await axiosInstance.post("/departments/add-access-groups", data);
+      return response.data.department;
+    } catch (error) {
+      throw error;
+    }
+  },
   
 };
 

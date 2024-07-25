@@ -12,7 +12,6 @@ import {
   updateForgiveType,
   deleteForgiveType,
 } from "../../redux/forgiveTypeSlice";
-import forgiveTypeService from "../../services/forgiveType";
 
 const ForgiveType = () => {
   const dispatch = useDispatch();
@@ -74,13 +73,13 @@ const ForgiveType = () => {
     <AuthenticatedLayout>
       <div className="w-full px-20 py-4 flex flex-col gap-8">
         <div className="flex justify-between w-full">
-          <h1 className="text-[#1976D2] font-medium text-[23px]">Forgive Types</h1>
+          <h1 className="text-[#1976D2] font-medium text-[23px]">პატიების ტიპები</h1>
           <div className="flex items-center gap-8">
             <button
               className="bg-[#FBD15B]  text-white px-4 py-4 rounded-md flex items-center gap-2"
               onClick={() => setModalOpen(true)}
             >
-              + Add New Forgive Type
+              + დაამატე ახალი პატიების ტიპი
             </button>
             <button className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">
               Download Data
@@ -115,7 +114,7 @@ const ForgiveType = () => {
         isOpen={modalOpen}
         onClose={closeModal}
         onSave={handleSaveForgiveType}
-        title={editItemId ? "Edit Forgive Type" : "Add Forgive Type"}
+        title={editItemId ? "შეცვალე პატიების ტიპი" : "დაამატე პატიების ტიპი"}
         initialValue={
           editItemId
             ? forgiveTypeItems.find((item) => item.id === editItemId)?.name

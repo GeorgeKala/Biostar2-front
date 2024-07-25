@@ -12,7 +12,7 @@ const Order = () => {
         end_date: '',
         employee_id: '',
         department_id: '',
-        
+
     });
 
     const [data, setData] = useState([]);
@@ -114,7 +114,6 @@ const Order = () => {
                             className="bg-white border border-[#105D8D] outline-none rounded-md py-3 px-4 w-full"
                         >
                             <option value="">აირჩიეთ დეპარტამენტი</option>
-                            {/* Replace with actual department options */}
                             <option value="1">Option 1</option>
                             <option value="2">Option 2</option>
                             <option value="3">Option 3</option>

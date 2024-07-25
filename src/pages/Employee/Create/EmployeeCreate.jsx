@@ -17,6 +17,7 @@ import { fetchHolidays, selectHolidays } from "../../../redux/holidaySlice";
 import { useDispatch, useSelector } from "react-redux";
 import fetchDevices from "../../../services/device";
 import deviceService from "../../../services/device";
+import axiosInstance from "../../../Config/axios";
 
 const EmployeeCreate = () => {
   const [departments, setDepartments] = useState([]);
@@ -59,13 +60,11 @@ const EmployeeCreate = () => {
 
   const handleOptionToggle = (optionId) => {
     if (formData.holidays.includes(optionId)) {
-      // If already selected, remove from holidays
       setFormData(prevData => ({
         ...prevData,
         holidays: prevData.holidays.filter(item => item !== optionId)
       }));
     } else {
-      // If not selected, add to holidays
       setFormData(prevData => ({
         ...prevData,
         holidays: [...prevData.holidays, optionId]
@@ -183,28 +182,6 @@ const EmployeeCreate = () => {
     checksum: "საკონტროლო ჯამი",
   };
 
-
-  
-
-    const renderHolidays = () => {
-      return (
-          <div>
-              {holidays && holidays.map(holiday => (
-                  <div key={holiday.id}>
-                      <input
-                           type="checkbox"
-                          id={holiday.id}
-                          checked={formData.holidays.includes(holiday.id)}
-                          onChange={() => handleOptionToggle(holiday.id)}
-                      />
-                      <label htmlFor={holiday.id}>{holiday.name}</label>
-                  </div>
-              ))}
-          </div>
-      );
-  };
-
-
   useEffect(() => {
     const fetchDevices = async () => {
       const devices = await deviceService.fetchDevices()
@@ -238,6 +215,46 @@ const EmployeeCreate = () => {
     setFormData(updatedFormData);
     
   }
+
+
+  useEffect(() => {
+    const sessionToken = sessionStorage.getItem('bs_id_token');
+
+    const fetchData = async () => {
+      try {
+        const response = await axiosInstance.get('/get-schedules', {
+          headers: {
+            'Bs-Session-Id': sessionToken
+          }
+        });
+       console.log(response);
+      } catch (error) {
+        console.error('Error fetching schedules:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+
+
+  const renderHolidays = () => {
+      return (
+          <div>
+              {holidays && holidays.map(holiday => (
+                  <div key={holiday.id}>
+                      <input
+                          type="checkbox"
+                          id={holiday.id}
+                          checked={formData.holidays.includes(holiday.id)}
+                          onChange={() => handleOptionToggle(holiday.id)}
+                      />
+                      <label htmlFor={holiday.id}>{holiday.name}</label>
+                  </div>
+              ))}
+          </div>
+      );
+  };
 
   
   return (
