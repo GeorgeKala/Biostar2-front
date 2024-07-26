@@ -42,7 +42,7 @@ const Direct = () => {
         setSelectedDevice(e.target.value);
     };
 
-    console.log(events.data);
+    
 
     return (
         <AuthenticatedLayout>
