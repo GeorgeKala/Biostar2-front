@@ -1,8 +1,11 @@
 import React from 'react'
+import AuthenticatedLayout from '../../Layouts/AuthenticatedLayout'
 
 const AccessGroupDistribution = () => {
   return (
-    <div>AccessGroupDistribution</div>
+    <AuthenticatedLayout>
+      
+    </AuthenticatedLayout>
   )
 }
 

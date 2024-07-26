@@ -52,18 +52,37 @@ const employeeService = {
     }
   },
 
-  updateAccessGroups: async (accessGroupId, userId) => {
+  
+
+  getArchivedEmployees: async () => {
+    try {
+      const response = await axiosInstance.get("/employees/archived");
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+
+  getEmployeesWithBuildings: async () => {
+    try {
+      const response = await axiosInstance.get("/employees/buildings", {
+        headers: {
+          'bs-session-id': sessionStorage.getItem('sessionToken')
+        }
+    });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  updateAccessGroups: async (accessGroup, employeeId) => {
     try {
       const response = await axiosInstance.put(
-        `/access_groups/${accessGroupId}`,
+        `/employees/access_groups/${accessGroup}`,
         {
-          "AccessGroup": {
-            "new_users": [
-              {
-                "user_id": userId
-              }
-            ]
-          }
+            new_users: [{ user_id: employeeId }]
         },
         {
           headers: {
@@ -75,18 +94,12 @@ const employeeService = {
     } catch (error) {
       throw error;
     }
-  },
-
-  getArchivedEmployees: async () => {
-    try {
-      const response = await axiosInstance.get("/employees/archived");
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  },
+  }
 
   
 };
+
+
+
 
 export default employeeService;

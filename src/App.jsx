@@ -25,6 +25,7 @@ import CommandType from './pages/CommandType/CommandType';
 import ForgiveType from './pages/ForgiveType/ForgiveType';
 import EmployeeAccess from './pages/EmployeeAccess/EmployeeAccess';
 import ArchivedEmployee from './pages/Employee/Archived/ArchivedEmployee';
+import AccessGroupDistribution from './pages/AccessGroupDistribution/AccessGroupDistribution';
 
 const ProtectedRoute = ({ element }) => {
   const { isAuthenticated } = useAuth();
@@ -84,6 +85,7 @@ function App() {
         <Route path="/user-types" element={<ProtectedRoute element={<UserType />} />} />
         <Route path="/command-types" element={<ProtectedRoute element={<CommandType/>} />} />
         <Route path="/forgive-types" element={<ProtectedRoute element={<ForgiveType/>} />} />
+        <Route path="/buildings/access-groups" element={<ProtectedRoute element={<AccessGroupDistribution/>} />}/>
       </Routes>
     </Router>
   );

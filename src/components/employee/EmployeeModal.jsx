@@ -63,7 +63,6 @@ const EmployeeModal = ({ isOpen, onClose, onSelectEmployee }) => {
         onClose();
     };
 
-    console.log(employees);
 
     return (
         <div className={`fixed inset-0 bg-black bg-opacity-50 z-50 ${isOpen ? "block" : "hidden"}`}>

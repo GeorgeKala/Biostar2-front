@@ -236,6 +236,8 @@ const EmployeeCreate = () => {
     fetchData();
   }, []);
 
+  console.log(formData);
+
 
 
   const renderHolidays = () => {
