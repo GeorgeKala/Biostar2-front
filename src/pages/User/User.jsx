@@ -14,6 +14,7 @@ import { fetchDepartments } from '../../redux/departmentsSlice';
 import { fetchEmployees } from '../../redux/employeeSlice';
 import userService from '../../services/users';
 import EmployeeModal from '../../components/employee/EmployeeModal';
+import * as XLSX from "xlsx";
 
 const User = () => {
   const dispatch = useDispatch();
@@ -153,6 +154,21 @@ const User = () => {
     }));
   };
 
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(
+      users.map((user) => ({
+        მომხმარებელი: user.username,
+        "სახელი გვარი": user.name,
+        "მომხმარებლის ტიპი": user.user_type.name,
+        დეპარტამენტი: user.department?.name,
+        თანამშრომელი: user.employee?.fullname,
+      }))
+    );
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
+    XLSX.writeFile(workbook, "Users.xlsx");
+  };
+
   return (
     <AuthenticatedLayout>
       <div className='w-full px-20 py-4 flex flex-col gap-8'>
@@ -165,8 +181,8 @@ const User = () => {
               <img src={NewIcon} alt="New" />
               New
             </button>
-            <button className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">
-              Download Data
+            <button onClick={exportToExcel} className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">
+              ჩამოტვირთვა
               <img src={ArrowDownIcon} className="ml-3" alt="Arrow Down Icon" />
               <span className="absolute inset-0 border border-white border-dashed rounded"></span>
             </button>

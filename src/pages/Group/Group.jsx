@@ -13,6 +13,7 @@ import {
   updateGroup,
   deleteGroup,
 } from "../../redux/groupSlice";
+import * as XLSX from "xlsx";
 
 const Group = () => {
   const dispatch = useDispatch();
@@ -50,6 +51,24 @@ const Group = () => {
     dispatch(deleteGroup(id));
   };
 
+
+  const exportToExcel = () => {
+    const dataToExport = [];
+    const header = ["ID", "Name"];
+    dataToExport.push(header);
+    groupItems.forEach((item) => {
+      const row = [item.id, item.name];
+      dataToExport.push(row);
+    });
+
+    const worksheet = XLSX.utils.aoa_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Groups");
+
+    XLSX.writeFile(workbook, "Groups.xlsx");
+  };
+
+
   if (groupStatus === "loading") {
     return <p>Loading...</p>;
   }
@@ -70,8 +89,11 @@ const Group = () => {
             >
               + დაამატე ახალი ჯგუფი
             </button>
-            <button className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">
-              Download Data
+            <button
+              className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative"
+              onClick={exportToExcel}
+            >
+              ჩამოტვირთვა
               <img src={ArrowDownIcon} className="ml-3" alt="Arrow Down Icon" />
               <span className="absolute inset-0 border border-white border-dashed rounded"></span>
             </button>

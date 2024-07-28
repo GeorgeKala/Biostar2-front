@@ -67,7 +67,40 @@ const reportService = {
       throw error;
     }
   },
-  
+
+  updateDayTypeForDateRange: async (data) => {
+    try {
+      const response = await axiosInstance.post(
+        "/employee-day-detail/update-day-type",
+        data
+      );
+      if (response.status === 200) {
+        return response;
+      } else {
+        throw new Error("Failed to update day type for date range");
+      }
+    } catch (error) {
+      console.error("Error updating day type for date range:", error);
+      throw error;
+    }
+  },
+
+  deleteDayTypeForDateRange: async (data) => {
+    try {
+      const response = await axiosInstance.post(
+        "/employee-day-detail/delete-day-type",
+        data
+      );
+      if (response.status === 200) {
+        return response;
+      } else {
+        throw new Error("Failed to delete day type for date range");
+      }
+    } catch (error) {
+      console.error("Error deleting day type for date range:", error);
+      throw error;
+    }
+  },
 };
   
-  export default reportService;
+export default reportService;

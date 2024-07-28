@@ -12,6 +12,7 @@ import GeneralSelectGroup from "../../../components/GeneralSelectGroup";
 import SearchIcon from "../../../assets/search.png";
 import EmployeeEditModal from "../../../components/EmployeeEditModal";
 import employeeService from "../../../services/employee";
+import * as XLSX from "xlsx";
 
 const ArchivedEmployee = () => {
   const [employees, setEmployees] = useState([]);
@@ -73,7 +74,29 @@ const ArchivedEmployee = () => {
     setEditModalOpen(false);
   };
 
-  console.log(employees);
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(
+      employees.map((employee) => ({
+        "სახელი/გვარი": employee.fullname,
+        დეპარტამენტი: employee?.department?.name,
+        პოზიცია: employee.position,
+        "პირადი ნომერი": employee.personal_id,
+        "ტელეფონის ნომერი": employee.phone_number,
+        "ბარათის ნომერი": employee.card_number,
+        სტატუსი: employee.expiry_datetime ? "შეჩერებულია" : "აქტიურია",
+        მომხმარებელი: employee?.user?.name,
+        ჯგუფი: employee?.group?.name,
+        განრიგი: employee?.schedule?.name,
+        "საპატიო წუთები": employee.honorable_minutes_per_day,
+        "დასვენების დღეები": employee.holidays
+          .map((holiday) => holiday.name)
+          .join(", "),
+      }))
+    );
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "ArchivedEmployees");
+    XLSX.writeFile(workbook, "ArchivedEmployees.xlsx");
+  };
 
   return (
     <AuthenticatedLayout>
@@ -104,8 +127,8 @@ const ArchivedEmployee = () => {
               <img src={DeleteIcon} alt="Delete" />
               Delete
             </button>
-            <button className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">
-              Download Data
+            <button onClick={exportToExcel} className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">
+              ჩამოტვირთვა
               <img src={ArrowDownIcon} className="ml-3" alt="Arrow Down Icon" />
               <span className="absolute inset-0 border border-white border-dashed rounded"></span>
             </button>

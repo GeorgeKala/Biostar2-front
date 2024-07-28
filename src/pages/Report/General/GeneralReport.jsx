@@ -9,6 +9,7 @@ import { fetchForgiveTypes } from "../../../redux/forgiveTypeSlice";
 import SearchIcon from "../../../assets/search.png";
 import EmployeeModal from "../../../components/employee/EmployeeModal";
 import { reportLogin } from "../../../services/auth";
+import * as XLSX from "xlsx";
 
 const GeneralReport = () => {
   const dispatch = useDispatch();
@@ -183,6 +184,61 @@ const GeneralReport = () => {
     fetchData();
   }, []);
 
+  const exportToExcel = () => {
+    const dataToExport = [];
+    const header = [
+      "სახელი/გვარი",
+      "დეპარტამენტი",
+      "თანამდებობა",
+      "თარიღი",
+      "მოსვლის დრო",
+      "ადრე მოსვლა",
+      "გვიან მოსვლა",
+      "დაგვიანებული წუთები",
+      "წასვლის დრო",
+      "ადრე წასვლა",
+      "გვიან წასვლა",
+      "ნამუშევარი საათები",
+      "დღის ტიპი",
+      "კვირის დღე",
+      "საპატიო წუთები",
+      "განრიგი",
+      "საჯარიმო დრო",
+      "კომენტარი",
+    ];
+    dataToExport.push(header);
+
+    reports.forEach((report) => {
+      const row = [
+        report.fullname,
+        report.department,
+        report.position,
+        report.date,
+        report.come_time,
+        report.come_early,
+        report.come_late,
+        report.penalized_time,
+        report.leave_time,
+        report.leave_early,
+        report.leave_late,
+        report.worked_hours,
+        report.day_type,
+        report.week_day,
+        report.homorable_minutes,
+        report.schedule,
+        Number(report.final_penalized_time).toFixed(2),
+        report.comment,
+      ];
+      dataToExport.push(row);
+    });
+
+    const worksheet = XLSX.utils.aoa_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "General Report");
+
+    XLSX.writeFile(workbook, "General_Report.xlsx");
+  };
+
   return (
     <AuthenticatedLayout>
       <div className="w-full px-20 py-4 flex flex-col gap-8">
@@ -190,8 +246,11 @@ const GeneralReport = () => {
           <h1 className="text-[#1976D2] font-medium text-[23px]">
             პერიოდის რეპორტი (ზოგადი)
           </h1>
-          <button className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">
-            Download Data
+          <button
+            onClick={exportToExcel}
+            className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative"
+          >
+            ჩამოტვირთვა
             <img src={ArrowDownIcon} className="ml-3" alt="Arrow Down Icon" />
             <span className="absolute inset-0 border border-white border-dashed rounded"></span>
           </button>

@@ -5,11 +5,7 @@ const orderService = {
     fetchEmployeeOrders: async (data) => {
         try{
             const response = axiosInstance.post('/employee-orders', data)
-            if(response.status == 200){
-                return response.data;
-            }else {
-                throw new Error('Failed to fetch commented details');
-            }
+            return response
         }catch(error){
             console.log(error);
             throw error;

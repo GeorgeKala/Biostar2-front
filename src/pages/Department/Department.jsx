@@ -6,7 +6,7 @@ import DeleteIcon from "../../assets/delete-2.png";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchDepartments, fetchNestedDepartments } from "../../redux/departmentsSlice";
 import departmentService from "../../services/department";
-
+import * as XLSX from "xlsx";
 const Department = () => {
   const dispatch = useDispatch();
   const { nestedDepartments, departments } = useSelector((state) => state.departments);
@@ -94,6 +94,34 @@ const Department = () => {
     }));
   };
 
+  const exportToExcel = () => {
+    const dataToExport = [];
+
+    const flattenData = (departments, parentName = "") => {
+      departments.forEach((department) => {
+        const fullName = parentName
+          ? `${parentName} > ${department.name}`
+          : department.name;
+        dataToExport.push({
+          ID: department.id,
+          Name: fullName,
+        });
+
+        if (department.children && department.children.length > 0) {
+          flattenData(department.children, fullName);
+        }
+      });
+    };
+
+    flattenData(nesteds);
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Departments");
+
+    XLSX.writeFile(workbook, "Departments.xlsx");
+  };
+
 
 
   const renderSubMenu = (subMenu, level = 1) => {
@@ -139,8 +167,8 @@ const Department = () => {
             >
               + დაამატე ახალი დეპარტამენტები
             </button>
-            <button className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">
-              Download Data
+            <button onClick={exportToExcel} className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">
+              ჩამოტვირთვა
               <img src={ArrowDownIcon} className="ml-3" alt="Arrow Down Icon" />
               <span className="absolute inset-0 border border-white border-dashed rounded"></span>
             </button>

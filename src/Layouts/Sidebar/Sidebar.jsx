@@ -42,12 +42,14 @@ const Sidebar = () => {
         <div>
           <div
             className="flex items-center gap-3 text-white text-[14px] cursor-pointer"
-            onClick={() => toggleSection('employees')}
+            onClick={() => toggleSection("employees")}
           >
             <img
               src={ArrowRight}
               alt="Arrow Right Icon"
-              className={`transform ${sections.employees ? 'rotate-0' : '-rotate-90'} transition-transform duration-300`}
+              className={`transform ${
+                sections.employees ? "rotate-0" : "-rotate-90"
+              } transition-transform duration-300`}
             />
             ანგარიშები
           </div>
@@ -56,7 +58,7 @@ const Sidebar = () => {
               <Link
                 to="/reports/general"
                 className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === '/reports/general' ? 'font-bold' : ''
+                  location.pathname === "/reports/general" ? "font-bold" : ""
                 }`}
               >
                 <img src={ArrowRight} alt="Arrow Right Icon" />
@@ -65,7 +67,7 @@ const Sidebar = () => {
               <Link
                 to="/employees/create"
                 className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === '/employees/create' ? 'font-bold' : ''
+                  location.pathname === "/employees/create" ? "font-bold" : ""
                 }`}
               >
                 <img src={ArrowRight} alt="Arrow Right Icon" />
@@ -74,7 +76,7 @@ const Sidebar = () => {
               <Link
                 to="/employees"
                 className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === '/employees' ? 'font-bold' : ''
+                  location.pathname === "/employees" ? "font-bold" : ""
                 }`}
               >
                 <img src={ArrowRight} alt="Arrow Right Icon" />
@@ -83,7 +85,7 @@ const Sidebar = () => {
               <Link
                 to="/comments/table"
                 className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === '/comments/table' ? 'font-bold' : ''
+                  location.pathname === "/comments/table" ? "font-bold" : ""
                 }`}
               >
                 <img src={ArrowRight} alt="Arrow Right Icon" />
@@ -92,7 +94,7 @@ const Sidebar = () => {
               <Link
                 to="/comments/analyze"
                 className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === '/comments/analyze' ? 'font-bold' : ''
+                  location.pathname === "/comments/analyze" ? "font-bold" : ""
                 }`}
               >
                 <img src={ArrowRight} alt="Arrow Right Icon" />
@@ -101,7 +103,7 @@ const Sidebar = () => {
               <Link
                 to="/orders"
                 className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === '/orders' ? 'font-bold' : ''
+                  location.pathname === "/orders" ? "font-bold" : ""
                 }`}
               >
                 <img src={ArrowRight} alt="Arrow Right Icon" />
@@ -113,12 +115,14 @@ const Sidebar = () => {
         <div>
           <div
             className="flex items-center gap-3 text-white text-[14px] cursor-pointer"
-            onClick={() => toggleSection('reports')}
+            onClick={() => toggleSection("reports")}
           >
             <img
               src={ArrowRight}
               alt="Arrow Right Icon"
-              className={`transform ${sections.reports ? 'rotate-0' : '-rotate-90'} transition-transform duration-300`}
+              className={`transform ${
+                sections.reports ? "rotate-0" : "-rotate-90"
+              } transition-transform duration-300`}
             />
             ცნობარები
           </div>
@@ -127,7 +131,7 @@ const Sidebar = () => {
               <Link
                 to="/employees"
                 className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === '/employees' ? 'font-bold' : ''
+                  location.pathname === "/employees" ? "font-bold" : ""
                 }`}
               >
                 <img src={ArrowRight} alt="Arrow Right Icon" />
@@ -136,7 +140,7 @@ const Sidebar = () => {
               <Link
                 to="/groups"
                 className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === '/groups' ? 'font-bold' : ''
+                  location.pathname === "/groups" ? "font-bold" : ""
                 }`}
               >
                 <img src={ArrowRight} alt="Arrow Right Icon" />
@@ -145,7 +149,7 @@ const Sidebar = () => {
               <Link
                 to="/departments"
                 className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === '/departments' ? 'font-bold' : ''
+                  location.pathname === "/departments" ? "font-bold" : ""
                 }`}
               >
                 <img src={ArrowRight} alt="Arrow Right Icon" />
@@ -154,7 +158,7 @@ const Sidebar = () => {
               <Link
                 to="/schedules"
                 className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === '/schedules' ? 'font-bold' : ''
+                  location.pathname === "/schedules" ? "font-bold" : ""
                 }`}
               >
                 <img src={ArrowRight} alt="Arrow Right Icon" />
@@ -163,7 +167,7 @@ const Sidebar = () => {
               <Link
                 to="/command-types"
                 className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === '/command-types' ? 'font-bold' : ''
+                  location.pathname === "/command-types" ? "font-bold" : ""
                 }`}
               >
                 <img src={ArrowRight} alt="Arrow Right Icon" />
@@ -172,11 +176,29 @@ const Sidebar = () => {
               <Link
                 to="/forgive-types"
                 className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === '/forgive-types' ? 'font-bold' : ''
+                  location.pathname === "/forgive-types" ? "font-bold" : ""
                 }`}
               >
                 <img src={ArrowRight} alt="Arrow Right Icon" />
                 პატიების ტიპები
+              </Link>
+              <Link
+                to="/employees/archived"
+                className={`flex items-center gap-3 text-white text-[14px] ${
+                  location.pathname === "/employees/archived" ? "font-bold" : ""
+                }`}
+              >
+                <img src={ArrowRight} alt="Arrow Right Icon" />
+                არქივი
+              </Link>
+              <Link
+                to="/devices"
+                className={`flex items-center gap-3 text-white text-[14px] ${
+                  location.pathname === "/devices" ? "font-bold" : ""
+                }`}
+              >
+                <img src={ArrowRight} alt="Arrow Right Icon" />
+                მოწყობილობები
               </Link>
             </div>
           )}
@@ -184,12 +206,14 @@ const Sidebar = () => {
         <div>
           <div
             className="flex items-center gap-3 text-white text-[14px] cursor-pointer"
-            onClick={() => toggleSection('comments')}
+            onClick={() => toggleSection("comments")}
           >
             <img
               src={ArrowRight}
               alt="Arrow Right Icon"
-              className={`transform ${sections.comments ? 'rotate-0' : '-rotate-90'} transition-transform duration-300`}
+              className={`transform ${
+                sections.comments ? "rotate-0" : "-rotate-90"
+              } transition-transform duration-300`}
             />
             პარამეტრები
           </div>
@@ -198,7 +222,7 @@ const Sidebar = () => {
               <Link
                 to="/users"
                 className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === '/users' ? 'font-bold' : ''
+                  location.pathname === "/users" ? "font-bold" : ""
                 }`}
               >
                 <img src={ArrowRight} alt="Arrow Right Icon" />
@@ -207,7 +231,7 @@ const Sidebar = () => {
               <Link
                 to="/user-types"
                 className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === '/user-types' ? 'font-bold' : ''
+                  location.pathname === "/user-types" ? "font-bold" : ""
                 }`}
               >
                 <img src={ArrowRight} alt="Arrow Right Icon" />
@@ -216,20 +240,31 @@ const Sidebar = () => {
               <Link
                 to="/buildings"
                 className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === '/buildings' ? 'font-bold' : ''
+                  location.pathname === "/buildings" ? "font-bold" : ""
                 }`}
               >
                 <img src={ArrowRight} alt="Arrow Right Icon" />
                 შენობები
               </Link>
               <Link
-                to='/departments-distributions'
+                to="/departments-distributions"
                 className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === '/departments-distributions' ? 'font-bold' : ''
+                  location.pathname === "/departments-distributions"
+                    ? "font-bold"
+                    : ""
                 }`}
               >
                 <img src={ArrowRight} alt="Arrow Right Icon" />
                 დეპარტამენტების განაწილება
+              </Link>
+              <Link
+                to="/employees/access"
+                className={`flex items-center gap-3 text-white text-[14px] ${
+                  location.pathname === "/employees/access" ? "font-bold" : ""
+                }`}
+              >
+                <img src={ArrowRight} alt="Arrow Right Icon" />
+                თანამშრომლის დაშვება
               </Link>
             </div>
           )}
@@ -238,12 +273,14 @@ const Sidebar = () => {
         <div>
           <div
             className="flex items-center gap-3 text-white text-[14px] cursor-pointer"
-            onClick={() => toggleSection('settings')}
+            onClick={() => toggleSection("settings")}
           >
             <img
               src={ArrowRight}
               alt="Arrow Right Icon"
-              className={`transform ${sections.settings ? 'rotate-0' : '-rotate-90'} transition-transform duration-300`}
+              className={`transform ${
+                sections.settings ? "rotate-0" : "-rotate-90"
+              } transition-transform duration-300`}
             />
             სამზარეულოს ანგარიშები
           </div>
@@ -252,7 +289,7 @@ const Sidebar = () => {
               <Link
                 to="/direct"
                 className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === '/direct' ? 'font-bold' : ''
+                  location.pathname === "/direct" ? "font-bold" : ""
                 }`}
               >
                 <img src={ArrowRight} alt="Arrow Right Icon" />
@@ -261,7 +298,7 @@ const Sidebar = () => {
               <Link
                 to="/orders"
                 className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === '/orders' ? 'font-bold' : ''
+                  location.pathname === "/orders" ? "font-bold" : ""
                 }`}
               >
                 <img src={ArrowRight} alt="Arrow Right Icon" />
@@ -272,9 +309,9 @@ const Sidebar = () => {
         </div>
       </div>
       <div className="flex gap-2 items-center justify-center">
-      <button onClick={handleLogout} className="text-white flex gap-2">
-        <img src={LogoutIcon} alt="Logout Icon" />
-            Logout
+        <button onClick={handleLogout} className="text-white flex gap-2">
+          <img src={LogoutIcon} alt="Logout Icon" />
+          Logout
         </button>
       </div>
     </div>

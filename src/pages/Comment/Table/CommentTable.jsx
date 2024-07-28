@@ -11,6 +11,7 @@ import { fetchDepartments } from '../../../redux/departmentsSlice';
 import { fetchForgiveTypes } from '../../../redux/forgiveTypeSlice';
 import DeleteIcon from "../../../assets/delete.png";
 import reportService from '../../../services/report';
+import * as XLSX from "xlsx";
 
 const CommentTable = () => {
     const columns = ["თანამშრომელი", "დეპარტამენტი", "პატიების ტიპი", "მომხმარებელი", "ჩაწერის თარიღი", "კომენტარი"];
@@ -18,6 +19,7 @@ const CommentTable = () => {
     const { departments } = useSelector((state) => state.departments);
     const forgiveTypeItems = useSelector((state) => state.forgiveTypes.forgiveTypes);
     const [selectedComment, setSelectedComment] = useState(null)
+    
 
     const [filters, setFilters] = useState({
         start_date: '',
@@ -70,7 +72,9 @@ const CommentTable = () => {
         e.preventDefault();
         try {
             const response = await commentService.fetchCommentedDetails(data);
-            setDetails(response.records);
+
+            console.log(response);
+            setDetails(response);
         } catch (error) {
             console.error('Error fetching commented details:', error);
         }
@@ -92,7 +96,7 @@ const CommentTable = () => {
         });
     }
 
-    console.log(selectedComment);
+   
 
     const handleDelete = async () => {
       try {
@@ -107,8 +111,34 @@ const CommentTable = () => {
       }
     };
 
-    console.log(selectedComment);
+   
 
+    const exportToExcel = () => {
+      const dataToExport = [];
+
+      // Add header row
+      const header = columns;
+      dataToExport.push(header);
+
+      // Add data rows
+      details.forEach((item) => {
+        const row = [
+          item.employee,
+          item.department,
+          item.forgive_type,
+          item.user,
+          item.created_at,
+          item.comment,
+        ];
+        dataToExport.push(row);
+      });
+
+      const worksheet = XLSX.utils.aoa_to_sheet(dataToExport);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Comments");
+
+      XLSX.writeFile(workbook, "Comments.xlsx");
+    };
 
     return (
       <AuthenticatedLayout>
@@ -117,8 +147,8 @@ const CommentTable = () => {
             <h1 className="text-[#1976D2] font-medium text-[23px]">
               კომენტარების ცხრილი
             </h1>
-            <button className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">
-              Download Data
+            <button onClick={exportToExcel} className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">
+              ჩამოტვირთვა
               <img src={ArrowDownIcon} className="ml-3" alt="Arrow Down Icon" />
               <span className="absolute inset-0 border border-white border-dashed rounded"></span>
             </button>

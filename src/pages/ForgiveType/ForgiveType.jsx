@@ -12,6 +12,8 @@ import {
   updateForgiveType,
   deleteForgiveType,
 } from "../../redux/forgiveTypeSlice";
+import * as XLSX from "xlsx";
+
 
 const ForgiveType = () => {
   const dispatch = useDispatch();
@@ -69,6 +71,18 @@ const ForgiveType = () => {
 //     fetchData()
 //  }, [])
 
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(
+      forgiveTypeItems.map((item) => ({
+        ID: item.id,
+        Name: item.name,
+      }))
+    );
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "ForgiveTypes");
+    XLSX.writeFile(workbook, "ForgiveTypes.xlsx");
+  };
+
   return (
     <AuthenticatedLayout>
       <div className="w-full px-20 py-4 flex flex-col gap-8">
@@ -81,8 +95,8 @@ const ForgiveType = () => {
             >
               + დაამატე ახალი პატიების ტიპი
             </button>
-            <button className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">
-              Download Data
+            <button onClick={exportToExcel} className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">
+              ჩამოტვირთვა
               <img src={ArrowDownIcon} className="ml-3" alt="Arrow Down Icon" />
               <span className="absolute inset-0 border border-white border-dashed rounded"></span>
             </button>

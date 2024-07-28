@@ -25,7 +25,7 @@ import CommandType from './pages/CommandType/CommandType';
 import ForgiveType from './pages/ForgiveType/ForgiveType';
 import EmployeeAccess from './pages/EmployeeAccess/EmployeeAccess';
 import ArchivedEmployee from './pages/Employee/Archived/ArchivedEmployee';
-import AccessGroupDistribution from './pages/AccessGroupDistribution/AccessGroupDistribution';
+import Device from './pages/Device/Device';
 
 const ProtectedRoute = ({ element }) => {
   const { isAuthenticated } = useAuth();
@@ -66,26 +66,77 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/employees/create" element={<EmployeeCreate />} />
-        <Route path="/reports/general" element={<ProtectedRoute element={<GeneralReport />} />} />
-        <Route path="/reports/detailed" element={<ProtectedRoute element={<DetailedReport />} />} />
-        <Route path="/comments/analyze" element={<ProtectedRoute element={<CommentAnalyze />} />} />
-        <Route path="/comments/table" element={<ProtectedRoute element={<CommentTable />} />} />
-        <Route path="/direct" element={<ProtectedRoute element={<Direct />} />} />
-        <Route path="/orders" element={<ProtectedRoute element={<Order />} />} />
-        <Route path="/employees" element={<ProtectedRoute element={<CreatedEmployees />} />} />
-        <Route path="/employees/archived" element={<ProtectedRoute element={<ArchivedEmployee />} />} />
-        <Route path="/employees/edit/:id" element={<EmployeeEdit/>} />
-        <Route path="/employees/access" element={<EmployeeAccess/>} />
-        <Route path="/schedules" element={<ProtectedRoute element={<Schedule />} />} />
-        <Route path="/groups" element={<ProtectedRoute element={<Group />} />} />
-        <Route path="/buildings" element={<ProtectedRoute element={<Building />} />} />
-        <Route path="/departments" element={<ProtectedRoute element={<Department />} />} />
+        <Route
+          path="/reports/general"
+          element={<ProtectedRoute element={<GeneralReport />} />}
+        />
+        <Route
+          path="/reports/detailed"
+          element={<ProtectedRoute element={<DetailedReport />} />}
+        />
+        <Route
+          path="/comments/analyze"
+          element={<ProtectedRoute element={<CommentAnalyze />} />}
+        />
+        <Route
+          path="/comments/table"
+          element={<ProtectedRoute element={<CommentTable />} />}
+        />
+        <Route
+          path="/direct"
+          element={<ProtectedRoute element={<Direct />} />}
+        />
+        <Route
+          path="/orders"
+          element={<ProtectedRoute element={<Order />} />}
+        />
+        <Route
+          path="/employees"
+          element={<ProtectedRoute element={<CreatedEmployees />} />}
+        />
+        <Route
+          path="/employees/archived"
+          element={<ProtectedRoute element={<ArchivedEmployee />} />}
+        />
+        <Route path="/employees/edit/:id" element={<EmployeeEdit />} />
+        <Route path="/employees/access" element={<EmployeeAccess />} />
+        <Route
+          path="/schedules"
+          element={<ProtectedRoute element={<Schedule />} />}
+        />
+        <Route
+          path="/groups"
+          element={<ProtectedRoute element={<Group />} />}
+        />
+        <Route
+          path="/buildings"
+          element={<ProtectedRoute element={<Building />} />}
+        />
+        <Route
+          path="/departments"
+          element={<ProtectedRoute element={<Department />} />}
+        />
         <Route path="/users" element={<ProtectedRoute element={<User />} />} />
-        <Route path="/departments-distributions" element={<ProtectedRoute element={<DepartmentDistribution />} />} />
-        <Route path="/user-types" element={<ProtectedRoute element={<UserType />} />} />
-        <Route path="/command-types" element={<ProtectedRoute element={<CommandType/>} />} />
-        <Route path="/forgive-types" element={<ProtectedRoute element={<ForgiveType/>} />} />
-        <Route path="/buildings/access-groups" element={<ProtectedRoute element={<AccessGroupDistribution/>} />}/>
+        <Route
+          path="/departments-distributions"
+          element={<ProtectedRoute element={<DepartmentDistribution />} />}
+        />
+        <Route
+          path="/user-types"
+          element={<ProtectedRoute element={<UserType />} />}
+        />
+        <Route
+          path="/command-types"
+          element={<ProtectedRoute element={<CommandType />} />}
+        />
+        <Route
+          path="/forgive-types"
+          element={<ProtectedRoute element={<ForgiveType />} />}
+        />
+        <Route
+          path="/devices"
+          element={<ProtectedRoute element={<Device />} />}
+        />
       </Routes>
     </Router>
   );

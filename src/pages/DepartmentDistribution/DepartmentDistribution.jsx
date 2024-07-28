@@ -11,6 +11,8 @@ import buildingService from '../../services/building';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchDepartments } from '../../redux/departmentsSlice';
 import { fetchBuildings } from '../../redux/buildingSlice';
+import * as XLSX from "xlsx";
+
 
 const DepartmentDistribution = () => {
     const [data, setData] = useState([]);
@@ -91,6 +93,22 @@ const DepartmentDistribution = () => {
         }
     };
 
+    const exportToExcel = () => {
+      const worksheet = XLSX.utils.json_to_sheet(
+        data.map((item) => ({
+          Building: item.building_name,
+          Department: item.department_name,
+        }))
+      );
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(
+        workbook,
+        worksheet,
+        "DepartmentDistribution"
+      );
+      XLSX.writeFile(workbook, "DepartmentDistribution.xlsx");
+    };
+
     return (
         <AuthenticatedLayout>
             <div className='w-full px-20 py-4 flex flex-col gap-8'>
@@ -111,8 +129,8 @@ const DepartmentDistribution = () => {
                             <img src={DeleteIcon} alt="Delete Icon" />
                             Delete
                         </button>
-                        <button className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">
-                            Download Data
+                        <button onClick={exportToExcel} className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">
+                            ჩამოტვირთვა
                             <img src={ArrowDownIcon} className="ml-3" alt="Arrow Down Icon" />
                             <span className="absolute inset-0 border border-white border-dashed rounded"></span>
                         </button>

@@ -6,6 +6,7 @@ import CreateIcon from "../../assets/create.png";
 import DeleteIcon from "../../assets/delete-2.png";
 import { fetchBuildings, createBuilding, updateBuilding, deleteBuilding } from "../../redux/buildingSlice"; 
 import buildingService from "../../services/building";
+import * as XLSX from "xlsx";
 
 const Building = () => {
   const dispatch = useDispatch();
@@ -111,6 +112,19 @@ const Building = () => {
     submenu.style.display = submenu.style.display === "none" || submenu.style.display === "" ? "block" : "none";
   };
 
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(
+      nestedBuildings.map((building) => ({
+        "სახელი": building.name,
+        "მისამართი": building.address,
+        "ექვემდებარება": building.parent_id,
+      }))
+    );
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Buildings");
+    XLSX.writeFile(workbook, "Buildings.xlsx");
+  };
+
   const renderSubMenu = (subMenu, level = 1) => {
     return (
       <ul className={`ml-10 hidden`}>
@@ -146,8 +160,8 @@ const Building = () => {
             <button className="bg-[#FBD15B] text-white px-4 py-4 rounded-md flex items-center gap-2" onClick={openCreateModal}>
               + დაამატე ახალი შენობა
             </button>
-            <button className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">
-              Download Data
+            <button onClick={exportToExcel} className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">
+              ჩამოტვირთვა
               <img src={ArrowDownIcon} className="ml-3" alt="Arrow Down Icon" />
               <span className="absolute inset-0 border border-white border-dashed rounded"></span>
             </button>
