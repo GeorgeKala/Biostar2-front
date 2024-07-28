@@ -102,7 +102,6 @@ const User = () => {
       if (modalMode === 'create') {
         const createdUser = await userService.createUser(userData);
 
-        console.log(createdUser);
         setUsers([...users, createdUser]);
         closeAddModal();
       } else if (modalMode === 'update' && selectedUserId) {

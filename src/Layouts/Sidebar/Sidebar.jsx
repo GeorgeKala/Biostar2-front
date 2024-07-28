@@ -266,11 +266,20 @@ const Sidebar = () => {
                 <img src={ArrowRight} alt="Arrow Right Icon" />
                 თანამშრომლის დაშვება
               </Link>
+              <Link
+                to="/direct"
+                className={`flex items-center gap-3 text-white text-[14px] ${
+                  location.pathname === "/direct" ? "font-bold" : ""
+                }`}
+              >
+                <img src={ArrowRight} alt="Arrow Right Icon" />
+                პირდაპირი
+              </Link>
             </div>
           )}
         </div>
         {/* Settings Section */}
-        <div>
+        {/* <div>
           <div
             className="flex items-center gap-3 text-white text-[14px] cursor-pointer"
             onClick={() => toggleSection("settings")}
@@ -286,15 +295,7 @@ const Sidebar = () => {
           </div>
           {sections.settings && (
             <div className="pl-4 flex flex-col gap-4 mt-4">
-              <Link
-                to="/direct"
-                className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === "/direct" ? "font-bold" : ""
-                }`}
-              >
-                <img src={ArrowRight} alt="Arrow Right Icon" />
-                პირდაპირი
-              </Link>
+              
               <Link
                 to="/orders"
                 className={`flex items-center gap-3 text-white text-[14px] ${
@@ -306,7 +307,7 @@ const Sidebar = () => {
               </Link>
             </div>
           )}
-        </div>
+        </div> */}
       </div>
       <div className="flex gap-2 items-center justify-center">
         <button onClick={handleLogout} className="text-white flex gap-2">

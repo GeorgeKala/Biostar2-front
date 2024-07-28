@@ -10,8 +10,10 @@ import reportService from "../../services/report";
 import departmentService from "../../services/department";
 import DeleteIcon from "../../assets/delete.png";
 import * as XLSX from "xlsx";
+import { useSelector } from "react-redux";
 
 const Order = () => {
+  const user = useSelector((state) => state.user.user);
   const [openModal, setOpenModal] = useState(false);
   const [EmployeeModalOpen, setEmployeeModalOpen] = useState(false);
   const [currentEmployeeInput, setCurrentEmployeeInput] = useState("");
@@ -20,7 +22,7 @@ const Order = () => {
     start_date: "",
     end_date: "",
     employee_id: "",
-    department_id: "",
+    department_id: user?.user_type?.has_full_access ? "" : user?.department?.id,
   });
   const [data, setData] = useState([]);
   const columns = [
@@ -182,7 +184,10 @@ const Order = () => {
       <div className="w-full px-20 py-4 flex flex-col gap-8">
         <div className="flex justify-between w-full">
           <h1 className="text-[#1976D2] font-medium text-[23px]">ბრძანებები</h1>
-          <button onClick={exportToExcel} className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">
+          <button
+            onClick={exportToExcel}
+            className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative"
+          >
             ჩამოტვირთვა
             <img src={ArrowDownIcon} className="ml-3" alt="Arrow Down Icon" />
             <span className="absolute inset-0 border border-white border-dashed rounded"></span>
@@ -219,6 +224,7 @@ const Order = () => {
               value={filters.department_id}
               onChange={handleInputChange}
               className="bg-white border border-[#105D8D] outline-none rounded-md py-3 px-4 w-full"
+              disabled={!user?.user_type?.has_full_access}
             >
               <option value="">აირჩიეთ დეპარტამენტი</option>
               {departments &&
@@ -263,22 +269,23 @@ const Order = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {data && data.map((item) => (
-                <tr key={item.id}>
-                  <td className="px-4 py-2 border border-gray-200 w-1/6 truncate">
-                    {item.date}
-                  </td>
-                  <td className="px-4 py-2 border border-gray-200 w-1/6 truncate">
-                    {item.employee}
-                  </td>
-                  <td className="px-4 py-2 border border-gray-200 w-1/6 truncate">
-                    {item.department}
-                  </td>
-                  <td className="px-4 py-2 border border-gray-200 w-1/6 truncate">
-                    {item.day_type}
-                  </td>
-                </tr>
-              ))}
+              {data &&
+                data.map((item) => (
+                  <tr key={item.id}>
+                    <td className="px-4 py-2 border border-gray-200 w-1/6 truncate">
+                      {item.date}
+                    </td>
+                    <td className="px-4 py-2 border border-gray-200 w-1/6 truncate">
+                      {item.employee}
+                    </td>
+                    <td className="px-4 py-2 border border-gray-200 w-1/6 truncate">
+                      {item.department}
+                    </td>
+                    <td className="px-4 py-2 border border-gray-200 w-1/6 truncate">
+                      {item.day_type}
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>

@@ -20,7 +20,6 @@ const MultiSelect = () => {
     };
 
     const handleOptionToggle = (optionId) => {
-        console.log(optionId);
         if (selectedOptions.includes(optionId)) {
             setSelectedOptions(prevOptions => prevOptions.filter(item => item !== optionId));
         } else {

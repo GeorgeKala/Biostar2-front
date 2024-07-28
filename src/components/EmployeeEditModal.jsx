@@ -176,7 +176,7 @@ console.log(errors);
 
   const handleScanCard = async () => {
     const scanResult = await deviceService.scanCard(selectedDevice);
-    console.log(scanResult);
+
     const updatedFormData = {
       ...formData,
       card_number: scanResult.Card.card_id,
@@ -206,8 +206,6 @@ console.log(errors);
     }
   };
 
-
-  console.log(formData);
 
   const renderSelectedHolidays = () => {
     return (

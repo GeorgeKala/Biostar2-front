@@ -13,7 +13,6 @@ export const fetchForgiveTypes = createAsyncThunk(
   async () => {
     try {
       const response = await forgiveTypeService.getAllForgiveTypes();
-      console.log(response);
       return response;
     } catch (error) {
       throw Error(error.response.data.error || error.message);

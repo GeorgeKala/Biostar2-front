@@ -3,8 +3,8 @@ import employeeService from "../services/employee";
 
 export const fetchEmployees = createAsyncThunk(
   "employees/fetchEmployees",
-  async () => {
-    const response = await employeeService.getAllEmployees();
+  async (filters = {}) => {
+    const response = await employeeService.getAllEmployees(filters);
     return response;
   }
 );

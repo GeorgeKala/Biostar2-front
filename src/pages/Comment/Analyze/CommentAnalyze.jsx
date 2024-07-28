@@ -9,16 +9,10 @@ import departmentService from "../../../services/department";
 import forgiveTypeService from "../../../services/forgiveType";
 import EmployeeModal from "../../../components/employee/EmployeeModal";
 import * as XLSX from "xlsx";
+import { useSelector } from "react-redux";
 
 const CommentAnalyze = () => {
-  const [filters, setFilters] = useState({
-    start_date: "",
-    end_date: "",
-    department_id: "",
-    forgive_type_id: "",
-    employee_id: "",
-    employee_fullname: "",
-  });
+  const user = useSelector((state) => state.user.user);
   const [commentedDetails, setCommentedDetails] = useState([]);
   const [loading, setLoading] = useState(false);
   const [groupedComments, setGroupedComments] = useState({});
@@ -26,6 +20,15 @@ const CommentAnalyze = () => {
   const [departments, setDepartments] = useState([]);
   const [forgiveTypes, setForgiveTypes] = useState([]);
   const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
+  const [filters, setFilters] = useState({
+    start_date: "",
+    end_date: "",
+    department_id: user?.user_type?.has_full_access ? "" : user?.department?.id,
+    forgive_type_id: "",
+    employee_id: "",
+    employee_fullname: "",
+  });
+  
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -38,7 +41,7 @@ const CommentAnalyze = () => {
   const getAnalyzedComments = async () => {
     setLoading(true);
     try {
-      console.log(filters);
+
       const data = await commentService.fetchAnalyzedComments(filters);
       const { groupedData, uniqueDates } = transformData(data);
       setCommentedDetails(data);
@@ -135,7 +138,6 @@ const CommentAnalyze = () => {
   const exportToExcel = () => {
     const dataToExport = [];
 
-    // Add header row
     const header = ["თანამშრომელი", ...uniqueDates, monthName];
     dataToExport.push(header);
 
@@ -193,6 +195,7 @@ const CommentAnalyze = () => {
               value={filters.department_id}
               onChange={handleInputChange}
               className="bg-white border border-[#105D8D] outline-none rounded-md py-3 px-4 w-full"
+              disabled={!user?.user_type?.has_full_access}
             >
               <option value="">აირჩიეთ დეპარტამენტი</option>
               {departments &&

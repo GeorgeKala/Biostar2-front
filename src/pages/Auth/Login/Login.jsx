@@ -24,7 +24,7 @@ const Login = () => {
                 dispatch(fetchGroups());
                 dispatch(fetchSchedules());
                 dispatch(fetchAsyncUser())
-                navigate('/employees/create')
+                navigate('/reports/general')
                 
             }
         } catch (error) {

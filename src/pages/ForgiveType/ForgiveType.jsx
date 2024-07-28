@@ -58,18 +58,7 @@ const ForgiveType = () => {
     return <p>Error loading forgive types</p>;
   }
 
-//  useEffect(() => {
-//     const fetchData = async () => {
-//         try{
-//             const response = await forgiveTypeService.getAllForgiveTypes();
-//             console.log(response)
-//         }catch(e){
-//             console.log(e)
-//         }
-//     }
 
-//     fetchData()
-//  }, [])
 
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(

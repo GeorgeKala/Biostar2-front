@@ -125,8 +125,6 @@ const Device = () => {
     return <div>Error: {error}</div>;
   }
 
-  console.log(selectedItem);
-
   return (
     <AuthenticatedLayout>
       <div className="w-full px-20 py-4 flex flex-col gap-8">

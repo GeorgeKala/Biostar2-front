@@ -194,7 +194,6 @@ const Department = () => {
                   </button>
                 </div>
               </div>
-              {console.log(item)}
               {item.children && renderSubMenu(item.children)}
             </div>
           ))}

@@ -26,7 +26,6 @@ const ArchivedEmployee = () => {
       setStatus("loading");
       try {
         const data = await employeeService.getArchivedEmployees();
-        console.log(data);
         setEmployees(data);
         setStatus("succeeded");
       } catch (error) {

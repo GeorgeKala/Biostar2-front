@@ -16,17 +16,20 @@ import * as XLSX from "xlsx";
 const CommentTable = () => {
     const columns = ["თანამშრომელი", "დეპარტამენტი", "პატიების ტიპი", "მომხმარებელი", "ჩაწერის თარიღი", "კომენტარი"];
     const dispatch = useDispatch();
+    const user = useSelector((state) => state.user.user);
     const { departments } = useSelector((state) => state.departments);
     const forgiveTypeItems = useSelector((state) => state.forgiveTypes.forgiveTypes);
     const [selectedComment, setSelectedComment] = useState(null)
     
 
     const [filters, setFilters] = useState({
-        start_date: '',
-        end_date: '',
-        department_id: '',
-        forgive_type_id: '',
-        employee_id: ''
+      start_date: "",
+      end_date: "",
+      department_id: user?.user_type?.has_full_access
+        ? ""
+        : user?.department?.id,
+      forgive_type_id: "",
+      employee_id: "",
     });
 
     const [details, setDetails] = useState([]);
@@ -73,7 +76,6 @@ const CommentTable = () => {
         try {
             const response = await commentService.fetchCommentedDetails(data);
 
-            console.log(response);
             setDetails(response);
         } catch (error) {
             console.error('Error fetching commented details:', error);
@@ -147,7 +149,10 @@ const CommentTable = () => {
             <h1 className="text-[#1976D2] font-medium text-[23px]">
               კომენტარების ცხრილი
             </h1>
-            <button onClick={exportToExcel} className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">
+            <button
+              onClick={exportToExcel}
+              className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative"
+            >
               ჩამოტვირთვა
               <img src={ArrowDownIcon} className="ml-3" alt="Arrow Down Icon" />
               <span className="absolute inset-0 border border-white border-dashed rounded"></span>
@@ -175,6 +180,7 @@ const CommentTable = () => {
                 value={filters.department_id}
                 onChange={handleInputChange}
                 className="bg-white border border-[#105D8D] outline-none rounded-md py-3 px-4 w-full"
+                disabled={!user?.user_type?.has_full_access}
               >
                 <option value="">აირჩიეთ დეპარტამენტი</option>
                 {departments &&
@@ -218,7 +224,7 @@ const CommentTable = () => {
               <img src={SearchIcon} className="w-[100px]" alt="Search Icon" />
             </button>
           </div>
-          <div className='flex justify-end'>
+          <div className="flex justify-end">
             <button
               onClick={handleDelete}
               className="bg-[#D9534F] text-white px-4 py-2 rounded-md flex items-center gap-2"

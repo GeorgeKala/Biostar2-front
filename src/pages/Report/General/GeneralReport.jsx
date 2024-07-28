@@ -8,21 +8,20 @@ import { fetchDepartments } from "../../../redux/departmentsSlice";
 import { fetchForgiveTypes } from "../../../redux/forgiveTypeSlice";
 import SearchIcon from "../../../assets/search.png";
 import EmployeeModal from "../../../components/employee/EmployeeModal";
-import { reportLogin } from "../../../services/auth";
+
 import * as XLSX from "xlsx";
 
 const GeneralReport = () => {
   const dispatch = useDispatch();
+  const user = useSelector((state) => state.user.user)
   const { departments } = useSelector((state) => state.departments);
   const forgiveTypeItems = useSelector(
     (state) => state.forgiveTypes.forgiveTypes
   );
-  const forgiveTypeStatus = useSelector((state) => state.forgiveTypes.status);
-
   const [formData, setFormData] = useState({
     start_date: "",
     end_date: "",
-    department_id: "",
+    department_id: user?.user_type?.has_full_access ? "" : user?.department?.id,
     employee: "",
   });
 
@@ -163,14 +162,6 @@ const GeneralReport = () => {
     });
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const response = await reportLogin();
-    };
-    if (!sessionStorage.getItem("bs_id_token")) {
-      fetchData();
-    }
-  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -239,6 +230,33 @@ const GeneralReport = () => {
     XLSX.writeFile(workbook, "General_Report.xlsx");
   };
 
+
+  console.log(reports);
+
+  const getRowClassName = (item) => {
+    if (
+      item.final_penalized_time > 0 &&
+      !item.day_type_id &&
+      !item.forgive_type
+    ) {
+      return "bg-yellow-300";
+    } else if (
+      item.final_penalized_time > 0 &&
+      item.forgive_type.forgive == 0 &&
+      !item.day_type_id
+    ) {
+      return "bg-red-300";
+    } else if (
+      item.final_penalized_time > 0 &&
+      item.forgive_type.forgive == 1 &&
+      !item.day_type_id
+    ) {
+      return "bg-green-300";
+    } else {
+      return "bg-white";
+    }
+  };
+
   return (
     <AuthenticatedLayout>
       <div className="w-full px-20 py-4 flex flex-col gap-8">
@@ -277,6 +295,7 @@ const GeneralReport = () => {
               value={formData.department_id}
               onChange={handleInputChange}
               className="bg-white border border-[#105D8D] outline-none rounded-md py-3 px-4 w-full"
+              disabled={!user?.user_type?.has_full_access}
             >
               <option value="">აირჩიეთ დეპარტამენტი</option>
               {departments &&
@@ -342,9 +361,9 @@ const GeneralReport = () => {
                   reports.map((item, index) => (
                     <tr
                       key={index}
-                      className={`px-2 py-1 border border-gray-200 w-20 ${
-                        item.final_penalized_time > 0 ? "bg-yellow-300" : ""
-                      }`}
+                      className={`px-2 py-1 border border-gray-200 w-20 ${getRowClassName(
+                        item
+                      )}`}
                       onDoubleClick={() => handleRowDoubleClick(item)}
                     >
                       <td className="px-2 py-1 border border-gray-200 w-20">

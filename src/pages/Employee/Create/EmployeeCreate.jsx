@@ -205,7 +205,6 @@ const EmployeeCreate = () => {
 
   const handleScanCard = async () => {
     const scanResult = await deviceService.scanCard(selectedDevice);
-    console.log(scanResult);
     const updatedFormData = {
       ...formData,
       card_number: scanResult.Card.card_id,
@@ -227,7 +226,6 @@ const EmployeeCreate = () => {
             'Bs-Session-Id': sessionToken
           }
         });
-       console.log(response);
       } catch (error) {
         console.error('Error fetching schedules:', error);
       }
@@ -235,8 +233,6 @@ const EmployeeCreate = () => {
 
     fetchData();
   }, []);
-
-  console.log(formData);
 
 
 
