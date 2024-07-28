@@ -5,6 +5,7 @@ import BiostarLogo from '../../assets/Biostar.png';
 import LogoutIcon from '../../assets/logout-icon.png';
 import ArrowRight from '../../assets/arrow-right.png';
 import { logout } from '../../services/auth';
+import useAuth from '../../hooks/useAuth';
 
 const Sidebar = () => {
   const location = useLocation();
@@ -15,6 +16,7 @@ const Sidebar = () => {
     comments: false,
     settings: false,
   });
+  const { hasFullAccess } = useAuth();
 
   const toggleSection = (section) => {
     setSections((prevSections) => ({
@@ -64,15 +66,17 @@ const Sidebar = () => {
                 <img src={ArrowRight} alt="Arrow Right Icon" />
                 პერიოდის რეპორტი
               </Link>
-              <Link
-                to="/employees/create"
-                className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === "/employees/create" ? "font-bold" : ""
-                }`}
-              >
-                <img src={ArrowRight} alt="Arrow Right Icon" />
-                დამატება/ცვლილება
-              </Link>
+              {hasFullAccess && (
+                <Link
+                  to="/employees/create"
+                  className={`flex items-center gap-3 text-white text-[14px] ${
+                    location.pathname === "/employees/create" ? "font-bold" : ""
+                  }`}
+                >
+                  <img src={ArrowRight} alt="Arrow Right Icon" />
+                  დამატება/ცვლილება
+                </Link>
+              )}
               <Link
                 to="/employees"
                 className={`flex items-center gap-3 text-white text-[14px] ${
@@ -137,69 +141,85 @@ const Sidebar = () => {
                 <img src={ArrowRight} alt="Arrow Right Icon" />
                 თანამშრომლები
               </Link>
-              <Link
-                to="/groups"
-                className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === "/groups" ? "font-bold" : ""
-                }`}
-              >
-                <img src={ArrowRight} alt="Arrow Right Icon" />
-                ჯგუფები
-              </Link>
-              <Link
-                to="/departments"
-                className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === "/departments" ? "font-bold" : ""
-                }`}
-              >
-                <img src={ArrowRight} alt="Arrow Right Icon" />
-                დეპარტამენტები
-              </Link>
-              <Link
-                to="/schedules"
-                className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === "/schedules" ? "font-bold" : ""
-                }`}
-              >
-                <img src={ArrowRight} alt="Arrow Right Icon" />
-                განრიგები
-              </Link>
-              <Link
-                to="/command-types"
-                className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === "/command-types" ? "font-bold" : ""
-                }`}
-              >
-                <img src={ArrowRight} alt="Arrow Right Icon" />
-                ბრძანების ტიპები
-              </Link>
-              <Link
-                to="/forgive-types"
-                className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === "/forgive-types" ? "font-bold" : ""
-                }`}
-              >
-                <img src={ArrowRight} alt="Arrow Right Icon" />
-                პატიების ტიპები
-              </Link>
-              <Link
-                to="/employees/archived"
-                className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === "/employees/archived" ? "font-bold" : ""
-                }`}
-              >
-                <img src={ArrowRight} alt="Arrow Right Icon" />
-                არქივი
-              </Link>
-              <Link
-                to="/devices"
-                className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === "/devices" ? "font-bold" : ""
-                }`}
-              >
-                <img src={ArrowRight} alt="Arrow Right Icon" />
-                მოწყობილობები
-              </Link>
+              {hasFullAccess && (
+                <Link
+                  to="/groups"
+                  className={`flex items-center gap-3 text-white text-[14px] ${
+                    location.pathname === "/groups" ? "font-bold" : ""
+                  }`}
+                >
+                  <img src={ArrowRight} alt="Arrow Right Icon" />
+                  ჯგუფები
+                </Link>
+              )}
+              {hasFullAccess && (
+                <Link
+                  to="/departments"
+                  className={`flex items-center gap-3 text-white text-[14px] ${
+                    location.pathname === "/departments" ? "font-bold" : ""
+                  }`}
+                >
+                  <img src={ArrowRight} alt="Arrow Right Icon" />
+                  დეპარტამენტები
+                </Link>
+              )}
+              {hasFullAccess && (
+                <Link
+                  to="/schedules"
+                  className={`flex items-center gap-3 text-white text-[14px] ${
+                    location.pathname === "/schedules" ? "font-bold" : ""
+                  }`}
+                >
+                  <img src={ArrowRight} alt="Arrow Right Icon" />
+                  განრიგები
+                </Link>
+              )}
+              {hasFullAccess && (
+                <Link
+                  to="/command-types"
+                  className={`flex items-center gap-3 text-white text-[14px] ${
+                    location.pathname === "/command-types" ? "font-bold" : ""
+                  }`}
+                >
+                  <img src={ArrowRight} alt="Arrow Right Icon" />
+                  ბრძანების ტიპები
+                </Link>
+              )}
+              {hasFullAccess && (
+                <Link
+                  to="/forgive-types"
+                  className={`flex items-center gap-3 text-white text-[14px] ${
+                    location.pathname === "/forgive-types" ? "font-bold" : ""
+                  }`}
+                >
+                  <img src={ArrowRight} alt="Arrow Right Icon" />
+                  პატიების ტიპები
+                </Link>
+              )}
+              {hasFullAccess && (
+                <Link
+                  to="/employees/archived"
+                  className={`flex items-center gap-3 text-white text-[14px] ${
+                    location.pathname === "/employees/archived"
+                      ? "font-bold"
+                      : ""
+                  }`}
+                >
+                  <img src={ArrowRight} alt="Arrow Right Icon" />
+                  არქივი
+                </Link>
+              )}
+              {hasFullAccess && (
+                <Link
+                  to="/devices"
+                  className={`flex items-center gap-3 text-white text-[14px] ${
+                    location.pathname === "/devices" ? "font-bold" : ""
+                  }`}
+                >
+                  <img src={ArrowRight} alt="Arrow Right Icon" />
+                  მოწყობილობები
+                </Link>
+              )}
             </div>
           )}
         </div>
@@ -217,64 +237,77 @@ const Sidebar = () => {
             />
             პარამეტრები
           </div>
+
           {sections.comments && (
             <div className="pl-4 flex flex-col gap-4 mt-4">
-              <Link
-                to="/users"
-                className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === "/users" ? "font-bold" : ""
-                }`}
-              >
-                <img src={ArrowRight} alt="Arrow Right Icon" />
-                მომხმარებლები
-              </Link>
-              <Link
-                to="/user-types"
-                className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === "/user-types" ? "font-bold" : ""
-                }`}
-              >
-                <img src={ArrowRight} alt="Arrow Right Icon" />
-                მომხმარებლების ტიპები
-              </Link>
-              <Link
-                to="/buildings"
-                className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === "/buildings" ? "font-bold" : ""
-                }`}
-              >
-                <img src={ArrowRight} alt="Arrow Right Icon" />
-                შენობები
-              </Link>
-              <Link
-                to="/departments-distributions"
-                className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === "/departments-distributions"
-                    ? "font-bold"
-                    : ""
-                }`}
-              >
-                <img src={ArrowRight} alt="Arrow Right Icon" />
-                დეპარტამენტების განაწილება
-              </Link>
-              <Link
-                to="/employees/access"
-                className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === "/employees/access" ? "font-bold" : ""
-                }`}
-              >
-                <img src={ArrowRight} alt="Arrow Right Icon" />
-                თანამშრომლის დაშვება
-              </Link>
-              <Link
-                to="/direct"
-                className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === "/direct" ? "font-bold" : ""
-                }`}
-              >
-                <img src={ArrowRight} alt="Arrow Right Icon" />
-                პირდაპირი
-              </Link>
+              {hasFullAccess && (
+                <Link
+                  to="/users"
+                  className={`flex items-center gap-3 text-white text-[14px] ${
+                    location.pathname === "/users" ? "font-bold" : ""
+                  }`}
+                >
+                  <img src={ArrowRight} alt="Arrow Right Icon" />
+                  მომხმარებლები
+                </Link>
+              )}
+              {hasFullAccess && (
+                <Link
+                  to="/user-types"
+                  className={`flex items-center gap-3 text-white text-[14px] ${
+                    location.pathname === "/user-types" ? "font-bold" : ""
+                  }`}
+                >
+                  <img src={ArrowRight} alt="Arrow Right Icon" />
+                  მომხმარებლების ტიპები
+                </Link>
+              )}
+              {hasFullAccess && (
+                <Link
+                  to="/buildings"
+                  className={`flex items-center gap-3 text-white text-[14px] ${
+                    location.pathname === "/buildings" ? "font-bold" : ""
+                  }`}
+                >
+                  <img src={ArrowRight} alt="Arrow Right Icon" />
+                  შენობები
+                </Link>
+              )}
+              {hasFullAccess && (
+                <Link
+                  to="/departments-distributions"
+                  className={`flex items-center gap-3 text-white text-[14px] ${
+                    location.pathname === "/departments-distributions"
+                      ? "font-bold"
+                      : ""
+                  }`}
+                >
+                  <img src={ArrowRight} alt="Arrow Right Icon" />
+                  დეპარტამენტების განაწილება
+                </Link>
+              )}
+              {hasFullAccess && (
+                <Link
+                  to="/employees/access"
+                  className={`flex items-center gap-3 text-white text-[14px] ${
+                    location.pathname === "/employees/access" ? "font-bold" : ""
+                  }`}
+                >
+                  <img src={ArrowRight} alt="Arrow Right Icon" />
+                  თანამშრომლის დაშვება
+                </Link>
+              )}
+              {hasFullAccess && (
+                <Link
+                  to="/direct"
+                  className={`flex items-center gap-3 text-white text-[14px] ${
+                    location.pathname === "/direct" ? "font-bold" : ""
+                  }`}
+                >
+                  <img src={ArrowRight} alt="Arrow Right Icon" />
+                  პირდაპირი
+                </Link>
+              )}
             </div>
           )}
         </div>

@@ -40,7 +40,7 @@ const User = () => {
     dispatch(fetchUsers());
     dispatch(fetchUserTypes());
     dispatch(fetchDepartments());
-    dispatch(fetchEmployees());
+    
   }, [dispatch]);
 
   useEffect(() => {
@@ -170,29 +170,31 @@ const User = () => {
 
   return (
     <AuthenticatedLayout>
-      <div className='w-full px-20 py-4 flex flex-col gap-8'>
+      <div className="w-full px-20 py-4 flex flex-col gap-8">
         <div className="flex justify-between items-center w-full">
           <h1 className="text-[#1976D2] font-medium text-[23px]">
             მომხმარებლები
           </h1>
-          <div className='flex items-center gap-8'>
-            <button className="bg-[#1976D2] text-white px-4 py-2 rounded-md flex items-center gap-2" onClick={openAddModal}>
+          <div className="flex items-center gap-8">
+            <button
+              className="bg-[#1976D2] text-white px-4 py-2 rounded-md flex items-center gap-2"
+              onClick={openAddModal}
+            >
               <img src={NewIcon} alt="New" />
               New
             </button>
-            <button onClick={exportToExcel} className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">
+            <button
+              onClick={exportToExcel}
+              className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative"
+            >
               ჩამოტვირთვა
               <img src={ArrowDownIcon} className="ml-3" alt="Arrow Down Icon" />
               <span className="absolute inset-0 border border-white border-dashed rounded"></span>
             </button>
           </div>
         </div>
-        <div className='flex items-center gap-4'>
-          <GeneralInputGroup
-            name="name"
-            placeholder="სახელი"
-            type="text"
-          />
+        <div className="flex items-center gap-4">
+          <GeneralInputGroup name="name" placeholder="სახელი" type="text" />
           <GeneralInputGroup
             name="username"
             placeholder="მომხმარებელი"
@@ -205,39 +207,100 @@ const User = () => {
           <SearchButton />
         </div>
         <div className="container mx-auto mt-10 overflow-x-auto">
-          <div className="min-w-max">
-            <div className="grid grid-cols-6 gap-2 bg-[#1976D2] text-white py-6 px-4 min-w-max">
-              <div>მომხმარებელი</div>
-              <div>სახელი გვარი</div>
-              <div>მომხმარებლის ტიპი</div>
-              <div>დეპარტამენტი</div>
-              <div>თანამშრომელი</div>
-              <div className='flex gap-4 items-center justify-center'>განახლება/წაშლა</div>
-            </div>
-            <div className="h-100 min-w-max">
-              {users && users.map((user) => (
-                <div
-                  key={user?.id}
-                  className={`grid grid-cols-6 gap-2 py-2 px-4 border-b min-w-max cursor-pointer ${user?.id === selectedUserId ? 'bg-gray-200' : ''}`}
-                  onClick={() => handleRowClick(user.id)}
+          <table className="min-w-full divide-y divide-gray-200 border">
+            <thead className="bg-[#1976D2] text-white">
+              <tr>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider border"
                 >
-                  <div>{user?.username}</div>
-                  <div>{user?.name}</div>
-                  <div>{user?.user_type?.name}</div>
-                  <div>{user?.department?.name}</div>
-                  <div>{user?.employee?.fullname}</div>
-                  <div className="flex gap-4 items-center justify-center">
-                    <button onClick={() => openUpdateModal(user)} className="hover:text-gray-600 focus:outline-none">
-                      <img src={CreateIcon} alt="Edit" className="w-6 h-6" />
-                    </button>
-                    <button onClick={() => handleDelete(user.id)} className="hover:text-gray-600 focus:outline-none">
-                      <img src={DeleteIcon} alt="Delete" className="w-6 h-6" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+                  მომხმარებელი
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider border"
+                >
+                  სახელი გვარი
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider border"
+                >
+                  მომხმარებლის ტიპი
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider border"
+                >
+                  დეპარტამენტი
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider border"
+                >
+                  თანამშრომელი
+                </th>
+                <th
+                  scope="col"
+                  className="px-6 py-3 text-center text-xs font-medium text-white uppercase tracking-wider border"
+                >
+                  განახლება/წაშლა
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {users &&
+                users.map((user) => (
+                  <tr
+                    key={user?.id}
+                    className={`cursor-pointer ${
+                      user?.id === selectedUserId ? "bg-gray-200" : ""
+                    }`}
+                    onClick={() => handleRowClick(user.id)}
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 truncate max-w-xs border">
+                      {user?.username}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 truncate max-w-xs border">
+                      {user?.name}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 truncate max-w-xs border">
+                      {user?.user_type?.name}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 truncate max-w-xs border">
+                      {user?.department?.name}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 truncate max-w-xs border">
+                      {user?.employee?.fullname}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 flex justify-center gap-4 border">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openUpdateModal(user);
+                        }}
+                        className="hover:text-gray-600 focus:outline-none"
+                      >
+                        <img src={CreateIcon} alt="Edit" className="w-6 h-6" />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(user.id);
+                        }}
+                        className="hover:text-gray-600 focus:outline-none"
+                      >
+                        <img
+                          src={DeleteIcon}
+                          alt="Delete"
+                          className="w-6 h-6"
+                        />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -245,16 +308,39 @@ const User = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
           <div className="bg-white rounded-lg max-w-md w-full">
             <div className="flex justify-between items-center p-3 bg-blue-500 text-white rounded-t-lg">
-              <h2 className="text-lg font-semibold">{modalMode === 'create' ? 'დაამატე ახალი მომხმარებელი' : 'განაახლე მომხმარებელი'}</h2>
-              <button onClick={closeAddModal} className="hover:text-gray-200 focus:outline-none">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+              <h2 className="text-lg font-semibold">
+                {modalMode === "create"
+                  ? "დაამატე ახალი მომხმარებელი"
+                  : "განაახლე მომხმარებელი"}
+              </h2>
+              <button
+                onClick={closeAddModal}
+                className="hover:text-gray-200 focus:outline-none"
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  ></path>
                 </svg>
               </button>
             </div>
-            <form onSubmit={handleSave} className='p-3'>
+            <form onSubmit={handleSave} className="p-3">
               <div className="mb-4">
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700">სახელი:</label>
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  სახელი:
+                </label>
                 <input
                   type="text"
                   id="name"
@@ -266,7 +352,12 @@ const User = () => {
                 />
               </div>
               <div className="mb-4">
-                <label htmlFor="username" className="block text-sm font-medium text-gray-700">მომხმარებელი:</label>
+                <label
+                  htmlFor="username"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  მომხმარებელი:
+                </label>
                 <input
                   type="text"
                   id="username"
@@ -278,7 +369,12 @@ const User = () => {
                 />
               </div>
               <div className="mb-4">
-                <label htmlFor="userType" className="block text-sm font-medium text-gray-700">მომხმარებლის ტიპი:</label>
+                <label
+                  htmlFor="userType"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  მომხმარებლის ტიპი:
+                </label>
                 <select
                   id="userType"
                   name="userType"
@@ -288,13 +384,21 @@ const User = () => {
                   required
                 >
                   <option value="">აირჩიე მომხმარებლის ტიპი</option>
-                  {userTypes && userTypes.map(type => (
-                    <option key={type.id} value={type.id}>{type.name}</option>
-                  ))}
+                  {userTypes &&
+                    userTypes.map((type) => (
+                      <option key={type.id} value={type.id}>
+                        {type.name}
+                      </option>
+                    ))}
                 </select>
               </div>
               <div className="mb-4">
-                <label htmlFor="department" className="block text-sm font-medium text-gray-700">დეპარტამენტი:</label>
+                <label
+                  htmlFor="department"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  დეპარტამენტი:
+                </label>
                 <select
                   id="department"
                   name="department"
@@ -303,13 +407,21 @@ const User = () => {
                   onChange={handleChange}
                 >
                   <option value="">აირჩიე დეპარტამენტი</option>
-                  {departments && departments.map(item => (
-                    <option key={item.id} value={item.id}>{item.name}</option>
-                  ))}
+                  {departments &&
+                    departments.map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.name}
+                      </option>
+                    ))}
                 </select>
               </div>
               <div className="mb-4">
-                <label htmlFor="employeeId" className="block text-sm font-medium text-gray-700">თანამშრომელი:</label>
+                <label
+                  htmlFor="employeeId"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  თანამშრომელი:
+                </label>
                 <input
                   type="text"
                   id="employeeId"
@@ -321,8 +433,19 @@ const User = () => {
                 />
               </div>
               <div className="flex justify-end mt-4">
-                <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md mr-2">Save</button>
-                <button type="button" onClick={closeAddModal} className="bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-4 rounded-md">Cancel</button>
+                <button
+                  type="submit"
+                  className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md mr-2"
+                >
+                  Save
+                </button>
+                <button
+                  type="button"
+                  onClick={closeAddModal}
+                  className="bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-4 rounded-md"
+                >
+                  Cancel
+                </button>
               </div>
             </form>
           </div>
