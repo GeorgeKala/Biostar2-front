@@ -25,8 +25,8 @@ const Schedule = () => {
     name: '',
     start_date: '',
     end_date: '',
-    start_time: '',
-    end_time: '',
+    day_start: '',
+    day_end: '',
     repetition_unit: '',
     interval: '',
     comment: ''
@@ -34,8 +34,8 @@ const Schedule = () => {
 
   // Filter state
   const [filters, setFilters] = useState({
-    start_time: '',
-    end_time: ''
+    day_start: '',
+    day_end: ''
   });
 
   // Validation errors state
@@ -56,8 +56,8 @@ const Schedule = () => {
         name: editItem.name,
         start_date: editItem.start_date,
         end_date: editItem.end_date,
-        start_time: editItem.start_time,
-        end_time: editItem.end_time,
+        day_start: editItem.day_start,
+        day_end: editItem.day_end,
         repetition_unit: editItem.repetition_unit,
         interval: editItem.interval,
         comment: editItem.comment
@@ -72,8 +72,8 @@ const Schedule = () => {
       name: '',
       start_date: '',
       end_date: '',
-      start_time: '',
-      end_time: '',
+      day_start: '',
+      day_end: '',
       repetition_unit: '',
       interval: '',
       comment: ''
@@ -122,30 +122,22 @@ const Schedule = () => {
   };
 
   const filteredScheduleItems = scheduleItems.filter(item => {
-    const startTimeFilter = filters.start_time ? new Date(`1970-01-01T${item.start_time}`) >= new Date(`1970-01-01T${filters.start_time}`) : true;
-    const endTimeFilter = filters.end_time ? new Date(`1970-01-01T${item.end_time}`) <= new Date(`1970-01-01T${filters.end_time}`) : true;
+    const startTimeFilter = filters.day_start ? new Date(`1970-01-01T${item.day_start}`) >= new Date(`1970-01-01T${filters.day_start}`) : true;
+    const endTimeFilter = filters.day_end ? new Date(`1970-01-01T${item.day_end}`) <= new Date(`1970-01-01T${filters.day_end}`) : true;
     return startTimeFilter && endTimeFilter;
   });
-
-  if (scheduleStatus === "loading") {
-    return <p>Loading...</p>;
-  }
-
-  if (scheduleStatus === "failed") {
-    return <p>Error loading schedules</p>;
-  }
 
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(
       scheduleItems.map((item) => ({
-        სახელი: item.name,
+        "სახელი": item.name,
         "დაწყების თარიღი": item.start_date,
         "დასრულების თარიღი": item.end_date,
-        "დაწყების დრო": item.start_time,
-        "დამთავრების დრო": item.end_time,
+        "დაწყების დრო": item.day_start,
+        "დამთავრების დრო": item.day_end,
         "გამეორების ერთეული": item.repetition_unit,
-        ინტერვალი: item.interval,
-        კომენტარი: item.comment,
+        "ინტერვალი": item.interval,
+        "კომენტარი": item.comment,
       }))
     );
     const workbook = XLSX.utils.book_new();
@@ -178,77 +170,82 @@ const Schedule = () => {
           
         </div>
         <div className="overflow-x-auto">
-            <table className="min-w-max w-full divide-y divide-gray-200">
-              <thead className="bg-blue-500 text-white">
-                <tr>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                    განრიგის სახელი
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                    დაწყების თარიღი
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                    დასრულების თარიღი
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                    დაწყების დრო
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                    დამთავრების დრო
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                    გამეორების ერთეული
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                    ინტერვალი
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                    კომენტარი
-                  </th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                    განახლება/წაშლა
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredScheduleItems.map((item) => (
-                  <tr key={item.id} className="cursor-pointer">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{item.name}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{item.start_date}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{item.end_date}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{item.start_time}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{item.end_time}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{item.repetition_unit}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{item.interval}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{item.comment}</div>
-                    </td>
-                    <td className="px-6 py-4 flex justify-center gap-3 whitespace-nowrap text-center text-sm font-medium">
-                      <button onClick={() => openModal(item.id)} className="text-blue-600 hover:text-blue-900 focus:outline-none">
-                        <img src={CreateIcon} alt="Edit" className="w-5 h-5" />
-                      </button>
-                      <button onClick={() => handleDeleteSchedule(item.id)} className="text-red-600 hover:text-red-900 focus:outline-none">
-                        <img src={DeleteIcon} alt="Delete" className="w-5 h-5" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <table className=" w-full divide-y divide-gray-200 table-fixed">
+          <thead className="bg-blue-500 text-white">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider truncate w-1/9">
+                განრიგის სახელი
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider truncate w-1/9">
+                დაწყების თარიღი
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider truncate w-1/9">
+                დასრულების თარიღი
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider truncate w-1/9">
+                დაწყების დრო
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider truncate w-1/9">
+                დამთავრების დრო
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider truncate w-1/9">
+                გამეორების ერთეული
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider truncate w-1/9">
+                ინტერვალი
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider truncate w-1/9">
+                კომენტარი
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider truncate w-1/9">
+                განახლება/წაშლა
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {filteredScheduleItems.map((item) => (
+              <tr key={item.id} className="cursor-pointer">
+                <td className="px-6 py-4 truncate w-1/9">
+                  <input
+                      type="text"
+                      value={item.name}
+                      className="w-full bg-transparent outline-none"
+                      readOnly
+                    />
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap w-1/9 truncate">
+                  {item.start_date}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap w-1/9 truncate">
+                  {item.end_date}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap w-1/9 truncate">
+                  {item.day_start}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap w-1/9 truncate">
+                  {item.day_end}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap w-1/9 truncate">
+                  {item.repetition_unit}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap w-1/9 truncate">
+                  {item.interval}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap w-1/9 truncate">
+                  {item.comment}
+                </td>
+                <td className="px-6 py-4 flex justify-center gap-3 whitespace-nowrap text-center text-sm font-medium w-1/9">
+                  <button onClick={() => openModal(item.id)} className="text-blue-600 hover:text-blue-900 focus:outline-none">
+                    <img src={CreateIcon} alt="Edit" className="w-5 h-5" />
+                  </button>
+                  <button onClick={() => handleDeleteSchedule(item.id)} className="text-red-600 hover:text-red-900 focus:outline-none">
+                    <img src={DeleteIcon} alt="Delete" className="w-5 h-5" />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
           </div>
           </div>
       {modalOpen && (
@@ -301,28 +298,28 @@ const Schedule = () => {
                 {errors.end_date && <p className="text-red-500 text-sm mt-1">{errors.end_date}</p>}
               </div>
               <div className="mb-4">
-                <label htmlFor="start_time" className="block text-sm font-medium text-gray-700">დაწყების დრო:</label>
+                <label htmlFor="day_start" className="block text-sm font-medium text-gray-700">დაწყების დრო:</label>
                 <input
                   type="time"
-                  id="start_time"
-                  name="start_time"
-                  className={`mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 ${errors.start_time && 'border-red-500'}`}
-                  value={formData.start_time}
-                  onChange={(e) => setFormData({ ...formData, start_time: e.target.value })}
+                  id="day_start"
+                  name="day_start"
+                  className={`mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 ${errors.day_start && 'border-red-500'}`}
+                  value={formData.day_start}
+                  onChange={(e) => setFormData({ ...formData, day_start: e.target.value })}
                 />
-                {errors.start_time && <p className="text-red-500 text-sm mt-1">{errors.start_time}</p>}
+                {errors.day_start && <p className="text-red-500 text-sm mt-1">{errors.day_start}</p>}
               </div>
               <div className="mb-4">
-                <label htmlFor="end_time" className="block text-sm font-medium text-gray-700">დამთავრების დრო:</label>
+                <label htmlFor="day_end" className="block text-sm font-medium text-gray-700">დამთავრების დრო:</label>
                 <input
                   type="time"
-                  id="end_time"
-                  name="end_time"
-                  className={`mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 ${errors.end_time && 'border-red-500'}`}
-                  value={formData.end_time}
-                  onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
+                  id="day_end"
+                  name="day_end"
+                  className={`mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 ${errors.day_end && 'border-red-500'}`}
+                  value={formData.day_end}
+                  onChange={(e) => setFormData({ ...formData, day_end: e.target.value })}
                 />
-                {errors.end_time && <p className="text-red-500 text-sm mt-1">{errors.end_time}</p>}
+                {errors.day_end && <p className="text-red-500 text-sm mt-1">{errors.day_end}</p>}
               </div>
               <div className="mb-4">
                 <label htmlFor="repetition_unit" className="block text-sm font-medium text-gray-700">გამეორების ერთეული:</label>

@@ -93,7 +93,7 @@ function App() {
         <Route
           path="/employees/create"
           element={
-            <ProtectedRoute element={<EmployeeCreate />} requiresFullAccess />
+            <EmployeeCreate /> 
           }
         />
         <Route
@@ -103,93 +103,78 @@ function App() {
         <Route
           path="/reports/detailed"
           element={
-            <ProtectedRoute element={<DetailedReport />} requiresFullAccess />
+           <DetailedReport />
           }
         />
         <Route
           path="/comments/analyze"
-          element={<ProtectedRoute element={<CommentAnalyze />} />}
+         element={<CommentAnalyze />} 
         />
         <Route
           path="/comments/table"
-          element={<ProtectedRoute element={<CommentTable />} />}
+         element={<CommentTable />}
         />
         <Route
           path="/direct"
-          element={<ProtectedRoute element={<Direct />} requiresFullAccess />}
+          element={<Direct />}
         />
         <Route
           path="/orders"
-          element={<ProtectedRoute element={<Order />} requiresFullAccess />}
+         element={<Order />}
         />
         <Route
           path="/employees"
-          element={
-            <ProtectedRoute element={<CreatedEmployees />} requiresFullAccess />
-          }
+          element={<CreatedEmployees />} 
         />
         <Route
           path="/employees/archived"
-          element={
-            <ProtectedRoute element={<ArchivedEmployee />} requiresFullAccess />
-          }
+         element={<ArchivedEmployee />} 
         />
         <Route
           path="/employees/access"
-          element={
-            <ProtectedRoute element={<EmployeeAccess />} requiresFullAccess />
-          }        
+          element={<EmployeeAccess />}
           />
         <Route
           path="/schedules"
-          element={<ProtectedRoute element={<Schedule />} requiresFullAccess />}
+          element={<Schedule />}
         />
         <Route
           path="/groups"
-          element={<ProtectedRoute element={<Group />} requiresFullAccess />}
+          element={<Group />}
         />
         <Route
           path="/buildings"
-          element={<ProtectedRoute element={<Building />} requiresFullAccess />}
+         element={<Building />}
         />
         <Route
           path="/departments"
-          element={
-            <ProtectedRoute element={<Department />} requiresFullAccess />
-          }
+          element={<Department />} 
         />
         <Route
           path="/users"
-          element={<ProtectedRoute element={<User />} requiresFullAccess />}
+         element={<User />} 
         />
         <Route
           path="/departments-distributions"
-          element={
-            <ProtectedRoute
+         
               element={<DepartmentDistribution />}
-              requiresFullAccess
-            />
-          }
+   
         />
         <Route
           path="/user-types"
-          element={<ProtectedRoute element={<UserType />} requiresFullAccess />}
+          element={<UserType />} 
         />
         <Route
           path="/command-types"
-          element={
-            <ProtectedRoute element={<CommandType />} requiresFullAccess />
-          }
+         element={<CommandType />}
         />
         <Route
           path="/forgive-types"
-          element={
-            <ProtectedRoute element={<ForgiveType />} requiresFullAccess />
-          }
+          element={<ForgiveType />} 
         />
         <Route
           path="/devices"
-          element={<ProtectedRoute element={<Device />} requiresFullAccess />}
+         element={<Device />}
         />
       </Routes>
     </Router>

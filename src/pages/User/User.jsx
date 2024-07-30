@@ -6,14 +6,12 @@ import ArrowDownIcon from '../../assets/arrow-down-2.png';
 import CreateIcon from "../../assets/create.png";
 import DeleteIcon from "../../assets/delete-2.png";
 import GeneralInputGroup from '../../components/GeneralInputGroup';
-import GeneralSelectGroup from '../../components/GeneralSelectGroup';
-import SearchButton from '../../components/SearchButton';
 import { fetchUsers } from '../../redux/userDataSlice';
 import { fetchUserTypes } from '../../redux/userTypeSlice';
 import { fetchDepartments } from '../../redux/departmentsSlice';
-import { fetchEmployees } from '../../redux/employeeSlice';
 import userService from '../../services/users';
 import EmployeeModal from '../../components/employee/EmployeeModal';
+import SearchIcon from "../../assets/search.png";
 import * as XLSX from "xlsx";
 
 const User = () => {
@@ -21,7 +19,6 @@ const User = () => {
   const usersData = useSelector(state => state.user.users.items);
   const userTypes = useSelector(state => state.userType.items);
   const { departments } = useSelector((state) => state.departments);
-  const employees = useSelector((state) => state.employees.items);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -35,16 +32,24 @@ const User = () => {
   const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('create');
   const [users, setUsers] = useState([]);
+  const [filters, setFilters] = useState({
+    name: '',
+    username: '',
+    userType: '',
+    department: '',
+  });
+
+  const [filteredUsers, setFilteredUsers] = useState([]);
 
   useEffect(() => {
     dispatch(fetchUsers());
     dispatch(fetchUserTypes());
     dispatch(fetchDepartments());
-    
   }, [dispatch]);
 
   useEffect(() => {
     setUsers(usersData);
+    setFilteredUsers(usersData);
   }, [usersData]);
 
   const openAddModal = () => {
@@ -100,9 +105,8 @@ const User = () => {
 
     try {
       if (modalMode === 'create') {
-        const createdUser = await userService.createUser(userData);
+        await userService.createUser(userData);
 
-        setUsers([...users, createdUser]);
         closeAddModal();
       } else if (modalMode === 'update' && selectedUserId) {
         const updatedUser = await userService.updateUser(selectedUserId, userData);
@@ -114,6 +118,8 @@ const User = () => {
         }
         closeAddModal();
       }
+
+      dispatch(fetchUsers());
     } catch (error) {
       alert("Failed to save user: " + error.message);
     }
@@ -156,17 +162,36 @@ const User = () => {
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(
       users.map((user) => ({
-        მომხმარებელი: user.username,
+        "მომხმარებელი": user.username,
         "სახელი გვარი": user.name,
         "მომხმარებლის ტიპი": user.user_type.name,
-        დეპარტამენტი: user.department?.name,
-        თანამშრომელი: user.employee?.fullname,
+        "დეპარტამენტი": user.department?.name,
+        "თანამშრომელი": user.employee?.fullname,
       }))
     );
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
     XLSX.writeFile(workbook, "Users.xlsx");
   };
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters(prevState => ({
+      ...prevState,
+      [name]: value
+    }));
+  };
+
+  const handleFilterClick = () => {
+    const filtered = users.filter(user => 
+      user.name.toLowerCase().includes(filters.name.toLowerCase()) &&
+      user.username.toLowerCase().includes(filters.username.toLowerCase()) &&
+      (filters.userType ? user.user_type.id === parseInt(filters.userType) : true) &&
+      (filters.department_id ? user.department?.id === parseInt(filters.department_id) : true)
+    );
+    setFilteredUsers(filtered);
+  };
+
 
   return (
     <AuthenticatedLayout>
@@ -177,11 +202,11 @@ const User = () => {
           </h1>
           <div className="flex items-center gap-8">
             <button
-              className="bg-[#1976D2] text-white px-4 py-2 rounded-md flex items-center gap-2"
+              className="bg-[#1976D2] text-white px-4 py-4 rounded-md flex items-center gap-2"
               onClick={openAddModal}
             >
               <img src={NewIcon} alt="New" />
-              New
+              ახალი
             </button>
             <button
               onClick={exportToExcel}
@@ -194,17 +219,40 @@ const User = () => {
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <GeneralInputGroup name="name" placeholder="სახელი" type="text" />
+          <GeneralInputGroup
+            name="name"
+            placeholder="სახელი"
+            type="text"
+            value={filters.name}
+            onChange={handleFilterChange}
+          />
           <GeneralInputGroup
             name="username"
             placeholder="მომხმარებელი"
             type="text"
+            value={filters.username}
+            onChange={handleFilterChange}
           />
-          <GeneralSelectGroup
-            label="დეპარტამენტი"
-            options={["Option 1", "Option 2", "Option 3"]}
-          />
-          <SearchButton />
+          <div className="w-full flex flex-col gap-2">
+            <select
+              id="department_id"
+              name="department_id"
+              value={filters.department}
+              onChange={handleFilterChange}
+              className="bg-white border border-[#105D8D] outline-none rounded-md py-3 px-4 w-full"
+            >
+              <option value="">აირჩიეთ დეპარტამენტი</option>
+              {departments &&
+                departments.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name}
+                  </option>
+                ))}
+            </select>
+          </div>
+          <button onClick={handleFilterClick} className="bg-[#1AB7C1] rounded-lg px-8 py-5" type="submit">
+            <img src={SearchIcon}  alt="Search Icon" />
+          </button>
         </div>
         <div className="container mx-auto mt-10 overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 border">
@@ -249,8 +297,8 @@ const User = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {users &&
-                users.map((user) => (
+              {filteredUsers &&
+                filteredUsers.map((user) => (
                   <tr
                     key={user?.id}
                     className={`cursor-pointer ${
@@ -281,7 +329,7 @@ const User = () => {
                         }}
                         className="hover:text-gray-600 focus:outline-none"
                       >
-                        <img src={CreateIcon} alt="Edit" className="w-6 h-6" />
+                        <img src={CreateIcon} alt="Edit" />
                       </button>
                       <button
                         onClick={(e) => {
@@ -290,11 +338,7 @@ const User = () => {
                         }}
                         className="hover:text-gray-600 focus:outline-none"
                       >
-                        <img
-                          src={DeleteIcon}
-                          alt="Delete"
-                          className="w-6 h-6"
-                        />
+                        <img src={DeleteIcon} alt="Delete" />
                       </button>
                     </td>
                   </tr>

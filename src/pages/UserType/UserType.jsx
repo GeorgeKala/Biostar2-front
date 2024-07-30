@@ -110,7 +110,7 @@ const UserType = () => {
               className="bg-[#FBD15B] text-[#1976D2] px-4 py-4 rounded-md flex items-center gap-2"
               onClick={openAddModal}
             >
-              + დაამატე ახალი მომხმარებელის ტიპი
+              + დაამატე ახალი მომხმარებლის ტიპი
             </button>
             <button onClick={exportToExcel} className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">
               ჩამოტვირთვა
@@ -175,14 +175,14 @@ const UserType = () => {
                   type="submit"
                   className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md mr-2"
                 >
-                  Save
+                  შენახვა
                 </button>
                 <button
                   type="button"
                   onClick={closeAddModal}
                   className="bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-4 rounded-md"
                 >
-                  Cancel
+                  გაუქმება
                 </button>
               </div>
             </form>

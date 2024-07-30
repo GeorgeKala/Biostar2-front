@@ -39,7 +39,7 @@ const Order = () => {
     day_type_id: "",
   });
   const [dayTypes, setDayTypes] = useState([]);
-  const [modalMode, setModalMode] = useState("create"); // new state to manage modal mode
+  const [modalMode, setModalMode] = useState("create"); 
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

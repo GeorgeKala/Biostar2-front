@@ -77,7 +77,7 @@ const Sidebar = () => {
                   დამატება/ცვლილება
                 </Link>
               )}
-              <Link
+              {/* <Link
                 to="/employees"
                 className={`flex items-center gap-3 text-white text-[14px] ${
                   location.pathname === "/employees" ? "font-bold" : ""
@@ -85,7 +85,7 @@ const Sidebar = () => {
               >
                 <img src={ArrowRight} alt="Arrow Right Icon" />
                 თანამშრომლები
-              </Link>
+              </Link> */}
               <Link
                 to="/comments/table"
                 className={`flex items-center gap-3 text-white text-[14px] ${

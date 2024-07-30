@@ -74,15 +74,6 @@ const EmployeeModal = ({ isOpen, onClose, onSelectEmployee }) => {
                     </button>
                 </div>
                 <div className="pt-4 overflow-auto">
-                    <div className="flex justify-end mb-4 px-4">
-                        <button className="bg-green-500 text-white p-2 rounded mr-2">+ New</button>
-                        <button className="bg-blue-500 text-white p-2 rounded mr-2">Edit</button>
-                        <button className="bg-red-500 text-white p-2 rounded mr-2">Delete</button>
-                        <button className="bg-yellow-500 text-white p-2 rounded mr-2">Save</button>
-                        <button className="bg-blue-500 text-white p-2 rounded mr-2">Refresh</button>
-                        <button className="bg-gray-500 text-white p-2 rounded">Export Data</button>
-                    </div>
-
                     <table className="w-full border-collapse table-fixed">
                         <thead>
                             <tr className="bg-[#1976D2] text-white">

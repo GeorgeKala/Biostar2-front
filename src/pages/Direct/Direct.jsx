@@ -6,7 +6,7 @@ import GeneralSelectGroup from '../../components/GeneralSelectGroup';
 import SearchButton from '../../components/SearchButton';
 import directService from '../../services/direct';
 import deviceService from '../../services/device';
-
+import * as XLSX from 'xlsx';
 const Direct = () => {
     const [devices, setDevices] = useState([]);
     const [selectedDevice, setSelectedDevice] = useState("");
@@ -42,7 +42,20 @@ const Direct = () => {
         setSelectedDevice(e.target.value);
     };
 
-    
+    const exportToExcel = () => {
+        const worksheet = XLSX.utils.json_to_sheet(
+        events.map((item) => ({
+            "გატარების დრო": item?.datetime,
+            "თანამშრომელი": item?.employee_name,
+            "დეპარტამენტი": item?.department,
+            "სტატუსი": item?.employee_status,
+            "მოწყობილობა": item?.device_name,
+          }))
+        );
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "directs");
+        XLSX.writeFile(workbook, "direct.xlsx");
+      };
 
     return (
         <AuthenticatedLayout>
@@ -51,8 +64,8 @@ const Direct = () => {
                     <h1 className="text-[#1976D2] font-medium text-[23px]">
                         პირდაპირი
                     </h1>
-                    <button className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">
-                        Download Data
+                    <button onClick={exportToExcel} className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">
+                        ჩამოტვირთე
                         <img src={ArrowDownIcon} className="ml-3" alt="Arrow Down Icon" />
                         <span className="absolute inset-0 border border-white border-dashed rounded"></span>
                     </button>
@@ -72,7 +85,7 @@ const Direct = () => {
                     </select>
                     <button
                         onClick={fetchData}
-                        className="bg-[#1976D2] text-white px-4 py-2 rounded-md flex items-center gap-2"
+                        className="bg-[#1976D2] text-white px-4 py-3 rounded-md flex items-center gap-2"
                     >
                         ჩართვა
                     </button>

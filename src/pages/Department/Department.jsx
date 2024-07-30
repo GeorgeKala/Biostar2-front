@@ -60,6 +60,8 @@ const Department = () => {
         const createdDepartment = await departmentService.createDepartment(formData);
         setNesteds([...nesteds, createdDepartment]);
         closeAddModal();
+        dispatch(fetchNestedDepartments());
+        dispatch(fetchDepartments())
       } else if (modalMode === 'update' && selectedDepartmentId) {
         const updatedDepartment = await departmentService.updateDepartment(selectedDepartmentId, formData);
         const updatedIndex = nesteds.findIndex(dep => dep.id === selectedDepartmentId);
@@ -69,6 +71,8 @@ const Department = () => {
           setNesteds(updatedNesteds); 
         }
         closeAddModal();
+        dispatch(fetchNestedDepartments());
+        dispatch(fetchDepartments())
       }
     } catch (error) {
       alert("Failed to save department: " + error.message);
@@ -79,7 +83,9 @@ const Department = () => {
     if (window.confirm("Are you sure you want to delete this department?")) {
       try {
         await departmentService.deleteDepartment(departmentId);
-        setNesteds(nesteds.filter(dep => dep.id !== departmentId)); 
+        // setNesteds(nesteds.filter(dep => dep.id !== departmentId)); 
+        dispatch(fetchNestedDepartments());
+        dispatch(fetchDepartments())
       } catch (error) {
         alert("Failed to delete department: " + error.message);
       }

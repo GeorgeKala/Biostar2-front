@@ -13,6 +13,7 @@ import SearchIcon from "../../../assets/search.png";
 import EmployeeEditModal from "../../../components/EmployeeEditModal";
 import employeeService from "../../../services/employee";
 import * as XLSX from "xlsx";
+import { fetchDepartments, fetchNestedDepartments } from "../../../redux/departmentsSlice";
 
 const ArchivedEmployee = () => {
   const [employees, setEmployees] = useState([]);
@@ -20,6 +21,13 @@ const ArchivedEmployee = () => {
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [expandedCell, setExpandedCell] = useState(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const { departments } = useSelector((state) => state.departments);
+  const dispatch = useDispatch()
+  const [filters, setFilters] = useState({
+    employee: "",
+    department: "",
+  });
+  const [filteredEmployees, setFilteredEmployees] = useState([]);
 
   useEffect(() => {
     const getArchivedEmployees = async () => {
@@ -38,10 +46,6 @@ const ArchivedEmployee = () => {
       getArchivedEmployees();
     }
   }, [status]);
-
-  if (status === "loading") {
-    return <div>Loading...</div>;
-  }
 
   const handleClick = (employee) => {
     setSelectedEmployee(selectedEmployee === employee ? null : employee);
@@ -63,6 +67,10 @@ const ArchivedEmployee = () => {
     }
   };
 
+  useEffect(() => {
+    dispatch(fetchDepartments())
+  }, [dispatch]);
+
   const openEditModal = (employee) => {
     setSelectedEmployee(employee);
     setEditModalOpen(true);
@@ -82,7 +90,7 @@ const ArchivedEmployee = () => {
         "პირადი ნომერი": employee.personal_id,
         "ტელეფონის ნომერი": employee.phone_number,
         "ბარათის ნომერი": employee.card_number,
-        სტატუსი: employee.expiry_datetime ? "შეჩერებულია" : "აქტიურია",
+        "სტატუსი": employee.expiry_datetime ? "შეჩერებულია" : "აქტიურია",
         მომხმარებელი: employee?.user?.name,
         ჯგუფი: employee?.group?.name,
         განრიგი: employee?.schedule?.name,
@@ -97,6 +105,23 @@ const ArchivedEmployee = () => {
     XLSX.writeFile(workbook, "ArchivedEmployees.xlsx");
   };
 
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
+  const handleFilterClick = () => {
+    const filtered = employees.filter((employee) =>
+      employee.fullname.toLowerCase().includes(filters.employee.toLowerCase()) &&
+      (filters.department ? employee?.department?.name.toLowerCase().includes(filters.department.toLowerCase()) : true)
+    );
+    setFilteredEmployees(filtered);
+  };
+
   return (
     <AuthenticatedLayout>
       <div className="w-full px-20 py-4 flex flex-col gap-8">
@@ -105,27 +130,6 @@ const ArchivedEmployee = () => {
             დაარქივებული თანამშრომლები
           </h1>
           <div className="flex items-center gap-8">
-            <Link
-              to="/employees/create"
-              className="bg-[#5CB85C] text-white px-4 py-2 rounded-md flex items-center gap-2"
-            >
-              <img src={NewIcon} alt="New Icon" />
-              New
-            </Link>
-            <button
-              onClick={() => openEditModal(selectedEmployee)}
-              className="bg-[#1976D2] text-white px-4 py-2 rounded-md flex items-center gap-2"
-            >
-              <img src={EditIcon} alt="Edit" />
-              Edit
-            </button>
-            <button
-              onClick={handleDelete}
-              className="bg-[#D9534F] text-white px-4 py-2 rounded-md flex items-center gap-2"
-            >
-              <img src={DeleteIcon} alt="Delete" />
-              Delete
-            </button>
             <button onClick={exportToExcel} className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">
               ჩამოტვირთვა
               <img src={ArrowDownIcon} className="ml-3" alt="Arrow Down Icon" />
@@ -134,17 +138,32 @@ const ArchivedEmployee = () => {
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <GeneralInputGroup
+        <GeneralInputGroup
             name="employee"
             placeholder="თანამშრომელი"
             type="text"
+            value={filters.employee}
+            onChange={handleFilterChange}
           />
-          <GeneralSelectGroup
-            label="დეპარტამენტი"
-            options={["Option 1", "Option 2", "Option 3"]}
-          />
-          <button className="bg-[#1AB7C1] rounded-lg px-6 py-2">
-            <img src={SearchIcon} className="w-[80px]" alt="Search Icon" />
+          <div className="w-full flex flex-col gap-2">
+            <select
+              id="department"
+              name="department"
+              value={filters.department}
+              onChange={handleFilterChange}
+              className="bg-white border border-[#105D8D] outline-none rounded-md py-3 px-4 w-full"
+            >
+              <option value="">აირჩიეთ დეპარტამენტი</option>
+              {departments &&
+                departments.map((item) => (
+                  <option key={item.id} value={item.name}>
+                    {item.name}
+                  </option>
+                ))}
+            </select>
+          </div>
+          <button className="bg-[#1AB7C1] rounded-lg px-6 py-4" onClick={handleFilterClick}>
+            <img src={SearchIcon} alt="Search Icon" />
           </button>
         </div>
         <div className="container mx-auto mt-10 overflow-x-auto">
@@ -177,7 +196,7 @@ const ArchivedEmployee = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200 text-xs">
-              {employees.map((employee, index) => (
+              {filteredEmployees.map((employee, index) => (
                 <tr
                   key={employee.id}
                   onClick={() => handleClick(employee)}

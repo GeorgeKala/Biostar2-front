@@ -54,7 +54,7 @@ const Group = () => {
 
   const exportToExcel = () => {
     const dataToExport = [];
-    const header = ["ID", "Name"];
+    const header = ["#", "სახელი"];
     dataToExport.push(header);
     groupItems.forEach((item) => {
       const row = [item.id, item.name];
@@ -65,17 +65,8 @@ const Group = () => {
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Groups");
 
-    XLSX.writeFile(workbook, "Groups.xlsx");
+    XLSX.writeFile(workbook, "ჯგუფები.xlsx");
   };
-
-
-  if (groupStatus === "loading") {
-    return <p>Loading...</p>;
-  }
-
-  if (groupStatus === "failed") {
-    return <p>Error loading groups</p>;
-  }
 
   return (
     <AuthenticatedLayout>

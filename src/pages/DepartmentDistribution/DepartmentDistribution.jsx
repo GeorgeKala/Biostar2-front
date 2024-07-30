@@ -16,10 +16,13 @@ import * as XLSX from "xlsx";
 
 const DepartmentDistribution = () => {
     const [data, setData] = useState([]);
+    const [filteredData, setFilteredData] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [selectedItemId, setSelectedItemId] = useState(null);
     const [selectedDepartmentId, setSelectedDepartmentId] = useState('');
     const [selectedBuildingId, setSelectedBuildingId] = useState('');
+    const [searchBuilding, setSearchBuilding] = useState('');
+    const [searchDepartment, setSearchDepartment] = useState('');
 
     const dispatch = useDispatch();
     const buildings = useSelector(state => state.building.items);
@@ -35,6 +38,7 @@ const DepartmentDistribution = () => {
         try {
             const response = await buildingService.getBuildingsWithDepartments();
             setData(response);
+            setFilteredData(response)
         } catch (error) {
             console.error('Error fetching data:', error);
         }
@@ -95,9 +99,9 @@ const DepartmentDistribution = () => {
 
     const exportToExcel = () => {
       const worksheet = XLSX.utils.json_to_sheet(
-        data.map((item) => ({
-          Building: item.building_name,
-          Department: item.department_name,
+        filteredData.map((item) => ({
+          "შენობა": item.building_name,
+          "დეპარტამენტი": item.department_name,
         }))
       );
       const workbook = XLSX.utils.book_new();
@@ -108,6 +112,19 @@ const DepartmentDistribution = () => {
       );
       XLSX.writeFile(workbook, "DepartmentDistribution.xlsx");
     };
+    // console.log(data);
+    
+
+    const handleSearch = () => {
+        const filtered = data.filter(item => {
+            const matchesBuilding = searchBuilding ? item.building_name.includes(searchBuilding) : true;
+            const matchesDepartment = searchDepartment ? item.department_name.includes(searchDepartment) : true;
+            return matchesBuilding && matchesDepartment;
+        });
+
+        console.log(searchDepartment)
+        setFilteredData(filtered);
+    };
 
     return (
         <AuthenticatedLayout>
@@ -117,17 +134,17 @@ const DepartmentDistribution = () => {
                         დეპარტამენტების განაწილება
                     </h1>
                     <div className='flex items-center gap-8'>
-                        <button className="bg-[#5CB85C] text-white px-4 py-2 rounded-md flex items-center gap-2" onClick={handleAddClick}>
+                        <button className="bg-[#5CB85C] text-white px-4 py-4 rounded-md flex items-center gap-2" onClick={handleAddClick}>
                             <img src={NewIcon} alt="New Icon" />
-                            New
+                            ახალი
                         </button>
-                        <button className="bg-[#1976D2] text-white px-4 py-2 rounded-md flex items-center gap-2" onClick={handleEditClick}>
+                        <button className="bg-[#1976D2] text-white px-4 py-4 rounded-md flex items-center gap-2" onClick={handleEditClick}>
                             <img src={EditIcon} alt="Edit Icon" />
-                            Edit
+                            შეცვლა
                         </button>
-                        <button className="bg-[#D9534F] text-white px-4 py-2 rounded-md flex items-center gap-2"  onClick={handleDelete}>
+                        <button className="bg-[#D9534F] text-white px-4 py-4 rounded-md flex items-center gap-2"  onClick={handleDelete}>
                             <img src={DeleteIcon} alt="Delete Icon" />
-                            Delete
+                            წაშლა
                         </button>
                         <button onClick={exportToExcel} className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">
                             ჩამოტვირთვა
@@ -139,17 +156,21 @@ const DepartmentDistribution = () => {
                 <div className='flex items-center gap-4'>
                     <GeneralInputGroup
                         name="employee"
-                        placeholder="თანამშრომელი"
+                        placeholder="შენობა"
                         type="text"
+                        value={searchBuilding}
+                        onChange={(e) => setSearchBuilding(e.target.value)}
+
                     />
                     <GeneralSelectGroup
                         label="დეპარტამენტი"
                         options={departments.map(dep => dep.name)}
-                        value={selectedDepartmentId}
-                        onChange={(e) => setSelectedDepartmentId(e.target.value)}
+                        // value={selectedDepartmentId}
+                        value={searchDepartment}
+                        onChange={(e) => setSearchDepartment(e.target.value)}
                     />
-                    <button className='bg-[#1AB7C1] rounded-lg px-6 py-2'>
-                        <img src={SearchIcon} className='w-[80px]'/>
+                    <button className='bg-[#1AB7C1] rounded-lg px-6 py-4' onClick={handleSearch}>
+                        <img src={SearchIcon}  />
                     </button>
                 </div>
                 <div className="container mx-auto mt-10 overflow-x-auto">
@@ -159,7 +180,7 @@ const DepartmentDistribution = () => {
                             <div>დეპარტამენტი</div>
                         </div>
                         <div className="h-100 min-w-max">
-                            {data.map((item) => (
+                            {filteredData.map((item) => (
                                 <div key={item.id} className={`grid grid-cols-2 gap-2 py-2 px-4 border-b min-w-max ${selectedItemId === item.id ? 'bg-gray-200' : ''}`} onClick={() => handleItemClick(item.id, item.department_id, item.building_id)}>
                                     <div>{item.building_name}</div>
                                     <div>{item.department_name}</div>
@@ -173,7 +194,7 @@ const DepartmentDistribution = () => {
             {showModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
                     <div className="bg-white p-8 rounded-lg shadow-lg">
-                        <h2 className="text-lg font-medium mb-4">დეპარტამენტების გამაწილება</h2>
+                        <h2 className="text-lg font-medium mb-4">დეპარტამენტების განაწილება</h2>
                         <div className="mb-4">
                             <label htmlFor="building_id" className="block text-sm font-medium text-gray-700">შენობა:</label>
                             <select

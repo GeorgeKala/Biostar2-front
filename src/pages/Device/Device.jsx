@@ -9,6 +9,7 @@ import buildingService from "../../services/building";
 import accessGroupService from "../../services/accessGroup";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchBuildings } from "../../redux/buildingSlice";
+import * as XLSX from 'xlsx';
 
 const Device = () => {
   const [data, setData] = useState([]);
@@ -117,13 +118,17 @@ const Device = () => {
     setSelectedItem(item);
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(
+      data.map((item) => ({
+        "შენობა": item?.building_name,
+        "მოწყობილობა": item?.access_group_name
+      }))
+    );
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "მოწყობილობები");
+    XLSX.writeFile(workbook, "მოწყობილობები.xlsx");
+  };
 
   return (
     <AuthenticatedLayout>
@@ -134,25 +139,25 @@ const Device = () => {
           </h1>
           <div className="flex items-center gap-8">
             <button
-              className="bg-[#5CB85C] text-white px-4 py-2 rounded-md flex items-center gap-2"
+              className="bg-[#5CB85C] text-white px-4 py-4 rounded-md flex items-center gap-2"
               onClick={handleAddClick}
             >
               <img src={NewIcon} alt="New Icon" />
-              New
+              ახალი
             </button>
             <button
-              className="bg-[#1976D2] text-white px-4 py-2 rounded-md flex items-center gap-2"
+              className="bg-[#1976D2] text-white px-4 py-4 rounded-md flex items-center gap-2"
               onClick={handleEditClick}
               disabled={!selectedItem} // Disable button if no item is selected
             >
               <img src={EditIcon} alt="Edit Icon" />
-              Edit
+              შეცვლა
             </button>
-            <button onClick={handleDeleteAccessGroup} className="bg-[#D9534F] text-white px-4 py-2 rounded-md flex items-center gap-2">
+            <button onClick={handleDeleteAccessGroup} className="bg-[#D9534F] text-white px-4 py-4 rounded-md flex items-center gap-2">
               <img src={DeleteIcon} alt="Delete Icon" />
-              Delete
+              წაშლა
             </button>
-            <button className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">
+            <button onClick={exportToExcel} className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">
               ჩამოტვირთვა
               <img src={ArrowDownIcon} className="ml-3" alt="Arrow Down Icon" />
               <span className="absolute inset-0 border border-white border-dashed rounded"></span>
@@ -166,10 +171,10 @@ const Device = () => {
               <div>მოწყობილობა</div>
             </div>
             <div className="h-100 min-w-max">
-              {data.map((item) => (
+              {data.map((item, idx) => (
                 <div
-                  key={item.id}
-                  className={`grid grid-cols-2 gap-2 py-2 px-4 border-b min-w-max `}
+                  key={idx}
+                  className={`grid grid-cols-2 gap-2 py-2 px-4 border-b min-w-max ${item?.building_id === selectedItem?.building_id ? 'bg-blue-300' : 'transparent'}`}
                   onClick={() => handleRowClick(item)}
                 >
                   <div>{item.building_name}</div>
@@ -232,6 +237,7 @@ const Device = () => {
                 }
                 className="mt-1 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
               >
+                <option>აირჩიე მოწყობილობა</option>
                 {accessGroups.map((group) => (
                   <option key={group.id} value={group.id}>
                     {group.name}

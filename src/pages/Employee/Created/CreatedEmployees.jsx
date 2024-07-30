@@ -36,10 +36,6 @@ const CreatedEmployees = () => {
     }
   }, [status, dispatch]);
 
-  if (status === "loading") {
-    return <div>Loading...</div>;
-  }
-
   const handleClick = (employee) => {
     setSelectedEmployee(selectedEmployee === employee ? null : employee);
   };
@@ -129,24 +125,24 @@ const CreatedEmployees = () => {
           <div className="flex items-center gap-8">
             <Link
               to="/employees/create"
-              className="bg-[#5CB85C] text-white px-4 py-2 rounded-md flex items-center gap-2"
+              className="bg-[#5CB85C] text-white px-4 py-4 rounded-md flex items-center gap-2"
             >
               <img src={NewIcon} alt="New Icon" />
-              New
+              ახალი
             </Link>
             <button
               onClick={() => openEditModal(selectedEmployee)}
-              className="bg-[#1976D2] text-white px-4 py-2 rounded-md flex items-center gap-2"
+              className="bg-[#1976D2] text-white px-4 py-4 rounded-md flex items-center gap-2"
             >
               <img src={EditIcon} alt="Edit" />
-              Edit
+              შეცვლა
             </button>
             <button
               onClick={handleDelete}
-              className="bg-[#D9534F] text-white px-4 py-2 rounded-md flex items-center gap-2"
+              className="bg-[#D9534F] text-white px-4 py-4 rounded-md flex items-center gap-2"
             >
               <img src={DeleteIcon} alt="Delete" />
-              Delete
+              წაშლა
             </button>
             <button
               onClick={exportToExcel}
@@ -185,10 +181,10 @@ const CreatedEmployees = () => {
             </select>
           </div>
           <button
-            className="bg-[#1AB7C1] rounded-lg px-6 py-2"
+            className="bg-[#1AB7C1] rounded-lg px-6 py-4"
             onClick={handleSearch}
           >
-            <img src={SearchIcon} className="w-[80px]" alt="Search Icon" />
+            <img src={SearchIcon} alt="Search Icon" />
           </button>
         </div>
         <div className="container mx-auto mt-10 overflow-x-auto">

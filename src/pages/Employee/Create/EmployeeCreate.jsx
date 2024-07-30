@@ -262,23 +262,23 @@ const EmployeeCreate = () => {
           <h1 className="text-[#1976D2] font-medium text-[23px]">
             თანამშრომლის დამატება/ცვლილება
           </h1>
-          <button className="bg-[#1976D2] px-7 py-4 rounded-2xl">
+          {/* <button className="bg-[#1976D2] px-7 py-4 rounded-2xl">
             <img src={CloseIcon} alt="Close" />
-          </button>
+          </button> */}
         </div>
         <div className="flex justify-end gap-4">
-          <button className="bg-[#5CB85C] text-white px-4 py-2 rounded-md flex items-center gap-2">
-            <img src={NewIcon} alt="New" />
-            New
-          </button>
-          <button className="bg-[#1976D2] text-white px-4 py-2 rounded-md flex items-center gap-2">
+          {/* <button className="bg-[#5CB85C] text-white px-4 py-2 rounded-md flex items-center gap-2"> */}
+            {/* <img src={NewIcon} alt="New" /> */}
+            {/* ახალი */}
+          {/* </button> */}
+          {/* <button className="bg-[#1976D2] text-white px-4 py-2 rounded-md flex items-center gap-2">
             <img src={EditIcon} alt="Edit" />
             Edit
           </button>
           <button className="bg-[#D9534F] text-white px-4 py-2 rounded-md flex items-center gap-2">
             <img src={DeleteIcon} alt="Delete" />
             Delete
-          </button>
+          </button> */}
           <button
             onClick={handleSubmit}
             className="bg-[#FBD15B] text-white px-4 py-2 rounded-md flex items-center gap-2"

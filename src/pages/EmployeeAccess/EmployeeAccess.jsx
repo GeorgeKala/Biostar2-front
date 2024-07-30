@@ -8,6 +8,7 @@ import DeleteIcon from '../../assets/delete.png';
 import EditIcon from '../../assets/edit.png';
 import NewIcon from '../../assets/new.png';
 import EmployeeModal from "../../components/employee/EmployeeModal";
+import * as XLSX from "xlsx";
 
 const EmployeeAccess = () => {
   const dispatch = useDispatch();
@@ -52,7 +53,7 @@ const EmployeeAccess = () => {
   };
 
   const handleEmployeeSelect = (employee) => {
-    setFormData({ ...formData, name: employee.fullname, employee_id: employee.id });
+    setFormData({ ...formData, name: employee?.fullname, employee_id: employee.id });
     setIsEmployeeModalOpen(false);
   };
 
@@ -83,6 +84,21 @@ const EmployeeAccess = () => {
     }
   };
 
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(
+      data.map((item) => ({
+        "სახელი/გვარი": item?.fullname,
+        "დეპარტამენტი": item?.department,
+        "პოზიცია": item?.position,
+        "პირადი ნომერი": item?.personal_id,
+        "შენობა": item?.building?.name,
+        "შეზღუდული": item?.is_not_accessed,
+      }))
+    );
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "employees");
+    XLSX.writeFile(workbook, "employees.xlsx");
+  };
 
   return (
     <AuthenticatedLayout>
@@ -91,7 +107,7 @@ const EmployeeAccess = () => {
           <h1 className="text-[#1976D2] font-medium text-[23px]">
             თანამშრომლის დაშვება
           </h1>
-          <button className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">
+          <button onClick={exportToExcel} className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">
             მონაცემების ჩამოტვირთვა
             <img src={ArrowDownIcon} className="ml-3" alt="Arrow Down Icon" />
             <span className="absolute inset-0 border border-white border-dashed rounded"></span>
@@ -113,13 +129,13 @@ const EmployeeAccess = () => {
           </select>
           <input
             type="text"
-            value={selectedEmployee.name}
+            value={formData.name}
             placeholder="თანამშრომელი"
             onClick={() => setIsEmployeeModalOpen(true)}
             readOnly
             className="bg-white border border-[#105D8D] outline-none rounded-md py-3 px-4 cursor-pointer w-full"
           />
-          <button onClick={getEmployeesWithBuildings} className="bg-[#1976D2] text-white px-4 py-2 rounded-md flex items-center gap-2">
+          <button onClick={getEmployeesWithBuildings} className="bg-[#1976D2] text-white px-4 py-3 rounded-md flex items-center gap-2">
             ძებნა
           </button>
         </div>
@@ -129,15 +145,15 @@ const EmployeeAccess = () => {
             onClick={() => setIsModalOpen(true)}
           >
             <img src={NewIcon} alt="New Icon" />
-            New
+            ახალი
           </button>
-          <button className="bg-[#1976D2] text-white px-4 py-2 rounded-md flex items-center gap-2">
+          {/* <button className="bg-[#1976D2] text-white px-4 py-2 rounded-md flex items-center gap-2">
             <img src={EditIcon} alt="Edit Icon" />
-            Edit
-          </button>
+            შეცვლა
+          </button> */}
           <button className="bg-[#D9534F] text-white px-4 py-2 rounded-md flex items-center gap-2" onClick={() => handleDeleteAccessGroup(selectedEmployee.user_id)}>
             <img src={DeleteIcon} alt="Delete Icon" />
-            Delete
+            წაშლა
           </button>
         </div>
         <div className="container mx-auto mt-10 overflow-x-auto">
@@ -167,7 +183,7 @@ const EmployeeAccess = () => {
                   data.map((item, index) => (
                     <tr
                       key={index}
-                      className={`px-2 py-1 border border-gray-200 w-20 `}
+                      className={`px-2 py-1 border border-gray-200 w-20 ${selectedEmployee?.building?.id === item?.building?.id ? 'bg-blue-300' : 'bg-transparent'}`}
                       onClick={() => setSelectedEmployee(item)}
                     >
                       <td className="px-2 py-1 border border-gray-200 w-20">
