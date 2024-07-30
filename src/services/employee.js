@@ -63,12 +63,17 @@ const employeeService = {
     }
   },
 
-  getEmployeesWithBuildings: async () => {
+  getEmployeesWithBuildings: async (employee_id, building_id) => {
     try {
+      const params = {};
+      if (employee_id) params.employee_id = employee_id;
+      if (building_id) params.building_id = building_id;
+      
       const response = await axiosInstance.get("/employees/buildings", {
         headers: {
           "bs-session-id": sessionStorage.getItem("sessionToken"),
         },
+        params: params,
       });
       return response.data;
     } catch (error) {
@@ -79,9 +84,9 @@ const employeeService = {
   updateAccessGroups: async (accessGroup, employeeId) => {
     try {
       const response = await axiosInstance.put(
-        `/employees/access_groups/${accessGroup}`,
+        `/employees/access_groups/${employeeId}`,
         {
-          new_users: [{ user_id: employeeId }],
+          access_groups: accessGroup,
         },
         {
           headers: {
@@ -94,6 +99,26 @@ const employeeService = {
       throw error;
     }
   },
+
+  removeAccessGroups: async (accessGroupsToRemove, employeeId) => {
+    try {
+      const response = await axiosInstance.put(
+        `/employees/access_groups/${employeeId}/remove`,
+        {
+          access_groups_to_remove: accessGroupsToRemove,
+        },
+        {
+          headers: {
+            "bs-session-id": sessionStorage.getItem("sessionToken"),
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  
 };
 
 

@@ -173,7 +173,7 @@ const DepartmentDistribution = () => {
             {showModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
                     <div className="bg-white p-8 rounded-lg shadow-lg">
-                        <h2 className="text-lg font-medium mb-4">{selectedItemId ? 'რედაქტირება' : 'დამატება'} შენობების განაწილება</h2>
+                        <h2 className="text-lg font-medium mb-4">დეპარტამენტების გამაწილება</h2>
                         <div className="mb-4">
                             <label htmlFor="building_id" className="block text-sm font-medium text-gray-700">შენობა:</label>
                             <select
@@ -205,7 +205,7 @@ const DepartmentDistribution = () => {
                             </select>
                         </div>
                         <div className="flex justify-end">
-                            <button className="bg-blue-500 text-white px-4 py-2 rounded-md mr-2" onClick={handleModalClose}>Cancel</button>
+                            <button className="bg-blue-500 text-white px-4 py-2 rounded-md mr-2" onClick={handleModalClose}>გაუქმება</button>
                             <button className="bg-green-500 text-white px-4 py-2 rounded-md" onClick={handleAddDepartmentToBuilding}>{selectedItemId ? 'რედაქტირება' : 'დამატება'}</button>
                         </div>
                     </div>

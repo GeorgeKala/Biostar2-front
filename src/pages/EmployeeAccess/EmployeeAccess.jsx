@@ -26,18 +26,17 @@ const EmployeeAccess = () => {
     dispatch(fetchBuildings());
   }, [dispatch]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await employeeService.getEmployeesWithBuildings();
-        setData(response);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    fetchData();
-  }, []);
+  const getEmployeesWithBuildings = async () => {
+    try {
+      const response = await employeeService.getEmployeesWithBuildings(
+        formData.employee_id || undefined,
+        formData.building_id || undefined
+      );
+      setData(response);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const handleBuildingSelect = (e) => {
     const selectedBuildingId = e.target.value;
@@ -65,10 +64,25 @@ const EmployeeAccess = () => {
         formData.employee_id
       );
       setIsModalOpen(false);
+      getEmployeesWithBuildings(); 
+    
     } catch (error) {
       console.error(error);
     }
   };
+
+  const handleDeleteAccessGroup = async (employeeId) => {
+    try {
+      await employeeService.removeAccessGroups(
+        selectedEmployee.building.access_group,
+        employeeId
+      );
+      getEmployeesWithBuildings(); 
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
 
   return (
     <AuthenticatedLayout>
@@ -105,8 +119,8 @@ const EmployeeAccess = () => {
             readOnly
             className="bg-white border border-[#105D8D] outline-none rounded-md py-3 px-4 cursor-pointer w-full"
           />
-          <button className="bg-[#1976D2] text-white px-4 py-2 rounded-md flex items-center gap-2">
-            ჩართვა
+          <button onClick={getEmployeesWithBuildings} className="bg-[#1976D2] text-white px-4 py-2 rounded-md flex items-center gap-2">
+            ძებნა
           </button>
         </div>
         <div className="flex justify-end items-center gap-8">
@@ -121,7 +135,7 @@ const EmployeeAccess = () => {
             <img src={EditIcon} alt="Edit Icon" />
             Edit
           </button>
-          <button className="bg-[#D9534F] text-white px-4 py-2 rounded-md flex items-center gap-2">
+          <button className="bg-[#D9534F] text-white px-4 py-2 rounded-md flex items-center gap-2" onClick={() => handleDeleteAccessGroup(selectedEmployee.user_id)}>
             <img src={DeleteIcon} alt="Delete Icon" />
             Delete
           </button>
@@ -153,7 +167,8 @@ const EmployeeAccess = () => {
                   data.map((item, index) => (
                     <tr
                       key={index}
-                      className="px-2 py-1 border border-gray-200 w-20"
+                      className={`px-2 py-1 border border-gray-200 w-20 `}
+                      onClick={() => setSelectedEmployee(item)}
                     >
                       <td className="px-2 py-1 border border-gray-200 w-20">
                         {item?.fullname}
@@ -192,7 +207,7 @@ const EmployeeAccess = () => {
           <div className="fixed inset-0 z-40 flex items-center justify-center bg-gray-900 bg-opacity-50">
             <div className="bg-white rounded-lg max-w-md w-full ">
               <div className="flex justify-between items-center p-3 bg-blue-500 text-white rounded-t-lg">
-                <h2 className="text-lg font-semibold">Add New Employee</h2>
+                <h2 className="text-lg font-semibold">თანამშრომლის დაშვება</h2>
                 <button onClick={() => setIsModalOpen(false)} className="hover:text-gray-200 focus:outline-none">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -201,7 +216,7 @@ const EmployeeAccess = () => {
               </div>
               <form onSubmit={handleSave} className="p-3">
                 <div className="mb-4">
-                  <label htmlFor="building_id" className="block text-sm font-medium text-gray-700">Building:</label>
+                  <label htmlFor="building_id" className="block text-sm font-medium text-gray-700">შენობა:</label>
                   <select
                     id="building_id"
                     name="building_id"
@@ -209,7 +224,7 @@ const EmployeeAccess = () => {
                     value={formData.building_id}
                     onChange={handleBuildingSelect}
                   >
-                    <option value="">Select Building</option>
+                    <option value="">აირჩიე შენობა</option>
                     {buildings.map((building) => (
                       <option key={building.id} value={building.id}>
                         {building.name}
@@ -218,7 +233,7 @@ const EmployeeAccess = () => {
                   </select>
                 </div>
                 <div className="mb-4">
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700">Employee:</label>
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-700">თანამშრომელი:</label>
                   <input
                     type="text"
                     id="name"
@@ -231,8 +246,8 @@ const EmployeeAccess = () => {
                   />
                 </div>
                 <div className="flex justify-end mt-4">
-                  <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md mr-2">Save</button>
-                  <button type="button" onClick={() => setIsModalOpen(false)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-4 rounded-md">Cancel</button>
+                  <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md mr-2">შენახვა</button>
+                  <button type="button" onClick={() => setIsModalOpen(false)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-4 rounded-md">გაუქმება</button>
                 </div>
               </form>
             </div>

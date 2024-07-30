@@ -231,8 +231,6 @@ const GeneralReport = () => {
   };
 
 
-  console.log(reports);
-
   const getRowClassName = (item) => {
     if (
       item.final_penalized_time > 0 &&

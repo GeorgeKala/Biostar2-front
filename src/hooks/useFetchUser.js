@@ -10,9 +10,11 @@ const useFetchUser = () => {
   );
 
   useEffect(() => {
+
     const fetchUserData = async () => {
       dispatch(fetchAsyncUser());
     };
+
 
     fetchUserData();
   }, [dispatch]);

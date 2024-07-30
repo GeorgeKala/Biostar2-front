@@ -138,8 +138,8 @@ function App() {
           path="/employees/access"
           element={
             <ProtectedRoute element={<EmployeeAccess />} requiresFullAccess />
-          }
-        />
+          }        
+          />
         <Route
           path="/schedules"
           element={<ProtectedRoute element={<Schedule />} requiresFullAccess />}
