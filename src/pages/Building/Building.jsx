@@ -157,7 +157,7 @@ const Building = () => {
         <div className="flex justify-between w-full">
           <h1 className="text-[#1976D2] font-medium text-[23px]">შენობები</h1>
           <div className="flex items-center gap-8">
-            <button className="bg-[#FBD15B] text-white px-4 py-4 rounded-md flex items-center gap-2" onClick={openCreateModal}>
+            <button className="bg-[#FBD15B] text-[#1976D2] px-4 py-4 rounded-md flex items-center gap-2" onClick={openCreateModal}>
               + დაამატე ახალი შენობა
             </button>
             <button onClick={exportToExcel} className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">

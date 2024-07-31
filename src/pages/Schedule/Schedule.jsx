@@ -152,10 +152,10 @@ const Schedule = () => {
           <h1 className="text-[#1976D2] font-medium text-[23px]">განრიგები</h1>
           <div className="flex items-center gap-8">
             <button
-              className="bg-[#FBD15B]  text-white px-4 py-4 rounded-md flex items-center gap-2"
+              className="bg-[#FBD15B]  text-[#1976D2] px-4 py-4 rounded-md flex items-center gap-2"
               onClick={() => setModalOpen(true)}
             >
-              <img src={NewIcon} alt="New Icon" />
+              +
               დაამატე ახალი განრიგი
             </button>
             <button onClick={exportToExcel} className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">

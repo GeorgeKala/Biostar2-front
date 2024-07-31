@@ -106,7 +106,7 @@ const CommentAnalyze = () => {
 
   const monthName = filters.start_date
     ? getMonthName(filters.start_date)
-    : "Month";
+    : "თვე";
 
   useEffect(() => {
     const fetchDepartments = async () => {

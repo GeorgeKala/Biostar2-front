@@ -75,7 +75,7 @@ const Group = () => {
           <h1 className="text-[#1976D2] font-medium text-[23px]">ჯგუფები</h1>
           <div className="flex items-center gap-8">
             <button
-              className="bg-[#FBD15B]  text-white px-4 py-4 rounded-md flex items-center gap-2"
+              className="bg-[#FBD15B] text-[#1976D2] px-4 py-4 rounded-md flex items-center gap-2"
               onClick={() => setModalOpen(true)}
             >
               + დაამატე ახალი ჯგუფი

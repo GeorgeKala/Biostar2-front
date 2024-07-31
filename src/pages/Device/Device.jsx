@@ -19,7 +19,7 @@ const Device = () => {
   const [selectedBuildingId, setSelectedBuildingId] = useState("");
   const [selectedAccessGroups, setSelectedAccessGroups] = useState([]);
   const [accessGroups, setAccessGroups] = useState([]);
-  const [selectedItem, setSelectedItem] = useState(null); // State for selected item
+  const [selectedItem, setSelectedItem] = useState(null);
 
   const dispatch = useDispatch();
   const buildings = useSelector((state) => state.building.items);
@@ -145,14 +145,14 @@ const Device = () => {
               <img src={NewIcon} alt="New Icon" />
               ახალი
             </button>
-            <button
+            {/* <button
               className="bg-[#1976D2] text-white px-4 py-4 rounded-md flex items-center gap-2"
               onClick={handleEditClick}
               disabled={!selectedItem} // Disable button if no item is selected
             >
               <img src={EditIcon} alt="Edit Icon" />
               შეცვლა
-            </button>
+            </button> */}
             <button onClick={handleDeleteAccessGroup} className="bg-[#D9534F] text-white px-4 py-4 rounded-md flex items-center gap-2">
               <img src={DeleteIcon} alt="Delete Icon" />
               წაშლა

@@ -11,7 +11,7 @@ import * as XLSX from "xlsx";
 const UserType = () => {
   const dispatch = useDispatch();
   const userTypes = useSelector(state => state.userType.items);
-  const [formData, setFormData] = useState({ name: '' });
+  const [formData, setFormData] = useState({ name: '', id:'' });
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('create');
   const [userTypeList, setUserTypeList] = useState([]);
@@ -50,8 +50,8 @@ const UserType = () => {
     e.preventDefault();
     try {
       if (modalMode === 'create') {
-         await userTypeService.createUserType(formData);
-        setUserTypeList([...userTypeList, formData]);
+         const response = await userTypeService.createUserType(formData);
+        setUserTypeList([...userTypeList, response.data]);
         closeAddModal();
       } else if (modalMode === 'update' && selectedUserTypeId) {
         await userTypeService.updateUserType(selectedUserTypeId, formData);
@@ -70,6 +70,8 @@ const UserType = () => {
   };
 
   const handleDelete = async (userTypeId) => {
+
+    console.log(userTypeId);
     if (window.confirm('Are you sure you want to delete this user type?')) {
       try {
         await userTypeService.deleteUserType(userTypeId);
