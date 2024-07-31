@@ -68,3 +68,10 @@
   overflow: auto;
   white-space: normal;
 }
+
+
+.placeholder-custom::placeholder {
+  font-size: 12px; /* Adjust the size as needed */
+  font-weight: normal; /* Make the text not bold */
+  color: #888; /* Optional: Change the color to a lighter shade */
+}

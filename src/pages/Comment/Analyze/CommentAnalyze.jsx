@@ -3,7 +3,6 @@ import AuthenticatedLayout from "../../../Layouts/AuthenticatedLayout";
 import ArrowDownIcon from "../../../assets/arrow-down-2.png";
 import GeneralInputGroup from "../../../components/GeneralInputGroup";
 import SearchButton from "../../../components/SearchButton";
-import GeneralSelectGroup from "../../../components/GeneralSelectGroup";
 import commentService from "../../../services/comment";
 import departmentService from "../../../services/department";
 import forgiveTypeService from "../../../services/forgiveType";
@@ -246,24 +245,24 @@ const CommentAnalyze = () => {
                     {date}
                   </th>
                 ))}
-                <th className="border border-gray-200">{monthName}</th>
+                <th className="border text-center border-gray-200">{monthName}</th>
               </tr>
             </thead>
             <tbody>
               {Object.keys(groupedComments).map((employeeFullname) => (
                 <tr key={employeeFullname}>
-                  <td className="w-24 border border-gray-200">
+                  <td className="w-24 border text-center border-gray-200">
                     {employeeFullname}
                   </td>
                   {uniqueDates.map((date) => (
-                    <td key={date} className="border border-gray-200">
+                    <td key={date} className="border text-center border-gray-200">
                       {groupedComments[employeeFullname].times[date] !==
                       undefined
                         ? groupedComments[employeeFullname].times[date]
                         : ""}
                     </td>
                   ))}
-                  <td className="border border-gray-200">
+                  <td className="border text-center border-gray-200">
                     {groupedComments[employeeFullname].total}
                   </td>
                 </tr>

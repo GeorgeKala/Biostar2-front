@@ -260,7 +260,7 @@ const GeneralReport = () => {
       <div className="w-full px-20 py-4 flex flex-col gap-8">
         <div className="flex justify-between w-full">
           <h1 className="text-[#1976D2] font-medium text-[23px]">
-            პერიოდის რეპორტი (ზოგადი)
+            პერიოდის რეპორტი
           </h1>
           <button
             onClick={exportToExcel}

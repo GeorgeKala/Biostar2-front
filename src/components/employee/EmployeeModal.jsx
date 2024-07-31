@@ -73,7 +73,7 @@ const EmployeeModal = ({ isOpen, onClose, onSelectEmployee }) => {
                         &times;
                     </button>
                 </div>
-                <div className="pt-4 overflow-auto">
+                <div className="overflow-auto">
                     <table className="w-full border-collapse table-fixed">
                         <thead>
                             <tr className="bg-[#1976D2] text-white">
@@ -96,9 +96,10 @@ const EmployeeModal = ({ isOpen, onClose, onSelectEmployee }) => {
                                         <input
                                             type="text"
                                             name={header.key}
-                                            className="w-full  outline-none text-xs"
+                                            className="w-full px-1 text-black outline-none placeholder-custom"
                                             value={filters[header.key]}
                                             onChange={handleFilterChange}
+                                            placeholder={`შეიყვანე ${header.label}`}
                                         />
                                     </th>
                                 ))}

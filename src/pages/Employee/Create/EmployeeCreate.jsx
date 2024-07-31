@@ -216,25 +216,6 @@ const EmployeeCreate = () => {
   }
 
 
-  useEffect(() => {
-    const sessionToken = sessionStorage.getItem('bs_id_token');
-
-    const fetchData = async () => {
-      try {
-        const response = await axiosInstance.get('/get-schedules', {
-          headers: {
-            'Bs-Session-Id': sessionToken
-          }
-        });
-      } catch (error) {
-        console.error('Error fetching schedules:', error);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-
 
   const renderHolidays = () => {
       return (
@@ -284,7 +265,7 @@ const EmployeeCreate = () => {
             className="bg-[#FBD15B] text-white px-4 py-2 rounded-md flex items-center gap-2"
           >
             <img src={SaveIcon} alt="Save" />
-            Save
+            შენახვა
           </button>
         </div>
         <div className="flex flex-col gap-4">
