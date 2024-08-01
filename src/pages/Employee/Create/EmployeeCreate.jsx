@@ -1,18 +1,11 @@
 import React, { useEffect, useState } from "react";
 import AuthenticatedLayout from "../../../Layouts/AuthenticatedLayout";
-import CloseIcon from "../../../assets/close.png";
 import InputGroup from "../../../components/employee/InputGroup";
-import NewIcon from "../../../assets/new.png";
 import SaveIcon from "../../../assets/save.png";
-import DeleteIcon from "../../../assets/delete.png";
-import EditIcon from "../../../assets/edit.png";
-import SelectGroup from "../../../components/employee/SelectGroup";
-import departmentService from "../../../services/department";
 import groupService from "../../../services/group";
 import scheduleService from "../../../services/schedule";
 import employeeService from "../../../services/employee";
 import SuccessPopup from "../../../components/SuccessPopup";
-import MultiSelect from "../../../components/MultiSelect";
 import { fetchHolidays, selectHolidays } from "../../../redux/holidaySlice";
 import { useDispatch, useSelector } from "react-redux";
 import fetchDevices from "../../../services/device";
@@ -20,9 +13,9 @@ import deviceService from "../../../services/device";
 import axiosInstance from "../../../Config/axios";
 
 const EmployeeCreate = () => {
-  const [departments, setDepartments] = useState([]);
-  const [groups, setGroups] = useState([]);
-  const [schedules, setSchedules] = useState([]);
+  const { departments } = useSelector((state) => state.departments);
+  const groups = useSelector((state) => state.groups.items);
+  const schedules = useSelector((state) => state.schedules.items)
   const [formData, setFormData] = useState({
     fullname: "",
     personal_id: "",
@@ -71,26 +64,6 @@ const EmployeeCreate = () => {
       }));
     }
   };
-
-
-  
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [departmentsData, groupsData, schedulesData] = await Promise.all([
-          departmentService.getAllDepartments(),
-          groupService.getAllGroups(),
-          scheduleService.getAllSchedules(),
-        ]);
-        setDepartments(departmentsData);
-        setGroups(groupsData);
-        setSchedules(schedulesData);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-    fetchData();
-  }, []);
 
   const handleInput = (e) => {
     const { name, value } = e.target;
@@ -214,7 +187,6 @@ const EmployeeCreate = () => {
     setFormData(updatedFormData);
     
   }
-
 
 
   const renderHolidays = () => {

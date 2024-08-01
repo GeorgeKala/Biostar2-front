@@ -32,7 +32,6 @@ const CreatedEmployees = () => {
   useEffect(() => {
     if (status === "idle") {
       dispatch(fetchEmployees());
-      dispatch(fetchDepartments());
     }
   }, [status, dispatch]);
 

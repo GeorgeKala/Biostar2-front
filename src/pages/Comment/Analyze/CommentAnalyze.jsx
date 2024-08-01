@@ -16,8 +16,8 @@ const CommentAnalyze = () => {
   const [loading, setLoading] = useState(false);
   const [groupedComments, setGroupedComments] = useState({});
   const [uniqueDates, setUniqueDates] = useState([]);
-  const [departments, setDepartments] = useState([]);
-  const [forgiveTypes, setForgiveTypes] = useState([]);
+  const { departments } = useSelector((state) => state.departments);
+  const forgiveTypes = useSelector((state) => state.forgiveTypes.forgiveTypes);
   const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
   const [filters, setFilters] = useState({
     start_date: "",
@@ -108,23 +108,6 @@ const CommentAnalyze = () => {
     ? getMonthName(filters.start_date)
     : "თვე";
 
-  useEffect(() => {
-    const fetchDepartments = async () => {
-      const response = await departmentService.getAllDepartments();
-      setDepartments(response);
-    };
-
-    fetchDepartments();
-  }, []);
-
-  useEffect(() => {
-    const fetchForgiveTypes = async () => {
-      const response = await forgiveTypeService.getAllForgiveTypes();
-      setForgiveTypes(response);
-    };
-
-    fetchForgiveTypes();
-  }, []);
 
   const handleEmployeeSelect = (employee) => {
     setFilters({
@@ -156,6 +139,7 @@ const CommentAnalyze = () => {
     XLSX.writeFile(workbook, "Comments_Analysis.xlsx");
   };
 
+  console.log(forgiveTypes);
   return (
     <AuthenticatedLayout>
       <div className="w-full px-20 py-4 flex flex-col gap-8">

@@ -67,9 +67,6 @@ const ArchivedEmployee = () => {
     }
   };
 
-  useEffect(() => {
-    dispatch(fetchDepartments())
-  }, [dispatch]);
 
   const openEditModal = (employee) => {
     setSelectedEmployee(employee);

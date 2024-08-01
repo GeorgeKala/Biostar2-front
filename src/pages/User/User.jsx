@@ -44,7 +44,6 @@ const User = () => {
   useEffect(() => {
     dispatch(fetchUsers());
     dispatch(fetchUserTypes());
-    dispatch(fetchDepartments());
   }, [dispatch]);
 
   useEffect(() => {

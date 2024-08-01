@@ -18,7 +18,6 @@ const Department = () => {
 
   useEffect(() => {
     dispatch(fetchNestedDepartments());
-    dispatch(fetchDepartments())
   }, []);
 
   useEffect(() => {

@@ -7,6 +7,7 @@ import { useDispatch } from 'react-redux';
 import { fetchGroups } from '../../../redux/groupSlice';
 import { fetchSchedules } from '../../../redux/scheduleSlice';
 import { fetchAsyncUser } from '../../../redux/userDataSlice';
+import { fetchDepartments } from '../../../redux/departmentsSlice';
 
 
 const Login = () => {
@@ -22,6 +23,7 @@ const Login = () => {
         
             if(response.status == 200){
                 dispatch(fetchGroups());
+                dispatch(fetchDepartments());
                 dispatch(fetchSchedules());
                 dispatch(fetchAsyncUser())
                 navigate('/reports/general')

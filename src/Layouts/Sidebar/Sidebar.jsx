@@ -66,7 +66,7 @@ const Sidebar = () => {
                 <img src={ArrowRight} alt="Arrow Right Icon" />
                 პერიოდის რეპორტი
               </Link>
-              {hasFullAccess && (
+              
                 <Link
                   to="/employees/create"
                   className={`flex items-center gap-3 text-white text-[14px] ${
@@ -74,9 +74,9 @@ const Sidebar = () => {
                   }`}
                 >
                   <img src={ArrowRight} alt="Arrow Right Icon" />
-                  დამატება/ცვლილება
+                  თანამშრომლის დამატება
                 </Link>
-              )}
+              
               {/* <Link
                 to="/employees"
                 className={`flex items-center gap-3 text-white text-[14px] ${
@@ -141,7 +141,7 @@ const Sidebar = () => {
                 <img src={ArrowRight} alt="Arrow Right Icon" />
                 თანამშრომლები
               </Link>
-              {hasFullAccess && (
+              
                 <Link
                   to="/groups"
                   className={`flex items-center gap-3 text-white text-[14px] ${
@@ -151,8 +151,8 @@ const Sidebar = () => {
                   <img src={ArrowRight} alt="Arrow Right Icon" />
                   ჯგუფები
                 </Link>
-              )}
-              {hasFullAccess && (
+              
+              
                 <Link
                   to="/departments"
                   className={`flex items-center gap-3 text-white text-[14px] ${
@@ -162,8 +162,8 @@ const Sidebar = () => {
                   <img src={ArrowRight} alt="Arrow Right Icon" />
                   დეპარტამენტები
                 </Link>
-              )}
-              {hasFullAccess && (
+              
+              
                 <Link
                   to="/schedules"
                   className={`flex items-center gap-3 text-white text-[14px] ${
@@ -173,8 +173,8 @@ const Sidebar = () => {
                   <img src={ArrowRight} alt="Arrow Right Icon" />
                   განრიგები
                 </Link>
-              )}
-              {hasFullAccess && (
+              
+              
                 <Link
                   to="/command-types"
                   className={`flex items-center gap-3 text-white text-[14px] ${
@@ -184,8 +184,8 @@ const Sidebar = () => {
                   <img src={ArrowRight} alt="Arrow Right Icon" />
                   ბრძანების ტიპები
                 </Link>
-              )}
-              {hasFullAccess && (
+              
+              
                 <Link
                   to="/forgive-types"
                   className={`flex items-center gap-3 text-white text-[14px] ${
@@ -195,8 +195,8 @@ const Sidebar = () => {
                   <img src={ArrowRight} alt="Arrow Right Icon" />
                   პატიების ტიპები
                 </Link>
-              )}
-              {hasFullAccess && (
+              
+              
                 <Link
                   to="/employees/archived"
                   className={`flex items-center gap-3 text-white text-[14px] ${
@@ -208,8 +208,8 @@ const Sidebar = () => {
                   <img src={ArrowRight} alt="Arrow Right Icon" />
                   არქივი
                 </Link>
-              )}
-              {hasFullAccess && (
+              
+              
                 <Link
                   to="/devices"
                   className={`flex items-center gap-3 text-white text-[14px] ${
@@ -219,7 +219,7 @@ const Sidebar = () => {
                   <img src={ArrowRight} alt="Arrow Right Icon" />
                   მოწყობილობები
                 </Link>
-              )}
+              
             </div>
           )}
         </div>
@@ -240,7 +240,7 @@ const Sidebar = () => {
 
           {sections.comments && (
             <div className="pl-4 flex flex-col gap-4 mt-4">
-              {hasFullAccess && (
+              
                 <Link
                   to="/users"
                   className={`flex items-center gap-3 text-white text-[14px] ${
@@ -250,8 +250,7 @@ const Sidebar = () => {
                   <img src={ArrowRight} alt="Arrow Right Icon" />
                   მომხმარებლები
                 </Link>
-              )}
-              {hasFullAccess && (
+              
                 <Link
                   to="/user-types"
                   className={`flex items-center gap-3 text-white text-[14px] ${
@@ -261,8 +260,7 @@ const Sidebar = () => {
                   <img src={ArrowRight} alt="Arrow Right Icon" />
                   მომხმარებლების ტიპები
                 </Link>
-              )}
-              {hasFullAccess && (
+              
                 <Link
                   to="/buildings"
                   className={`flex items-center gap-3 text-white text-[14px] ${
@@ -272,8 +270,7 @@ const Sidebar = () => {
                   <img src={ArrowRight} alt="Arrow Right Icon" />
                   შენობები
                 </Link>
-              )}
-              {hasFullAccess && (
+              
                 <Link
                   to="/departments-distributions"
                   className={`flex items-center gap-3 text-white text-[14px] ${
@@ -285,8 +282,7 @@ const Sidebar = () => {
                   <img src={ArrowRight} alt="Arrow Right Icon" />
                   დეპარტამენტების განაწილება
                 </Link>
-              )}
-              {hasFullAccess && (
+              
                 <Link
                   to="/employees/access"
                   className={`flex items-center gap-3 text-white text-[14px] ${
@@ -296,8 +292,7 @@ const Sidebar = () => {
                   <img src={ArrowRight} alt="Arrow Right Icon" />
                   თანამშრომლის დაშვება
                 </Link>
-              )}
-              {hasFullAccess && (
+              
                 <Link
                   to="/direct"
                   className={`flex items-center gap-3 text-white text-[14px] ${
@@ -307,7 +302,6 @@ const Sidebar = () => {
                   <img src={ArrowRight} alt="Arrow Right Icon" />
                   პირდაპირი
                 </Link>
-              )}
             </div>
           )}
         </div>

@@ -22,6 +22,8 @@ const EmployeeAccess = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
   const [formData, setFormData] = useState({ building_id: "", name: "", employee_id: "", access_group: "" });
+  const [searchData, setSearchData] = useState({ building_id: "", employee_id: "", name: "" });
+  const [isSearchContext, setIsSearchContext] = useState(false); // Add this state
 
   useEffect(() => {
     dispatch(fetchBuildings());
@@ -30,8 +32,8 @@ const EmployeeAccess = () => {
   const getEmployeesWithBuildings = async () => {
     try {
       const response = await employeeService.getEmployeesWithBuildings(
-        formData.employee_id || undefined,
-        formData.building_id || undefined
+        searchData.employee_id || undefined,
+        searchData.building_id || undefined
       );
       setData(response);
     } catch (error) {
@@ -43,18 +45,33 @@ const EmployeeAccess = () => {
     const selectedBuildingId = e.target.value;
     const selectedBuilding = buildings.find(building => building.id === parseInt(selectedBuildingId));
     if (selectedBuilding) {
-      setFormData({
-        ...formData,
-        building_id: selectedBuilding.id,
-        access_group: selectedBuilding.access_group
+      setSearchData({
+        ...searchData,
+        building_id: selectedBuilding.id
       });
       setSelectedBuilding(selectedBuilding);
     }
   };
 
   const handleEmployeeSelect = (employee) => {
-    setFormData({ ...formData, name: employee?.fullname, employee_id: employee.id });
+    if (isSearchContext) {
+      setSearchData({ ...searchData, name: employee?.fullname, employee_id: employee.id });
+    } else {
+      setFormData({ ...formData, name: employee?.fullname, employee_id: employee.id });
+    }
     setIsEmployeeModalOpen(false);
+  };
+
+  const handleModalBuildingSelect = (e) => {
+    const selectedBuildingId = e.target.value;
+    const selectedBuilding = buildings.find(building => building.id === parseInt(selectedBuildingId));
+    if (selectedBuilding) {
+      setFormData({
+        ...formData,
+        building_id: selectedBuilding.id,
+        access_group: selectedBuilding.access_group
+      });
+    }
   };
 
   const handleSave = async (e) => {
@@ -66,7 +83,6 @@ const EmployeeAccess = () => {
       );
       setIsModalOpen(false);
       getEmployeesWithBuildings(); 
-    
     } catch (error) {
       console.error(error);
     }
@@ -100,7 +116,6 @@ const EmployeeAccess = () => {
     XLSX.writeFile(workbook, "employees.xlsx");
   };
 
-  console.log(data);
 
   return (
     <AuthenticatedLayout>
@@ -117,7 +132,7 @@ const EmployeeAccess = () => {
         </div>
         <div className="flex items-center gap-4">
           <select
-            value={formData.building_id}
+            value={searchData.building_id}
             onChange={handleBuildingSelect}
             className="bg-white border border-[#105D8D] outline-none rounded-md py-3 px-4 w-full"
           >
@@ -131,9 +146,9 @@ const EmployeeAccess = () => {
           </select>
           <input
             type="text"
-            value={formData.name}
+            value={searchData.name}
             placeholder="თანამშრომელი"
-            onClick={() => setIsEmployeeModalOpen(true)}
+            onClick={() => { setIsEmployeeModalOpen(true); setIsSearchContext(true); }}
             readOnly
             className="bg-white border border-[#105D8D] outline-none rounded-md py-3 px-4 cursor-pointer w-full"
           />
@@ -149,10 +164,6 @@ const EmployeeAccess = () => {
             <img src={NewIcon} alt="New Icon" />
             ახალი
           </button>
-          {/* <button className="bg-[#1976D2] text-white px-4 py-2 rounded-md flex items-center gap-2">
-            <img src={EditIcon} alt="Edit Icon" />
-            შეცვლა
-          </button> */}
           <button className="bg-[#D9534F] text-white px-4 py-2 rounded-md flex items-center gap-2" onClick={() => handleDeleteAccessGroup(selectedEmployee.user_id)}>
             <img src={DeleteIcon} alt="Delete Icon" />
             წაშლა
@@ -240,7 +251,7 @@ const EmployeeAccess = () => {
                     name="building_id"
                     className="mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
                     value={formData.building_id}
-                    onChange={handleBuildingSelect}
+                    onChange={handleModalBuildingSelect}
                   >
                     <option value="">აირჩიე შენობა</option>
                     {buildings.map((building) => (
@@ -258,7 +269,7 @@ const EmployeeAccess = () => {
                     name="name"
                     className="mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
                     value={formData.name}
-                    onClick={() => setIsEmployeeModalOpen(true)}
+                    onClick={() => { setIsEmployeeModalOpen(true); setIsSearchContext(false); }}
                     readOnly
                     required
                   />

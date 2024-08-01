@@ -17,7 +17,7 @@ const Order = () => {
   const [openModal, setOpenModal] = useState(false);
   const [EmployeeModalOpen, setEmployeeModalOpen] = useState(false);
   const [currentEmployeeInput, setCurrentEmployeeInput] = useState("");
-  const [departments, setDepartments] = useState([]);
+  const { departments } = useSelector((state) => state.departments);
   const [filters, setFilters] = useState({
     start_date: "",
     end_date: "",
@@ -143,14 +143,6 @@ const Order = () => {
     closeEmployeeModal();
   };
 
-  useEffect(() => {
-    const fetchDepartments = async () => {
-      const response = await departmentService.getAllDepartments();
-      setDepartments(response);
-    };
-
-    fetchDepartments();
-  }, []);
 
   const openModalForCreate = () => {
     setModalMode("create");

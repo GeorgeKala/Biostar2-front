@@ -20,7 +20,6 @@ const Building = () => {
   const [nestedBuildings, setNestedBuildings] = useState([]);
 
   useEffect(() => {
-    dispatch(fetchBuildings());
     fetchNestedBuildings();
   }, [dispatch]);
 

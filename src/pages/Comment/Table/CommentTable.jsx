@@ -20,8 +20,8 @@ const CommentTable = () => {
     const { departments } = useSelector((state) => state.departments);
     const forgiveTypeItems = useSelector((state) => state.forgiveTypes.forgiveTypes);
     const [selectedComment, setSelectedComment] = useState(null)
-    
-
+    const [details, setDetails] = useState([]);
+    const [employeeModalOpen, setEmployeeModalOpen] = useState(false);
     const [filters, setFilters] = useState({
       start_date: "",
       end_date: "",
@@ -32,13 +32,7 @@ const CommentTable = () => {
       employee_id: "",
     });
 
-    const [details, setDetails] = useState([]);
-    const [employeeModalOpen, setEmployeeModalOpen] = useState(false);
-
-    useEffect(() => {
-        dispatch(fetchDepartments());
-        dispatch(fetchForgiveTypes());
-    }, [dispatch]);
+    
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;

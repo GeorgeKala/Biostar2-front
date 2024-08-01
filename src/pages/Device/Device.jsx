@@ -39,9 +39,6 @@ const Device = () => {
     fetchBuildingsWithAccessGroups();
   }, []);
 
-  useEffect(() => {
-    dispatch(fetchBuildings());
-  }, [dispatch]);
 
   useEffect(() => {
     const fetchData = async () => {

@@ -39,7 +39,6 @@ const GeneralReport = () => {
   const [EmployeeModalOpen, setEmployeeModalOpen] = useState(false);
 
   useEffect(() => {
-    dispatch(fetchDepartments());
     dispatch(fetchForgiveTypes());
   }, [dispatch]);
 

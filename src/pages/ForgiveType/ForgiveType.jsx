@@ -22,11 +22,6 @@ const ForgiveType = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editItemId, setEditItemId] = useState(null);
 
-
-  useEffect(() => {
-      dispatch(fetchForgiveTypes());
-  }, []);
-
   const openModal = (id) => {
     setEditItemId(id);
     setModalOpen(true);

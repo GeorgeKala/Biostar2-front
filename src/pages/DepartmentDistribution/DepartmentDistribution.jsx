@@ -30,7 +30,6 @@ const DepartmentDistribution = () => {
 
     useEffect(() => {
         fetchData();
-        dispatch(fetchDepartments());
         dispatch(fetchBuildings());
     }, []);
 
