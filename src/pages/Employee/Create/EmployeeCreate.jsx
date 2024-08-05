@@ -2,25 +2,24 @@ import React, { useEffect, useState } from "react";
 import AuthenticatedLayout from "../../../Layouts/AuthenticatedLayout";
 import InputGroup from "../../../components/employee/InputGroup";
 import SaveIcon from "../../../assets/save.png";
-import groupService from "../../../services/group";
-import scheduleService from "../../../services/schedule";
 import employeeService from "../../../services/employee";
 import SuccessPopup from "../../../components/SuccessPopup";
 import { fetchHolidays, selectHolidays } from "../../../redux/holidaySlice";
 import { useDispatch, useSelector } from "react-redux";
-import fetchDevices from "../../../services/device";
 import deviceService from "../../../services/device";
-import axiosInstance from "../../../Config/axios";
+import NestedDropdownModal from "../../../components/NestedDropdownModal";
+import SearchIcon from "../../../assets/search.png";
 
 const EmployeeCreate = () => {
-  const { departments } = useSelector((state) => state.departments);
+  const { departments, nestedDepartments } = useSelector((state) => state.departments);
+  const user = useSelector((state) => state.user.user);
   const groups = useSelector((state) => state.groups.items);
-  const schedules = useSelector((state) => state.schedules.items)
+  const schedules = useSelector((state) => state.schedules.items);
   const [formData, setFormData] = useState({
     fullname: "",
     personal_id: "",
     phone_number: "",
-    department_id: "",
+    department_id: user?.user_type?.has_full_access ? "" : user?.department?.id,
     start_datetime: "",
     expiry_datetime: "",
     position: "",
@@ -42,6 +41,7 @@ const EmployeeCreate = () => {
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [devices, setDevices] = useState([]);
   const [selectedDevice, setSelectedDevice] = useState("")
+  const [openNestedDropdown, setOpenNestedDropdown] = useState(false);
 
   useEffect(() => {
       dispatch(fetchHolidays());
@@ -185,9 +185,7 @@ const EmployeeCreate = () => {
     };
 
     setFormData(updatedFormData);
-    
   }
-
 
   const renderHolidays = () => {
       return (
@@ -207,39 +205,32 @@ const EmployeeCreate = () => {
       );
   };
 
+  const handleDepartmentSelect = (departmentId, departmentName) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      department_id: departmentId,
+    }));
+    setOpenNestedDropdown(false);
+  };
+
+
+  const handleClearDepartment = () => {
+    setFormData((prevData) => ({
+      ...prevData,
+      department_id: "",
+    }));
+  };
+
   
   return (
     <AuthenticatedLayout>
       <div className="w-full px-20 py-4 flex flex-col gap-8">
         <div className="flex justify-between w-full">
           <h1 className="text-[#1976D2] font-medium text-[23px]">
-            თანამშრომლის დამატება/ცვლილება
+            თანამშრომლის დამატება
           </h1>
-          {/* <button className="bg-[#1976D2] px-7 py-4 rounded-2xl">
-            <img src={CloseIcon} alt="Close" />
-          </button> */}
         </div>
-        <div className="flex justify-end gap-4">
-          {/* <button className="bg-[#5CB85C] text-white px-4 py-2 rounded-md flex items-center gap-2"> */}
-            {/* <img src={NewIcon} alt="New" /> */}
-            {/* ახალი */}
-          {/* </button> */}
-          {/* <button className="bg-[#1976D2] text-white px-4 py-2 rounded-md flex items-center gap-2">
-            <img src={EditIcon} alt="Edit" />
-            Edit
-          </button>
-          <button className="bg-[#D9534F] text-white px-4 py-2 rounded-md flex items-center gap-2">
-            <img src={DeleteIcon} alt="Delete" />
-            Delete
-          </button> */}
-          <button
-            onClick={handleSubmit}
-            className="bg-[#FBD15B] text-white px-4 py-2 rounded-md flex items-center gap-2"
-          >
-            <img src={SaveIcon} alt="Save" />
-            შენახვა
-          </button>
-        </div>
+        
         <div className="flex flex-col gap-4">
           <div className="flex justify-between gap-8">
             <InputGroup
@@ -271,26 +262,30 @@ const EmployeeCreate = () => {
               onChange={handleInput}
               error={errors.phone_number}
             />
-            <div className="w-full flex flex-col gap-2">
+            <div className="w-full flex flex-col gap-2 relative">
               <label className="text-[#105D8D] font-medium">დეპარტამენტი</label>
-              <select
-                id="department_id"
-                name="department_id"
-                value={formData.department_id}
-                onChange={handleInput}
-                className="bg-white border border-[#105D8D] outline-none rounded-xl py-3  px-4 w-full"
-              >
-                <option value="">აირჩიეთ დეპარტამენტი</option>
-                {departments &&
-                  departments.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.name}
-                    </option>
-                  ))}
-              </select>
-              {errors.department_id && (
-                <p className="text-red-500 text-sm">{errors.department_id}</p>
-              )}
+              <div className="flex">
+                <input 
+                  className="bg-white border border-[#105D8D] outline-none rounded-l-2xl py-3 px-4 w-full pr-10"
+                  placeholder="დეპარტამენტი"
+                  value={departments.find((d) => d.id === formData.department_id)?.name || ""}
+                  readOnly
+                />
+                {formData.department_id && (
+                  <button
+                    type="button"
+                    onClick={handleClearDepartment}
+                    className="absolute right-12 top-[70%] transform -translate-y-1/2 mr-4"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="black" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                  </button>
+                )}
+                <button onClick={() => setOpenNestedDropdown(true)} className="bg-[#105D8D] px-4 rounded-r-2xl">
+                  <img className="w-[20px]" src={SearchIcon} alt="" />
+                </button>
+              </div>
             </div>
           </div>
           <div className="flex justify-between gap-8">
@@ -378,18 +373,19 @@ const EmployeeCreate = () => {
             />
           </div>
           <div className="flex justify-between gap-8">
-          <div className="w-full flex flex-col gap-2">
-              <label className="text-[#105D8D] font-medium">აირჩიე მოწყობილობა</label>
+            <div className="w-full flex flex-col gap-2">
+              <label className="text-[#105D8D] font-medium">
+                აირჩიე მოწყობილობა
+              </label>
               <select
-                value={selectedDevice} 
+                value={selectedDevice}
                 onChange={handleDeviceSelect}
                 className="bg-white border border-[#105D8D] outline-none rounded-xl py-3  px-4 w-full"
-                
               >
                 <option value="">აირჩიე მოწყობილობა</option>
                 {devices &&
                   devices.map((item) => (
-                    <option key={item.id} value={item.id} >
+                    <option key={item.id} value={item.id}>
                       {item.name}
                     </option>
                   ))}
@@ -408,10 +404,45 @@ const EmployeeCreate = () => {
                 onChange={handleInput}
                 error={errors.card_number}
               />
-              <button className="bg-[#5CB85C] mt-8 text-white rounded-lg py-2" onClick={handleScanCard}>+ ბარათის დამატება</button>
+              <button
+                className="bg-[#5CB85C] mt-8 text-white rounded-lg py-2"
+                onClick={handleScanCard}
+              >
+                + ბარათის დამატება
+              </button>
             </div>
           </div>
           <div className="flex justify-between gap-8">
+            
+            <div className="relative w-full flex flex-col gap-2">
+              <label className="text-[#105D8D] font-medium">
+                დასვენების დღეები
+              </label>
+              <div className="relative">
+                <button
+                  type="button"
+                  className="w-full flex justify-between items-center relative bg-white border border-[#105D8D] outline-none rounded-xl py-3  px-4 "
+                  onClick={toggleDropdown}
+                >
+                  აირჩიე დასვენების დღეები
+                  <svg
+                    className="-mr-1 ml-2 h-5 w-5"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <select name="" id=""></select>
+                  </svg>
+                </button>
+              </div>
+              {isOpen && (
+                <div className=" w-full rounded-md bg-white shadow-lg">
+                  <div className="flex flex-col flex-wrap p-2">
+                    {renderHolidays()}
+                  </div>
+                </div>
+              )}
+            </div>
             <InputGroup
               label="საკონტროლო ჯამი"
               name="checksum"
@@ -421,33 +452,15 @@ const EmployeeCreate = () => {
               onChange={handleInput}
               error={errors.checksum}
             />
-            <div className="relative w-full flex flex-col gap-2">
-            <label className='text-[#105D8D] font-medium'>დასვენების დღეები</label>
-            <div className='relative'>
-                <button
-                    type="button"
-                    className="w-full flex justify-between items-center relative bg-white border border-[#105D8D] outline-none rounded-xl py-3  px-4 "
-                    onClick={toggleDropdown}
-                >
-                    აირჩიე დასვენების დღეები
-                    <svg
-                        className="-mr-1 ml-2 h-5 w-5"
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                    >
-                        <select name="" id=""></select>
-                    </svg>
-                </button>
-            </div>
-            {isOpen && (
-                <div className=" w-full rounded-md bg-white shadow-lg">
-                    <div className="flex flex-col flex-wrap p-2">
-                        {renderHolidays()}
-                    </div>
-                </div>
-            )}
-        </div>
+          </div>
+          <div className="flex justify-end gap-4 mt-10">
+            <button
+              onClick={handleSubmit}
+              className="bg-[#FBD15B] text-white px-4 py-2 rounded-md flex items-center gap-2"
+            >
+              <img src={SaveIcon} alt="Save" />
+              შენახვა
+            </button>
           </div>
         </div>
         {showSuccessPopup && (
@@ -455,6 +468,16 @@ const EmployeeCreate = () => {
             title="Success!"
             message="თანამშრომელი დაემატა წარმატებით"
             onClose={() => setShowSuccessPopup(false)}
+          />
+        )}
+        {openNestedDropdown && (
+          <NestedDropdownModal 
+            header="დეპარტამენტები"
+            isOpen={openNestedDropdown}
+            onClose={() => setOpenNestedDropdown(false)}
+            onSelect={handleDepartmentSelect}
+            data={nestedDepartments}
+            link={'/departments'}
           />
         )}
       </div>

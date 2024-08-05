@@ -10,11 +10,12 @@ import SearchIcon from "../../../assets/search.png";
 import EmployeeModal from "../../../components/employee/EmployeeModal";
 
 import * as XLSX from "xlsx";
+import NestedDropdownModal from "../../../components/NestedDropdownModal";
 
 const GeneralReport = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.user)
-  const { departments } = useSelector((state) => state.departments);
+  const { departments, nestedDepartments } = useSelector((state) => state.departments);
   const forgiveTypeItems = useSelector(
     (state) => state.forgiveTypes.forgiveTypes
   );
@@ -37,6 +38,7 @@ const GeneralReport = () => {
     comment_datetime: "",
   });
   const [EmployeeModalOpen, setEmployeeModalOpen] = useState(false);
+  const [openNestedDropdown, setOpenNestedDropdown] = useState(false);
 
   useEffect(() => {
     dispatch(fetchForgiveTypes());
@@ -254,9 +256,25 @@ const GeneralReport = () => {
     }
   };
 
+
+  const handleDepartmentSelect = (departmentId, departmentName) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      department_id: departmentId,
+    }));
+    setOpenNestedDropdown(false);
+  };
+
+  const handleClear = (field) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [field]: "",
+    }));
+  };
+
   return (
     <AuthenticatedLayout>
-      <div className="w-full px-20 py-4 flex flex-col gap-8">
+      <div className="w-full px-10 py-4 flex flex-col gap-8 2xl:px-20">
         <div className="flex justify-between w-full">
           <h1 className="text-[#1976D2] font-medium text-[23px]">
             პერიოდის რეპორტი
@@ -285,32 +303,54 @@ const GeneralReport = () => {
             value={formData.end_date}
             onChange={handleInputChange}
           />
-          <div className="w-full flex flex-col gap-2">
-            <select
-              id="department_id"
-              name="department_id"
-              value={formData.department_id}
-              onChange={handleInputChange}
-              className="bg-white border border-[#105D8D] outline-none rounded-md py-3 px-4 w-full"
-              disabled={!user?.user_type?.has_full_access}
-            >
-              <option value="">აირჩიეთ დეპარტამენტი</option>
-              {departments &&
-                departments.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.name}
-                  </option>
-                ))}
-            </select>
+          <div className="w-full flex flex-col gap-2 relative">
+            <div className="flex">
+              <input 
+                className="bg-white border border-[#105D8D] outline-none rounded-l py-3 px-4 w-full pr-10"
+                placeholder="დეპარტამენტი"
+                value={departments.find((d) => d.id === formData.department_id)?.name || ""}
+                readOnly
+              />
+              {formData.department_id && (
+                <button
+                  type="button"
+                  onClick={() =>handleClear("department_id")}
+                  className="absolute right-12 top-[50%] transform -translate-y-1/2 mr-4"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="black" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+              )}
+              <button onClick={() => setOpenNestedDropdown(true)} className="bg-[#105D8D] px-4 rounded-r">
+                <img className="w-[20px]" src={SearchIcon} alt="" />
+              </button>
+            </div>
           </div>
-          <div onClick={openModal} className="w-full">
-            <GeneralInputGroup
-              name="employee"
-              placeholder="თანამშრომელი"
-              type="text"
-              value={formData.employee}
-              onChange={handleInputChange}
-            />
+          <div className="w-full flex flex-col gap-2 relative">
+            <div className="flex">
+              <input 
+                className="bg-white border border-[#105D8D] outline-none rounded-l py-3 px-4 w-full pr-10"
+                placeholder="თანამშრომელი"
+                value={formData.employee}
+                onChange={handleInputChange}
+                readOnly
+              />
+              {formData.employee && (
+                <button
+                  type="button"
+                  onClick={() =>handleClear("employee")}
+                  className="absolute right-12 top-[50%] transform -translate-y-1/2 mr-4"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="black" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+              )}
+              <button onClick={openModal} className="bg-[#105D8D] px-4 rounded-r">
+                <img className="w-[20px]" src={SearchIcon} alt="" />
+              </button>
+            </div>
           </div>
           <button
             className="bg-[#1AB7C1] rounded-lg px-8 py-4"
@@ -346,9 +386,15 @@ const GeneralReport = () => {
                   ].map((header) => (
                     <th
                       key={header}
-                      className="px-2 py-1 border border-gray-200 break-all w-20"
+                      className=" border border-gray-200 customized-th-tr"
                     >
-                      {header}
+                      <input 
+                        type="text" 
+                        value={header} 
+                        className="font-normal px-2 py-1 w-full outline-none border-none bg-transparent"
+                        readOnly
+                        />
+                      
                     </th>
                   ))}
                 </tr>
@@ -363,58 +409,63 @@ const GeneralReport = () => {
                       )}`}
                       onDoubleClick={() => handleRowDoubleClick(item)}
                     >
-                      <td className="px-2 py-1 border border-gray-200 w-20">
-                        {item.fullname}
+                      <td className="border border-gray-200 customized-th-tr">
+                      <input 
+                        type="text" 
+                        value={item.fullname} 
+                        className="font-normal px-2 py-1 w-full outline-none border-none bg-transparent"
+                        readOnly
+                        />
                       </td>
-                      <td className="px-2 py-1 border border-gray-200 w-20">
+                      <td className="px-2 py-1 border border-gray-200 customized-th-tr">
                         {item.department}
                       </td>
-                      <td className="px-2 py-1 border border-gray-200 w-20">
+                      <td className="px-2 py-1 border border-gray-200 customized-th-tr">
                         {item.position}
                       </td>
-                      <td className="px-2 py-1 border border-gray-200 w-20">
+                      <td className="px-2 py-1 border border-gray-200 customized-th-tr">
                         {item.date}
                       </td>
-                      <td className="px-2 py-1 border border-gray-200 w-20">
+                      <td className="px-2 py-1 border border-gray-200 customized-th-tr">
                         {item.come_time}
                       </td>
-                      <td className="px-2 py-1 border border-gray-200 w-20">
+                      <td className="px-2 py-1 border border-gray-200 customized-th-tr">
                         {item.come_early}
                       </td>
-                      <td className="px-2 py-1 border border-gray-200 w-20">
+                      <td className="px-2 py-1 border border-gray-200 customized-th-tr">
                         {item.come_late}
                       </td>
-                      <td className="px-2 py-1 border border-gray-200 w-20">
+                      <td className="px-2 py-1 border border-gray-200 customized-th-tr">
                         {item.penalized_time}
                       </td>
-                      <td className="px-2 py-1 border border-gray-200 w-20">
+                      <td className="px-2 py-1 border border-gray-200 customized-th-tr">
                         {item.leave_time}
                       </td>
-                      <td className="px-2 py-1 border border-gray-200 w-20">
+                      <td className="px-2 py-1 border border-gray-200 customized-th-tr">
                         {item.leave_early}
                       </td>
-                      <td className="px-2 py-1 border border-gray-200 w-20">
+                      <td className="px-2 py-1 border border-gray-200 customized-th-tr">
                         {item.leave_late}
                       </td>
-                      <td className="px-2 py-1 border border-gray-200 w-20">
+                      <td className="px-2 py-1 border border-gray-200 customized-th-tr">
                         {item.worked_hours}
                       </td>
-                      <td className="px-2 py-1 border border-gray-200 w-20">
+                      <td className="px-2 py-1 border border-gray-200 customized-th-tr">
                         {item.day_type}
                       </td>
-                      <td className="px-2 py-1 border border-gray-200 w-20">
+                      <td className="px-2 py-1 border border-gray-200 customized-th-tr">
                         {item.week_day}
                       </td>
-                      <td className="px-2 py-1 border border-gray-200 w-20">
+                      <td className="px-2 py-1 border border-gray-200 customized-th-tr">
                         {item.homorable_minutes}
                       </td>
-                      <td className="px-2 py-1 border border-gray-200 w-20">
+                      <td className="px-2 py-1 border border-gray-200 customized-th-tr">
                         {item.schedule}
                       </td>
-                      <td className="px-2 py-1 border border-gray-200 w-20">
+                      <td className="px-2 py-1 border border-gray-200 customized-th-tr">
                         {Number(item.final_penalized_time).toFixed(2)}
                       </td>
-                      <td className="px-2 py-1 border border-gray-200 w-20">
+                      <td className="px-2 py-1 border border-gray-200 customized-th-tr">
                         {item.comment}
                       </td>
                     </tr>
@@ -507,6 +558,16 @@ const GeneralReport = () => {
           </div>
         )}
       </div>
+      {openNestedDropdown && (
+          <NestedDropdownModal 
+            header="დეპარტამენტები"
+            isOpen={openNestedDropdown}
+            onClose={() => setOpenNestedDropdown(false)}
+            onSelect={handleDepartmentSelect}
+            data={nestedDepartments}
+            link={'/departments'}
+          />
+        )}
       <EmployeeModal
         isOpen={EmployeeModalOpen}
         onClose={closeModal}

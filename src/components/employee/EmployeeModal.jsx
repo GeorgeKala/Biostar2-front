@@ -5,6 +5,7 @@ import { fetchEmployees } from '../../redux/employeeSlice';
 const EmployeeModal = ({ isOpen, onClose, onSelectEmployee }) => {
     const dispatch = useDispatch();
     const employees = useSelector((state) => state.employees.items);
+    
     const [filteredEmployees, setFilteredEmployees] = useState([]);
     const [filters, setFilters] = useState({
         fullname: '',

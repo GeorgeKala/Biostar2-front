@@ -116,7 +116,7 @@ const Group = () => {
         isOpen={modalOpen}
         onClose={closeModal}
         onSave={handleSaveGroup}
-        title={editItemId ? "Edit Group Item" : "Add Group Item"}
+        title={editItemId ? "შეცვალე ჯგუფი" : "დაამატე ჯგუფი"}
         initialValue={
           editItemId
             ? groupItems.find((item) => item.id === editItemId)?.name

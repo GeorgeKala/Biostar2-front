@@ -75,3 +75,12 @@
   font-weight: normal; /* Make the text not bold */
   color: #888; /* Optional: Change the color to a lighter shade */
 }
+
+
+
+.customized-th-tr {
+  max-width: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space:nowrap;
+}

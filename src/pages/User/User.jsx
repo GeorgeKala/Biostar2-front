@@ -13,13 +13,14 @@ import userService from '../../services/users';
 import EmployeeModal from '../../components/employee/EmployeeModal';
 import SearchIcon from "../../assets/search.png";
 import * as XLSX from "xlsx";
+import NestedDropdownModal from '../../components/NestedDropdownModal';
 
 const User = () => {
   const dispatch = useDispatch();
   const usersData = useSelector(state => state.user.users.items);
   const userTypes = useSelector(state => state.userType.items);
-  const { departments } = useSelector((state) => state.departments);
-
+  const { departments, nestedDepartments } = useSelector((state) => state.departments);
+  const [openNestedDropdown, setOpenNestedDropdown] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     username: '',
@@ -192,6 +193,22 @@ const User = () => {
   };
 
 
+  const handleDepartmentSelect = (departmentId, departmentName) => {
+    setFilters((prevData) => ({
+      ...prevData,
+      department_id: departmentId,
+    }));
+    setOpenNestedDropdown(false);
+  };
+
+  const handleClearDepartment = () => {
+    setFilters((prevData) => ({
+      ...prevData,
+      department_id: "",
+    }));
+  };
+
+
   return (
     <AuthenticatedLayout>
       <div className="w-full px-20 py-4 flex flex-col gap-8">
@@ -225,6 +242,30 @@ const User = () => {
             value={filters.name}
             onChange={handleFilterChange}
           />
+          <div className="w-full flex flex-col gap-2 relative">
+              <div className="flex">
+                <input 
+                  className="bg-white border border-[#105D8D] outline-none rounded-l py-3 px-4 w-full pr-10"
+                  placeholder="დეპარტამენტი"
+                  value={departments.find((d) => d.id === filters.department_id)?.name || ""}
+                  readOnly
+                />
+                {filters.department_id && (
+                  <button
+                    type="button"
+                    onClick={handleClearDepartment}
+                    className="absolute right-12 top-[50%] transform -translate-y-1/2 mr-4"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="black" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                  </button>
+                )}
+                <button onClick={() => setOpenNestedDropdown(true)} className="bg-[#105D8D] px-4 rounded-r">
+                  <img className="w-[20px]" src={SearchIcon} alt="" />
+                </button>
+              </div>
+            </div>
           <GeneralInputGroup
             name="username"
             placeholder="მომხმარებელი"
@@ -232,23 +273,6 @@ const User = () => {
             value={filters.username}
             onChange={handleFilterChange}
           />
-          <div className="w-full flex flex-col gap-2">
-            <select
-              id="department_id"
-              name="department_id"
-              value={filters.department}
-              onChange={handleFilterChange}
-              className="bg-white border border-[#105D8D] outline-none rounded-md py-3 px-4 w-full"
-            >
-              <option value="">აირჩიეთ დეპარტამენტი</option>
-              {departments &&
-                departments.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.name}
-                  </option>
-                ))}
-            </select>
-          </div>
           <button onClick={handleFilterClick} className="bg-[#1AB7C1] rounded-lg px-8 py-5" type="submit">
             <img src={SearchIcon}  alt="Search Icon" />
           </button>
@@ -494,6 +518,16 @@ const User = () => {
           </div>
         </div>
       )}
+      {openNestedDropdown && (
+          <NestedDropdownModal 
+            header="დეპარტამენტები"
+            isOpen={openNestedDropdown}
+            onClose={() => setOpenNestedDropdown(false)}
+            onSelect={handleDepartmentSelect}
+            data={nestedDepartments}
+            link={'/departments'}
+          />
+        )}
 
       <EmployeeModal
         isOpen={isEmployeeModalOpen}

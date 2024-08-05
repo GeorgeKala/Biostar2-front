@@ -7,6 +7,7 @@ import ArrowRight from '../../assets/arrow-right.png';
 import { logout } from '../../services/auth';
 import useAuth from '../../hooks/useAuth';
 
+
 const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -16,7 +17,9 @@ const Sidebar = () => {
     comments: false,
     settings: false,
   });
-  const { hasFullAccess } = useAuth();
+  const { user } = useAuth();
+  // const user = useSelector((state) => state.user)
+
 
   const toggleSection = (section) => {
     setSections((prevSections) => ({
@@ -66,7 +69,7 @@ const Sidebar = () => {
                 <img src={ArrowRight} alt="Arrow Right Icon" />
                 პერიოდის რეპორტი
               </Link>
-              
+              {user?.user?.user_type.name === "ადმინისტრატორი" && (
                 <Link
                   to="/employees/create"
                   className={`flex items-center gap-3 text-white text-[14px] ${
@@ -76,7 +79,8 @@ const Sidebar = () => {
                   <img src={ArrowRight} alt="Arrow Right Icon" />
                   თანამშრომლის დამატება
                 </Link>
-              
+              )}
+
               {/* <Link
                 to="/employees"
                 className={`flex items-center gap-3 text-white text-[14px] ${
@@ -141,7 +145,7 @@ const Sidebar = () => {
                 <img src={ArrowRight} alt="Arrow Right Icon" />
                 თანამშრომლები
               </Link>
-              
+              {user?.user?.user_type.name === "ადმინისტრატორი" && (
                 <Link
                   to="/groups"
                   className={`flex items-center gap-3 text-white text-[14px] ${
@@ -151,8 +155,8 @@ const Sidebar = () => {
                   <img src={ArrowRight} alt="Arrow Right Icon" />
                   ჯგუფები
                 </Link>
-              
-              
+              )}
+              {user?.user?.user_type.name === "ადმინისტრატორი" && (
                 <Link
                   to="/departments"
                   className={`flex items-center gap-3 text-white text-[14px] ${
@@ -162,8 +166,8 @@ const Sidebar = () => {
                   <img src={ArrowRight} alt="Arrow Right Icon" />
                   დეპარტამენტები
                 </Link>
-              
-              
+              )}
+              {user?.user?.user_type.name === "ადმინისტრატორი" && (
                 <Link
                   to="/schedules"
                   className={`flex items-center gap-3 text-white text-[14px] ${
@@ -173,8 +177,8 @@ const Sidebar = () => {
                   <img src={ArrowRight} alt="Arrow Right Icon" />
                   განრიგები
                 </Link>
-              
-              
+              )}
+              {user?.user?.user_type.name === "ადმინისტრატორი" && (
                 <Link
                   to="/command-types"
                   className={`flex items-center gap-3 text-white text-[14px] ${
@@ -184,8 +188,8 @@ const Sidebar = () => {
                   <img src={ArrowRight} alt="Arrow Right Icon" />
                   ბრძანების ტიპები
                 </Link>
-              
-              
+              )}
+              {user?.user?.user_type.name === "ადმინისტრატორი" && (
                 <Link
                   to="/forgive-types"
                   className={`flex items-center gap-3 text-white text-[14px] ${
@@ -195,21 +199,18 @@ const Sidebar = () => {
                   <img src={ArrowRight} alt="Arrow Right Icon" />
                   პატიების ტიპები
                 </Link>
-              
-              
-                <Link
-                  to="/employees/archived"
-                  className={`flex items-center gap-3 text-white text-[14px] ${
-                    location.pathname === "/employees/archived"
-                      ? "font-bold"
-                      : ""
-                  }`}
-                >
-                  <img src={ArrowRight} alt="Arrow Right Icon" />
-                  არქივი
-                </Link>
-              
-              
+              )}
+
+              <Link
+                to="/employees/archived"
+                className={`flex items-center gap-3 text-white text-[14px] ${
+                  location.pathname === "/employees/archived" ? "font-bold" : ""
+                }`}
+              >
+                <img src={ArrowRight} alt="Arrow Right Icon" />
+                არქივი
+              </Link>
+              {user?.user?.user_type.name === "ადმინისტრატორი" && (
                 <Link
                   to="/devices"
                   className={`flex items-center gap-3 text-white text-[14px] ${
@@ -219,7 +220,7 @@ const Sidebar = () => {
                   <img src={ArrowRight} alt="Arrow Right Icon" />
                   მოწყობილობები
                 </Link>
-              
+              )}
             </div>
           )}
         </div>
@@ -240,7 +241,7 @@ const Sidebar = () => {
 
           {sections.comments && (
             <div className="pl-4 flex flex-col gap-4 mt-4">
-              
+              {user?.user?.user_type.name === "ადმინისტრატორი" && (
                 <Link
                   to="/users"
                   className={`flex items-center gap-3 text-white text-[14px] ${
@@ -250,7 +251,8 @@ const Sidebar = () => {
                   <img src={ArrowRight} alt="Arrow Right Icon" />
                   მომხმარებლები
                 </Link>
-              
+              )}
+              {user?.user?.user_type.name === "ადმინისტრატორი" && (
                 <Link
                   to="/user-types"
                   className={`flex items-center gap-3 text-white text-[14px] ${
@@ -260,7 +262,8 @@ const Sidebar = () => {
                   <img src={ArrowRight} alt="Arrow Right Icon" />
                   მომხმარებლების ტიპები
                 </Link>
-              
+              )}
+              {user?.user?.user_type.name === "ადმინისტრატორი" && (
                 <Link
                   to="/buildings"
                   className={`flex items-center gap-3 text-white text-[14px] ${
@@ -270,7 +273,8 @@ const Sidebar = () => {
                   <img src={ArrowRight} alt="Arrow Right Icon" />
                   შენობები
                 </Link>
-              
+              )}
+              {user?.user?.user_type.name === "ადმინისტრატორი" && (
                 <Link
                   to="/departments-distributions"
                   className={`flex items-center gap-3 text-white text-[14px] ${
@@ -282,7 +286,8 @@ const Sidebar = () => {
                   <img src={ArrowRight} alt="Arrow Right Icon" />
                   დეპარტამენტების განაწილება
                 </Link>
-              
+              )}
+              {user?.user?.user_type.name === "ადმინისტრატორი" && (
                 <Link
                   to="/employees/access"
                   className={`flex items-center gap-3 text-white text-[14px] ${
@@ -292,7 +297,8 @@ const Sidebar = () => {
                   <img src={ArrowRight} alt="Arrow Right Icon" />
                   თანამშრომლის დაშვება
                 </Link>
-              
+              )}
+              {user?.user?.user_type.name === "ადმინისტრატორი" && (
                 <Link
                   to="/direct"
                   className={`flex items-center gap-3 text-white text-[14px] ${
@@ -302,6 +308,7 @@ const Sidebar = () => {
                   <img src={ArrowRight} alt="Arrow Right Icon" />
                   პირდაპირი
                 </Link>
+              )}
             </div>
           )}
         </div>

@@ -12,7 +12,7 @@ import GeneralSelectGroup from "../../../components/GeneralSelectGroup";
 import SearchIcon from "../../../assets/search.png";
 import EmployeeEditModal from "../../../components/EmployeeEditModal";
 import * as XLSX from "xlsx";
-import { fetchDepartments } from "../../../redux/departmentsSlice";
+
 
 const CreatedEmployees = () => {
   const dispatch = useDispatch();
@@ -30,10 +30,8 @@ const CreatedEmployees = () => {
   
 
   useEffect(() => {
-    if (status === "idle") {
       dispatch(fetchEmployees());
-    }
-  }, [status, dispatch]);
+  }, [ dispatch]);
 
   const handleClick = (employee) => {
     setSelectedEmployee(selectedEmployee === employee ? null : employee);
@@ -116,33 +114,40 @@ const CreatedEmployees = () => {
 
   return (
     <AuthenticatedLayout>
-      <div className="w-full px-20 py-4 flex flex-col gap-8">
+      <div className="w-full px-10 py-4 flex flex-col gap-8 2xl:px-20">
         <div className="flex justify-between w-full">
           <h1 className="text-[#1976D2] font-medium text-[23px]">
             თანამშრომლები
           </h1>
           <div className="flex items-center gap-8">
-            <Link
-              to="/employees/create"
-              className="bg-[#5CB85C] text-white px-4 py-4 rounded-md flex items-center gap-2"
-            >
-              <img src={NewIcon} alt="New Icon" />
-              ახალი
-            </Link>
-            <button
-              onClick={() => openEditModal(selectedEmployee)}
-              className="bg-[#1976D2] text-white px-4 py-4 rounded-md flex items-center gap-2"
-            >
-              <img src={EditIcon} alt="Edit" />
-              შეცვლა
-            </button>
-            <button
-              onClick={handleDelete}
-              className="bg-[#D9534F] text-white px-4 py-4 rounded-md flex items-center gap-2"
-            >
-              <img src={DeleteIcon} alt="Delete" />
-              წაშლა
-            </button>
+            {user?.user_type?.name !== "დეპარტამენტის ხელმძღვანელი" && (
+              <Link
+                to="/employees/create"
+                className="bg-[#5CB85C] text-white px-4 py-4 rounded-md flex items-center gap-2"
+              >
+                <img src={NewIcon} alt="New Icon" />
+                ახალი
+              </Link>
+            )}
+            {user?.user_type?.name !== "დეპარტამენტის ხელმძღვანელი" && (
+              <button
+                onClick={() => openEditModal(selectedEmployee)}
+                className="bg-[#1976D2] text-white px-4 py-4 rounded-md flex items-center gap-2"
+              >
+                <img src={EditIcon} alt="Edit" />
+                შეცვლა
+              </button>
+            )}
+            {user?.user_type?.name !== "დეპარტამენტის ხელმძღვანელი" && (
+              <button
+                onClick={handleDelete}
+                className="bg-[#D9534F] text-white px-4 py-4 rounded-md flex items-center gap-2"
+              >
+                <img src={DeleteIcon} alt="Delete" />
+                წაშლა
+              </button>
+            )}
+
             <button
               onClick={exportToExcel}
               className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative"
@@ -187,7 +192,7 @@ const CreatedEmployees = () => {
           </button>
         </div>
         <div className="container mx-auto mt-10 overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 table-fixed border-collapse">
+          <table className="w-full text-center divide-y divide-gray-200 table-fixed border-collapse">
             <thead className="bg-[#1976D2] text-white text-xs">
               <tr>
                 {[
@@ -206,11 +211,14 @@ const CreatedEmployees = () => {
                 ].map((header) => (
                   <th
                     key={header}
-                    className="px-2 py-1 border border-gray-200 w-20 text-center"
+                    className=" border font-normal border-gray-200 text-center customized-th-tr"
                   >
-                    <div className="flex flex-col items-center">
-                      <span>{header}</span>
-                    </div>
+                    <input
+                      type="text"
+                      value={header}
+                      className="w-full text-center bg-transparent outline-none px-2 py-1"
+                      readOnly
+                    />
                   </th>
                 ))}
               </tr>
@@ -228,9 +236,7 @@ const CreatedEmployees = () => {
                   }`}
                 >
                   <td
-                    className={`px-2 py-1 border border-gray-200 w-20 whitespace-normal ${
-                      expandedCell === index ? "expanded-cell" : "truncate-cell"
-                    }`}
+                    className={`px-2 py-1 border border-gray-200 customized-th-tr whitespace-normal`}
                   >
                     <input
                       type="text"
@@ -240,79 +246,57 @@ const CreatedEmployees = () => {
                     />
                   </td>
                   <td
-                    className={`px-2 py-1 border border-gray-200 w-20 ${
-                      expandedCell === index ? "expanded-cell" : "truncate-cell"
-                    }`}
+                    className={`px-2 py-1 border border-gray-200 customized-th-tr `}
                   >
                     {employee?.department?.name}
                   </td>
                   <td
-                    className={`px-2 py-1 border border-gray-200 w-20 ${
-                      expandedCell === index ? "expanded-cell" : "truncate-cell"
-                    }`}
+                    className={`px-2 py-1 border border-gray-200 customized-th-tr`}
                   >
                     {employee.position}
                   </td>
                   <td
-                    className={`px-2 py-1 border border-gray-200 w-20 ${
-                      expandedCell === index ? "expanded-cell" : "truncate-cell"
-                    }`}
+                    className={`px-2 py-1 border border-gray-200 customized-th-tr`}
                   >
                     {employee.personal_id}
                   </td>
                   <td
-                    className={`px-2 py-1 border border-gray-200 w-20 ${
-                      expandedCell === index ? "expanded-cell" : "truncate-cell"
-                    }`}
+                    className={`px-2 py-1 border border-gray-200 customized-th-tr`}
                   >
                     {employee.phone_number}
                   </td>
                   <td
-                    className={`px-2 py-1 border border-gray-200 w-20 ${
-                      expandedCell === index ? "expanded-cell" : "truncate-cell"
-                    }`}
+                    className={`px-2 py-1 border border-gray-200 customized-th-tr`}
                   >
                     {employee.card_number}
                   </td>
                   <td
-                    className={`px-2 py-1 border border-gray-200 w-20 ${
-                      expandedCell === index ? "expanded-cell" : "truncate-cell"
-                    }`}
+                    className={`px-2 py-1 border border-gray-200 customized-th-tr`}
                   >
                     {employee.expiry_datetime ? "შეჩერებულია" : "აქტიურია"}
                   </td>
                   <td
-                    className={`px-2 py-1 border border-gray-200 w-20 ${
-                      expandedCell === index ? "expanded-cell" : "truncate-cell"
-                    }`}
+                    className={`px-2 py-1 border border-gray-200 customized-th-tr`}
                   >
                     {employee?.user?.name}
                   </td>
                   <td
-                    className={`px-2 py-1 border border-gray-200 w-20 ${
-                      expandedCell === index ? "expanded-cell" : "truncate-cell"
-                    }`}
+                    className={`px-2 py-1 border border-gray-200 customized-th-tr`}
                   >
                     {employee?.group?.name}
                   </td>
                   <td
-                    className={`px-2 py-1 border border-gray-200 w-20 ${
-                      expandedCell === index ? "expanded-cell" : "truncate-cell"
-                    }`}
+                    className={`px-2 py-1 border border-gray-200 customized-th-tr`}
                   >
                     {employee?.schedule?.name}
                   </td>
                   <td
-                    className={`px-2 py-1 border border-gray-200 w-20 ${
-                      expandedCell === index ? "expanded-cell" : "truncate-cell"
-                    }`}
+                    className={`px-2 py-1 border border-gray-200 customized-th-tr`}
                   >
                     {employee.honorable_minutes_per_day}
                   </td>
                   <td
-                    className={`px-2 py-1 border border-gray-200 w-20 ${
-                      expandedCell === index ? "expanded-cell" : "truncate-cell"
-                    }`}
+                    className={`px-2 py-1 border border-gray-200 customized-th-tr`}
                   >
                     {employee.holidays &&
                       employee.holidays.map((item, idx) => (

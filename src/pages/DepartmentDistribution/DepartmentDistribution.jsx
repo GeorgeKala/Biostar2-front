@@ -111,7 +111,7 @@ const DepartmentDistribution = () => {
       );
       XLSX.writeFile(workbook, "DepartmentDistribution.xlsx");
     };
-    // console.log(data);
+
     
 
     const handleSearch = () => {
@@ -154,23 +154,23 @@ const DepartmentDistribution = () => {
                 </div>
                 <div className='flex items-center gap-4'>
                     <GeneralInputGroup
-                        name="employee"
+                        name="searchBuilding"
                         placeholder="შენობა"
                         type="text"
                         value={searchBuilding}
                         onChange={(e) => setSearchBuilding(e.target.value)}
-
                     />
-                    <GeneralSelectGroup
-                        label="დეპარტამენტი"
-                        options={departments.map(dep => dep.name)}
-                        // value={selectedDepartmentId}
+                    <GeneralInputGroup
+                        name="searchDepartment"
+                        placeholder="დეპარტამენტი"
+                        type="text"
                         value={searchDepartment}
                         onChange={(e) => setSearchDepartment(e.target.value)}
                     />
                     <button className='bg-[#1AB7C1] rounded-lg px-6 py-4' onClick={handleSearch}>
-                        <img src={SearchIcon}  />
+                        <img src={SearchIcon} alt='Search Icon' />
                     </button>
+                    
                 </div>
                 <div className="container mx-auto mt-10 overflow-x-auto">
                     <div className="min-w-max">

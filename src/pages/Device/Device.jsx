@@ -127,6 +127,9 @@ const Device = () => {
     XLSX.writeFile(workbook, "მოწყობილობები.xlsx");
   };
 
+
+  console.log(selectedItem);
+
   return (
     <AuthenticatedLayout>
       <div className="w-full px-20 py-4 flex flex-col gap-8">
@@ -169,9 +172,10 @@ const Device = () => {
             </div>
             <div className="h-100 min-w-max">
               {data.map((item, idx) => (
+                
                 <div
                   key={idx}
-                  className={`grid grid-cols-2 gap-2 py-2 px-4 border-b min-w-max ${item?.building_id === selectedItem?.building_id ? 'bg-blue-300' : 'transparent'}`}
+                  className={`grid grid-cols-2 gap-2 py-2 px-4 border-b min-w-max ${item?.building_id === selectedItem?.building_id && item?.access_group_id == selectedItem.access_group_id ? 'bg-blue-300' : 'transparent'}`}
                   onClick={() => handleRowClick(item)}
                 >
                   <div>{item.building_name}</div>

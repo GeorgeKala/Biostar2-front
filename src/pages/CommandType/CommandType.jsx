@@ -151,8 +151,8 @@ const CommandType = () => {
             <div className="flex justify-between items-center p-3 bg-blue-500 text-white rounded-t-lg">
               <h2 className="text-lg font-semibold">
                 {modalMode === "create"
-                  ? "დაამატე ახალი დღის ტიპი"
-                  : "შეცვალე დღის ტიპი"}
+                  ? "დაამატე ახალი ბრძანების ტიპი"
+                  : "შეცვალე ბრძანების ტიპი"}
               </h2>
               <button
                 onClick={closeAddModal}

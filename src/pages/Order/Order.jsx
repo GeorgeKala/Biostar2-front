@@ -7,17 +7,17 @@ import orderService from "../../services/order";
 import dayTypeService from "../../services/dayType";
 import EmployeeModal from "../../components/employee/EmployeeModal";
 import reportService from "../../services/report";
-import departmentService from "../../services/department";
 import DeleteIcon from "../../assets/delete.png";
 import * as XLSX from "xlsx";
 import { useSelector } from "react-redux";
+import NestedDropdownModal from "../../components/NestedDropdownModal";
 
 const Order = () => {
   const user = useSelector((state) => state.user.user);
   const [openModal, setOpenModal] = useState(false);
   const [EmployeeModalOpen, setEmployeeModalOpen] = useState(false);
   const [currentEmployeeInput, setCurrentEmployeeInput] = useState("");
-  const { departments } = useSelector((state) => state.departments);
+  const { departments, nestedDepartments } = useSelector((state) => state.departments);
   const [filters, setFilters] = useState({
     start_date: "",
     end_date: "",
@@ -40,6 +40,8 @@ const Order = () => {
   });
   const [dayTypes, setDayTypes] = useState([]);
   const [modalMode, setModalMode] = useState("create"); 
+  const [openNestedDropdown, setOpenNestedDropdown] = useState(false);
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -171,6 +173,25 @@ const Order = () => {
     XLSX.writeFile(workbook, "Orders.xlsx");
   };
 
+
+  const handleDepartmentSelect = (departmentId, departmentName) => {
+    setFilters((prevData) => ({
+      ...prevData,
+      department_id: departmentId,
+    }));
+    setOpenNestedDropdown(false);
+  };
+
+  const handleClear = (field) => {
+    setFilters((prevData) => ({
+      ...prevData,
+      [field]: "",
+    }));
+  };
+
+
+  
+
   return (
     <AuthenticatedLayout>
       <div className="w-full px-20 py-4 flex flex-col gap-8">
@@ -200,7 +221,7 @@ const Order = () => {
             value={filters.end_date}
             onChange={handleInputChange}
           />
-          <div onClick={() => openEmployeeModal("filter")} className="w-full">
+          {/* <div onClick={() => openEmployeeModal("filter")} className="w-full">
             <GeneralInputGroup
               name="employee"
               placeholder="თანამშრომელი"
@@ -208,25 +229,56 @@ const Order = () => {
               value={filters.employee}
               onChange={handleInputChange}
             />
+          </div> */}
+          <div className="w-full flex flex-col gap-2 relative">
+            <div className="flex">
+              <input 
+                className="bg-white border border-[#105D8D] outline-none rounded-l py-3 px-4 w-full pr-10"
+                placeholder="თანამშრომელი"
+                value={filters.employee}
+                onChange={handleInputChange}
+                readOnly
+              />
+              {filters.employee && (
+                <button
+                  type="button"
+                  onClick={() =>handleClear("employee")}
+                  className="absolute right-12 top-[50%] transform -translate-y-1/2 mr-4"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="black" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+              )}
+              <button  onClick={() => openEmployeeModal("filter")} className="bg-[#105D8D] px-4 rounded-r">
+                <img className="w-[20px]" src={SearchIcon} alt="" />
+              </button>
+            </div>
           </div>
-          <div className="w-full flex flex-col gap-2">
-            <select
-              id="department_id"
-              name="department_id"
-              value={filters.department_id}
-              onChange={handleInputChange}
-              className="bg-white border border-[#105D8D] outline-none rounded-md py-3 px-4 w-full"
-              disabled={!user?.user_type?.has_full_access}
-            >
-              <option value="">აირჩიეთ დეპარტამენტი</option>
-              {departments &&
-                departments.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.name}
-                  </option>
-                ))}
-            </select>
-          </div>
+          <div className="w-full flex flex-col gap-2 relative">
+              <div className="flex">
+                <input 
+                  className="bg-white border border-[#105D8D] outline-none rounded-l py-3 px-4 w-full pr-10"
+                  placeholder="დეპარტამენტი"
+                  value={departments.find((d) => d.id === filters.department_id)?.name || ""}
+                  readOnly
+                />
+                {filters.department_id && (
+                  <button
+                    type="button"
+                    onClick={() => handleClear('department_id')}
+                    className="absolute right-12 top-[50%] transform -translate-y-1/2 mr-4"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="black" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                  </button>
+                )}
+                <button onClick={() => setOpenNestedDropdown(true)} className="bg-[#105D8D] px-4 rounded-r">
+                  <img className="w-[20px]" src={SearchIcon} alt="" />
+                </button>
+              </div>
+            </div>
           <button className="bg-[#1AB7C1] rounded-lg px-6 py-4" type="submit">
             <img src={SearchIcon} className="w-[100px]" alt="Search Icon" />
           </button>
@@ -411,6 +463,16 @@ const Order = () => {
           </div>
         </div>
       )}
+      {openNestedDropdown && (
+          <NestedDropdownModal
+            header="დეპარტამენტები"
+            isOpen={openNestedDropdown}
+            onClose={() => setOpenNestedDropdown(false)}
+            onSelect={handleDepartmentSelect}
+            data={nestedDepartments}
+            link={'/departments'}
+          />
+        )}
       <EmployeeModal
         isOpen={EmployeeModalOpen}
         onClose={closeEmployeeModal}

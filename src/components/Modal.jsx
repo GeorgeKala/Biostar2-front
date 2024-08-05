@@ -23,20 +23,19 @@ const Modal = ({ isOpen, onClose, onSave, title, initialValue }) => {
           value={value}
           onChange={(e) => setValue(e.target.value)}
           className="border border-gray-300 rounded px-3 py-2 w-full mb-4"
-          placeholder="Enter schedule description"
         />
         <div className="flex justify-end">
           <button
             onClick={onClose}
             className="mr-2 px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
           >
-            Cancel
+            გაუქმება
           </button>
           <button
             onClick={handleSave}
             className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
           >
-            Save
+            შენახვა
           </button>
         </div>
       </div>

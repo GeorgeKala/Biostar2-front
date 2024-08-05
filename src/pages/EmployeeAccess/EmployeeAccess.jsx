@@ -5,8 +5,8 @@ import ArrowDownIcon from "../../assets/arrow-down-2.png";
 import { fetchBuildings } from "../../redux/buildingSlice";
 import employeeService from "../../services/employee";
 import DeleteIcon from '../../assets/delete.png';
-import EditIcon from '../../assets/edit.png';
 import NewIcon from '../../assets/new.png';
+import SearchIcon from "../../assets/search.png";
 import EmployeeModal from "../../components/employee/EmployeeModal";
 import * as XLSX from "xlsx";
 
@@ -23,7 +23,7 @@ const EmployeeAccess = () => {
   const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
   const [formData, setFormData] = useState({ building_id: "", name: "", employee_id: "", access_group: "" });
   const [searchData, setSearchData] = useState({ building_id: "", employee_id: "", name: "" });
-  const [isSearchContext, setIsSearchContext] = useState(false); // Add this state
+  const [isSearchContext, setIsSearchContext] = useState(false);
 
   useEffect(() => {
     dispatch(fetchBuildings());
@@ -116,6 +116,15 @@ const EmployeeAccess = () => {
     XLSX.writeFile(workbook, "employees.xlsx");
   };
 
+  const handleClear = () => {
+    setSearchData({ name: "", employee_id: ""});
+  };
+
+
+  const openEmployeeModal = (context) => {
+    setIsSearchContext(context === "filter");
+    setIsEmployeeModalOpen(true);
+  };
 
   return (
     <AuthenticatedLayout>
@@ -144,14 +153,30 @@ const EmployeeAccess = () => {
                 </option>
               ))}
           </select>
-          <input
-            type="text"
-            value={searchData.name}
-            placeholder="თანამშრომელი"
-            onClick={() => { setIsEmployeeModalOpen(true); setIsSearchContext(true); }}
-            readOnly
-            className="bg-white border border-[#105D8D] outline-none rounded-md py-3 px-4 cursor-pointer w-full"
-          />
+          <div className="w-full flex flex-col gap-2 relative">
+            <div className="flex">
+              <input 
+                className="bg-white border border-[#105D8D] outline-none rounded-l py-3 px-4 w-full pr-10"
+                placeholder="თანამშრომელი"
+                value={searchData.name}
+                readOnly
+              />
+              {searchData.name && (
+                <button
+                  type="button"
+                  onClick={handleClear}
+                  className="absolute right-12 top-[50%] transform -translate-y-1/2 mr-4"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="black" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                </button>
+              )}
+              <button onClick={() => openEmployeeModal("filter")} className="bg-[#105D8D] px-4 rounded-r">
+                <img className="w-[20px]" src={SearchIcon} alt="Search Icon" />
+              </button>
+            </div>
+          </div>
           <button onClick={getEmployeesWithBuildings} className="bg-[#1976D2] text-white px-4 py-3 rounded-md flex items-center gap-2">
             ძებნა
           </button>
@@ -196,7 +221,10 @@ const EmployeeAccess = () => {
                   data.map((item, index) => (
                     <tr
                       key={index}
-                      className={`px-2 py-1 border border-gray-200 w-20 ${selectedEmployee?.building?.id === item?.building?.id ? 'bg-blue-300' : 'bg-transparent'}`}
+                      className={`px-2 py-1 border border-gray-200 w-20 
+                        ${selectedEmployee?.user_id === item?.user_id && 
+                          selectedEmployee?.building?.id === item?.building?.id 
+                          ? 'bg-blue-300' : 'bg-transparent'}`}
                       onClick={() => setSelectedEmployee(item)}
                     >
                       <td className="px-2 py-1 border border-gray-200 w-20">

@@ -1,7 +1,7 @@
 
 import useFetchUser from '../hooks/useFetchUser';
 import { useDispatch } from 'react-redux';
-import { fetchDepartments } from "../redux/departmentsSlice";
+import { fetchDepartments, fetchNestedDepartments } from "../redux/departmentsSlice";
 import { fetchSchedules } from "../redux/scheduleSlice";
 import { useEffect } from 'react';
 import { fetchGroups } from '../redux/groupSlice';
@@ -13,7 +13,6 @@ const DataProvider = ({ children }) => {
   useFetchUser();
 
   useEffect(() => {
-    
     dispatch(fetchDepartments());
   }, [dispatch]);
 
@@ -31,6 +30,10 @@ const DataProvider = ({ children }) => {
 
   useEffect(() => {
     dispatch(fetchBuildings());
+  }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(fetchNestedDepartments());
   }, [dispatch]);
 
   return <>{children}</>;

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import { deleteEmployee } from "../../../redux/employeeSlice";
 import AuthenticatedLayout from "../../../Layouts/AuthenticatedLayout";
 import ArrowDownIcon from "../../../assets/arrow-down-2.png";
@@ -13,7 +13,10 @@ import SearchIcon from "../../../assets/search.png";
 import EmployeeEditModal from "../../../components/EmployeeEditModal";
 import employeeService from "../../../services/employee";
 import * as XLSX from "xlsx";
-import { fetchDepartments, fetchNestedDepartments } from "../../../redux/departmentsSlice";
+import {
+  fetchDepartments,
+  fetchNestedDepartments,
+} from "../../../redux/departmentsSlice";
 
 const ArchivedEmployee = () => {
   const [employees, setEmployees] = useState([]);
@@ -22,10 +25,11 @@ const ArchivedEmployee = () => {
   const [expandedCell, setExpandedCell] = useState(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const { departments } = useSelector((state) => state.departments);
-  const dispatch = useDispatch()
+  const user = useSelector((state) => state.user.user);
+  const dispatch = useDispatch();
   const [filters, setFilters] = useState({
     employee: "",
-    department: "",
+    department_id: user?.user_type?.has_full_access ? "" : user?.department?.id,
   });
   const [filteredEmployees, setFilteredEmployees] = useState([]);
 
@@ -35,6 +39,7 @@ const ArchivedEmployee = () => {
       try {
         const data = await employeeService.getArchivedEmployees();
         setEmployees(data);
+        setFilteredEmployees(data);
         setStatus("succeeded");
       } catch (error) {
         console.error("Failed to fetch archived employees:", error);
@@ -67,7 +72,6 @@ const ArchivedEmployee = () => {
     }
   };
 
-
   const openEditModal = (employee) => {
     setSelectedEmployee(employee);
     setEditModalOpen(true);
@@ -87,7 +91,7 @@ const ArchivedEmployee = () => {
         "პირადი ნომერი": employee.personal_id,
         "ტელეფონის ნომერი": employee.phone_number,
         "ბარათის ნომერი": employee.card_number,
-        "სტატუსი": employee.expiry_datetime ? "შეჩერებულია" : "აქტიურია",
+        სტატუსი: employee.expiry_datetime ? "შეჩერებულია" : "აქტიურია",
         მომხმარებელი: employee?.user?.name,
         ჯგუფი: employee?.group?.name,
         განრიგი: employee?.schedule?.name,
@@ -102,7 +106,6 @@ const ArchivedEmployee = () => {
     XLSX.writeFile(workbook, "ArchivedEmployees.xlsx");
   };
 
-
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters((prevState) => ({
@@ -112,9 +115,14 @@ const ArchivedEmployee = () => {
   };
 
   const handleFilterClick = () => {
-    const filtered = employees.filter((employee) =>
-      employee.fullname.toLowerCase().includes(filters.employee.toLowerCase()) &&
-      (filters.department ? employee?.department?.name.toLowerCase().includes(filters.department.toLowerCase()) : true)
+    const filtered = employees.filter(
+      (employee) =>
+        employee.fullname
+          .toLowerCase()
+          .includes(filters.employee.toLowerCase()) &&
+        (filters.department_id
+          ? employee?.department?.id === filters.department_id
+          : true)
     );
     setFilteredEmployees(filtered);
   };
@@ -127,7 +135,10 @@ const ArchivedEmployee = () => {
             დაარქივებული თანამშრომლები
           </h1>
           <div className="flex items-center gap-8">
-            <button onClick={exportToExcel} className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">
+            <button
+              onClick={exportToExcel}
+              className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative"
+            >
               ჩამოტვირთვა
               <img src={ArrowDownIcon} className="ml-3" alt="Arrow Down Icon" />
               <span className="absolute inset-0 border border-white border-dashed rounded"></span>
@@ -135,7 +146,7 @@ const ArchivedEmployee = () => {
           </div>
         </div>
         <div className="flex items-center gap-4">
-        <GeneralInputGroup
+          <GeneralInputGroup
             name="employee"
             placeholder="თანამშრომელი"
             type="text"
@@ -144,22 +155,26 @@ const ArchivedEmployee = () => {
           />
           <div className="w-full flex flex-col gap-2">
             <select
-              id="department"
-              name="department"
-              value={filters.department}
+              id="department_id"
+              name="department_id"
+              value={filters.department_id}
               onChange={handleFilterChange}
               className="bg-white border border-[#105D8D] outline-none rounded-md py-3 px-4 w-full"
+              disabled={!user?.user_type?.has_full_access}
             >
               <option value="">აირჩიეთ დეპარტამენტი</option>
               {departments &&
                 departments.map((item) => (
-                  <option key={item.id} value={item.name}>
+                  <option key={item.id} value={item.id}>
                     {item.name}
                   </option>
                 ))}
             </select>
           </div>
-          <button className="bg-[#1AB7C1] rounded-lg px-6 py-4" onClick={handleFilterClick}>
+          <button
+            className="bg-[#1AB7C1] rounded-lg px-6 py-4"
+            onClick={handleFilterClick}
+          >
             <img src={SearchIcon} alt="Search Icon" />
           </button>
         </div>
