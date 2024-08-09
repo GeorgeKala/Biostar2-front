@@ -13,6 +13,10 @@ const DataProvider = ({ children }) => {
   useFetchUser();
 
   useEffect(() => {
+    dispatch(fetchNestedDepartments());
+  }, [dispatch]);
+
+  useEffect(() => {
     dispatch(fetchDepartments());
   }, [dispatch]);
 
@@ -32,9 +36,7 @@ const DataProvider = ({ children }) => {
     dispatch(fetchBuildings());
   }, [dispatch]);
 
-  useEffect(() => {
-    dispatch(fetchNestedDepartments());
-  }, [dispatch]);
+  
 
   return <>{children}</>;
 };

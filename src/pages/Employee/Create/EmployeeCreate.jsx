@@ -108,6 +108,8 @@ const EmployeeCreate = () => {
       if (
         !formData[field] &&
         field !== "expiry_datetime" &&
+        field !== "checksum" && 
+        field !== "honorable_minutes_per_day" && 
         field !== "device"
       ) {
         newErrors[field] = `${georgianLabels[field]} მითითება აუცილებელია`;
@@ -149,10 +151,8 @@ const EmployeeCreate = () => {
     position: "პოზიცია",
     group_id: "ჯგუფი",
     schedule_id: "განრიგი",
-    honorable_minutes_per_day: "საპატიო წუთები",
     device: "მოწყობილობა",
     card_number: "ბარათის ნომერი",
-    checksum: "საკონტროლო ჯამი",
   };
 
   useEffect(() => {
@@ -185,6 +185,7 @@ const EmployeeCreate = () => {
     };
 
     setFormData(updatedFormData);
+    
   }
 
   const renderHolidays = () => {
@@ -369,7 +370,6 @@ const EmployeeCreate = () => {
               type="text"
               value={formData.honorable_minutes_per_day}
               onChange={handleInput}
-              error={errors.honorable_minutes_per_day}
             />
           </div>
           <div className="flex justify-between gap-8">
@@ -450,7 +450,6 @@ const EmployeeCreate = () => {
               type="number"
               value={formData.checksum}
               onChange={handleInput}
-              error={errors.checksum}
             />
           </div>
           <div className="flex justify-end gap-4 mt-10">

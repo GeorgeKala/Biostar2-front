@@ -12,6 +12,7 @@ import GeneralSelectGroup from "../../../components/GeneralSelectGroup";
 import SearchIcon from "../../../assets/search.png";
 import EmployeeEditModal from "../../../components/EmployeeEditModal";
 import * as XLSX from "xlsx";
+import EmployeeStatusModal from "../../../components/EmployeeStatusModal";
 
 
 const CreatedEmployees = () => {
@@ -23,6 +24,7 @@ const CreatedEmployees = () => {
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [expandedCell, setExpandedCell] = useState(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [employeeStatusModal, setEmployeeStatusModal] = useState(false)
   const [filters, setFilters] = useState({
     fullname: "",
     department_id: user?.user_type?.has_full_access ? "" : user?.department?.id,
@@ -64,8 +66,9 @@ const CreatedEmployees = () => {
     setFilters({ ...filters, [name]: value });
   };
 
-  const handleSearch = () => {
-    dispatch(fetchEmployees(filters));
+  const handleSearch = (status = 'active') => {
+    dispatch(fetchEmployees({ ...filters, status }));
+    setEmployeeStatusModal(false);
   };
 
   const exportToExcel = () => {
@@ -110,6 +113,12 @@ const CreatedEmployees = () => {
     XLSX.utils.book_append_sheet(workbook, worksheet, "Employees");
 
     XLSX.writeFile(workbook, "Employees.xlsx");
+  };
+
+
+  const handleRightClick = (e) => {
+    e.preventDefault();
+    setEmployeeStatusModal(true)
   };
 
   return (
@@ -229,6 +238,9 @@ const CreatedEmployees = () => {
                   key={employee.id}
                   onClick={() => handleClick(employee)}
                   onDoubleClick={() => handleDoubleClick(index)}
+                  onContextMenu={(e) => handleRightClick(e, employee)}
+
+  
                   className={`text-center ${
                     selectedEmployee && selectedEmployee.id === employee.id
                       ? "bg-blue-200"
@@ -318,6 +330,14 @@ const CreatedEmployees = () => {
           onClose={closeEditModal}
         />
       )}
+
+    {employeeStatusModal && (
+      <EmployeeStatusModal
+        isOpen={employeeStatusModal}
+        onClose={() => setEmployeeStatusModal(false)}
+        handleSearch={handleSearch}
+      />
+    )}
     </AuthenticatedLayout>
   );
 };

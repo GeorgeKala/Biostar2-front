@@ -7,7 +7,7 @@ import { useDispatch } from 'react-redux';
 import { fetchGroups } from '../../../redux/groupSlice';
 import { fetchSchedules } from '../../../redux/scheduleSlice';
 import { fetchAsyncUser } from '../../../redux/userDataSlice';
-import { fetchDepartments } from '../../../redux/departmentsSlice';
+import { fetchDepartments, fetchNestedDepartments } from '../../../redux/departmentsSlice';
 
 
 const Login = () => {
@@ -25,9 +25,9 @@ const Login = () => {
                 dispatch(fetchGroups());
                 dispatch(fetchDepartments());
                 dispatch(fetchSchedules());
-                dispatch(fetchAsyncUser())
+                dispatch(fetchAsyncUser());
+                dispatch(fetchNestedDepartments());
                 navigate('/reports/general')
-                
             }
         } catch (error) {
             setError(error.message || 'An error occurred during login.');
