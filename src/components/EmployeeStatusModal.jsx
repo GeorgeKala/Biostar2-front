@@ -35,14 +35,14 @@ const EmployeeStatusModal = ({ isOpen, onClose, handleSearch }) => {
                 </svg>
               </button>
             </div>
-            
+
             <div className="flex justify-around mt-6">
               {/* Active Employees */}
-              <div 
-                className="flex flex-col items-center group cursor-pointer" 
-                onClick={() => handleSearch('active')}
+              <div
+                className="flex flex-col items-center group cursor-pointer"
+                onClick={() => handleSearch("active")}
               >
-                <div className="p-4 rounded-full transition-all duration-200 transform group-hover:scale-110 group-hover:bg-blue-100">
+                <div className="flex justify-center p-4 rounded-full transition-all duration-200 transform group-hover:scale-110 group-hover:bg-blue-100">
                   <img
                     src={ActiveEmployeesIcon}
                     alt="Active Employees"
@@ -51,26 +51,25 @@ const EmployeeStatusModal = ({ isOpen, onClose, handleSearch }) => {
                 </div>
                 <span className="mt-2 text-center">აქტიური</span>
               </div>
-              {/* Archived Employees */}
-              <div 
-                className="flex flex-col items-center group cursor-pointer" 
-                onClick={() => handleSearch('archived')}
+              <div
+                className="flex flex-col items-center group cursor-pointer"
+                onClick={() => handleSearch("archived")}
               >
-                <div className="p-4 rounded-full transition-all duration-200 transform group-hover:scale-110 group-hover:bg-blue-100">
+                <div className="flex justify-center p-4 rounded-full transition-all duration-200 transform group-hover:scale-110 group-hover:bg-blue-100">
                   <img
                     src={ArchivedEmployeesIcon}
                     alt="Archived Employees"
                     className="w-16 h-16"
                   />
                 </div>
-                <span className="mt-2 text-center">არქივირებული</span>
+                <span className="mt-2 text-center">დაარქივირებული</span>
               </div>
               {/* All Employees */}
-              <div 
-                className="flex flex-col items-center group cursor-pointer" 
-                onClick={() => handleSearch('all')}
+              <div
+                className="flex flex-col items-center group cursor-pointer"
+                onClick={() => handleSearch("all")}
               >
-                <div className="p-4 rounded-full transition-all duration-200 transform group-hover:scale-110 group-hover:bg-blue-100">
+                <div className="flex justify-center p-4 rounded-full transition-all duration-200 transform group-hover:scale-110 group-hover:bg-blue-100">
                   <img
                     src={AllEmployeesIcon}
                     alt="All Employees"

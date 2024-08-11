@@ -201,15 +201,6 @@ const Sidebar = () => {
                 </Link>
               )}
 
-              <Link
-                to="/employees/archived"
-                className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === "/employees/archived" ? "font-bold" : ""
-                }`}
-              >
-                <img src={ArrowRight} alt="Arrow Right Icon" />
-                არქივი
-              </Link>
               {user?.user?.user_type.name === "ადმინისტრატორი" && (
                 <Link
                   to="/devices"
