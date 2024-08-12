@@ -8,6 +8,7 @@ import { fetchDepartments, fetchNestedDepartments } from "../../redux/department
 import departmentService from "../../services/department";
 import * as XLSX from "xlsx";
 const Department = () => {
+  const user = useSelector((state) => state.user.user);
   const dispatch = useDispatch();
   const { nestedDepartments, departments } = useSelector((state) => state.departments);
   const [formData, setFormData] = useState({ name: "", parent_id: null });
@@ -128,6 +129,8 @@ const Department = () => {
   };
 
 
+  console.log(nestedDepartments);
+  
 
   const renderSubMenu = (subMenu, level = 1) => {
     return (
@@ -136,20 +139,31 @@ const Department = () => {
           <li key={index} onClick={toggleSubMenu} className="cursor-pointer">
             <div className="flex justify-between items-center mb-2 border-b py-2 border-black">
               <div className="flex items-center gap-2 text-sm">
-                
-                  {
-                    subItem?.children?.length > 0 && (<button className="bg-[#00C7BE] text-white px-1 rounded py-[0.2px]">+</button>)
-                  }
+                {subItem?.children?.length > 0 && (
+                  <button className="bg-[#00C7BE] text-white px-1 rounded py-[0.2px]">
+                    +
+                  </button>
+                )}
                 <p className="text-gray-700 font-medium">{subItem.name}</p>
               </div>
-              <div className="flex space-x-2">
-                <button>
-                  <img src={CreateIcon} alt="" onClick={() => openUpdateModal(subItem)}/>
-                </button>
-                <button>
-                  <img src={DeleteIcon} alt="" onClick={() => handleDelete(subItem.id)} />
-                </button>
-              </div>
+              {user.user_type.name == "ადმინისტრატორი" && (
+                <div className="flex space-x-2">
+                  <button>
+                    <img
+                      src={CreateIcon}
+                      alt=""
+                      onClick={() => openUpdateModal(subItem)}
+                    />
+                  </button>
+                  <button>
+                    <img
+                      src={DeleteIcon}
+                      alt=""
+                      onClick={() => handleDelete(subItem.id)}
+                    />
+                  </button>
+                </div>
+              )}
             </div>
             {subItem?.children && renderSubMenu(subItem?.children, level + 1)}
           </li>
@@ -164,44 +178,64 @@ const Department = () => {
     <AuthenticatedLayout>
       <div className="w-full px-20 py-4 flex flex-col gap-8">
         <div className="flex justify-between w-full">
-          <h1 className="text-[#1976D2] font-medium text-[23px]">დეპარტამენტები</h1>
-          <div className="flex items-center gap-8">
-            <button
-              className="bg-[#FBD15B] text-[#1976D2] px-4 py-4 rounded-md flex items-center gap-2"
-              onClick={openAddModal}
-            >
-              + დაამატე ახალი დეპარტამენტები
-            </button>
-            <button onClick={exportToExcel} className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">
-              ჩამოტვირთვა
-              <img src={ArrowDownIcon} className="ml-3" alt="Arrow Down Icon" />
-              <span className="absolute inset-0 border border-white border-dashed rounded"></span>
-            </button>
-          </div>
+          <h1 className="text-[#1976D2] font-medium text-[23px]">
+            დეპარტამენტები
+          </h1>
+          {user.user_type.name == "ადმინისტრატორი" && (
+            <div className="flex items-center gap-8">
+              <button
+                className="bg-[#FBD15B] text-[#1976D2] px-4 py-4 rounded-md flex items-center gap-2"
+                onClick={openAddModal}
+              >
+                + დაამატე ახალი დეპარტამენტები
+              </button>
+              <button
+                onClick={exportToExcel}
+                className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative"
+              >
+                ჩამოტვირთვა
+                <img
+                  src={ArrowDownIcon}
+                  className="ml-3"
+                  alt="Arrow Down Icon"
+                />
+                <span className="absolute inset-0 border border-white border-dashed rounded"></span>
+              </button>
+            </div>
+          )}
         </div>
         <div className="p-4">
-          {nesteds && nesteds.map((item, index) => (
-            <div key={index} onClick={toggleSubMenu} className="cursor-pointer">
-              <div className="flex justify-between items-center mb-2 border-b py-2 border-black">
-                <div className="flex items-center gap-2 text-sm">
-                  {
-                    item?.children?.length > 0 && (<button className="bg-[#00C7BE] text-white px-1 rounded py-[0.2px]">+</button>)
-                  }
-                  
-                  <p className="text-gray-700 font-medium">{item.name}</p>
+          {nesteds &&
+            nesteds.map((item, index) => (
+              <div
+                key={index}
+                onClick={toggleSubMenu}
+                className="cursor-pointer"
+              >
+                <div className="flex justify-between items-center mb-2 border-b py-2 border-black">
+                  <div className="flex items-center gap-2 text-sm">
+                    {item?.children?.length > 0 && (
+                      <button className="bg-[#00C7BE] text-white px-1 rounded py-[0.2px]">
+                        +
+                      </button>
+                    )}
+
+                    <p className="text-gray-700 font-medium">{item.name}</p>
+                  </div>
+                  {user.user_type.name == "ადმინისტრატორი" && (
+                    <div className="flex space-x-2">
+                      <button onClick={() => openUpdateModal(item)}>
+                        <img src={CreateIcon} alt="" />
+                      </button>
+                      <button onClick={() => handleDelete(item.id)}>
+                        <img src={DeleteIcon} alt="" />
+                      </button>
+                    </div>
+                  )}
                 </div>
-                <div className="flex space-x-2">
-                  <button onClick={() => openUpdateModal(item)}>
-                    <img src={CreateIcon} alt="" />
-                  </button>
-                  <button onClick={() => handleDelete(item.id)}>
-                    <img src={DeleteIcon} alt="" />
-                  </button>
-                </div>
+                {item.children && renderSubMenu(item.children)}
               </div>
-              {item.children && renderSubMenu(item.children)}
-            </div>
-          ))}
+            ))}
         </div>
       </div>
       {isAddModalOpen && (
@@ -209,17 +243,38 @@ const Department = () => {
           <div className="bg-white rounded-lg max-w-md w-full">
             <div className="flex justify-between items-center p-3 bg-blue-500 text-white rounded-t-lg">
               <h2 className="text-lg font-semibold">
-                {modalMode === 'create' ? 'დაამატე ახალი დეპარტამენტი' : 'განაახლე დეპარტამენტი'}
+                {modalMode === "create"
+                  ? "დაამატე ახალი დეპარტამენტი"
+                  : "განაახლე დეპარტამენტი"}
               </h2>
-              <button onClick={closeAddModal} className="hover:text-gray-200 focus:outline-none">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+              <button
+                onClick={closeAddModal}
+                className="hover:text-gray-200 focus:outline-none"
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  ></path>
                 </svg>
               </button>
             </div>
             <form onSubmit={handleSave} className="p-3">
               <div className="mb-4">
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700">სახელი:</label>
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  სახელი:
+                </label>
                 <input
                   type="text"
                   id="name"
@@ -231,7 +286,12 @@ const Department = () => {
                 />
               </div>
               <div className="mb-4">
-                <label htmlFor="userType" className="block text-sm font-medium text-gray-700">მომხმარებლის ტიპი:</label>
+                <label
+                  htmlFor="userType"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  მომხმარებლის ტიპი:
+                </label>
                 <select
                   id="parent_id"
                   name="parent_id"
@@ -240,14 +300,28 @@ const Department = () => {
                   onChange={handleChange}
                 >
                   <option value="">დაქვემდებარებული</option>
-                  {departments && departments.map(item => (
-                    <option key={item.id} value={item.id}>{item.name}</option>
-                  ))}
+                  {departments &&
+                    departments.map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.name}
+                      </option>
+                    ))}
                 </select>
               </div>
               <div className="flex justify-end mt-4">
-                <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md mr-2">Save</button>
-                <button type="button" onClick={closeAddModal} className="bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-4 rounded-md">Cancel</button>
+                <button
+                  type="submit"
+                  className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md mr-2"
+                >
+                  Save
+                </button>
+                <button
+                  type="button"
+                  onClick={closeAddModal}
+                  className="bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-4 rounded-md"
+                >
+                  Cancel
+                </button>
               </div>
             </form>
           </div>

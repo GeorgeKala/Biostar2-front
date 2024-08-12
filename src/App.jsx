@@ -132,7 +132,7 @@ const App = () => {
             element={
               <ProtectedRoute
                 element={<EmployeeAccess />}
-                requiresFullAccess={true}
+                requiresFullAccess={false}
               />
             }
           />
@@ -141,7 +141,7 @@ const App = () => {
             element={
               <ProtectedRoute
                 element={<Schedule />}
-                requiresFullAccess={true}
+                requiresFullAccess={false}
               />
             }
           />
@@ -165,7 +165,7 @@ const App = () => {
             element={
               <ProtectedRoute
                 element={<Department />}
-                requiresFullAccess={true}
+                requiresFullAccess={false}
               />
             }
           />
@@ -198,7 +198,7 @@ const App = () => {
             element={
               <ProtectedRoute
                 element={<CommandType />}
-                requiresFullAccess={true}
+                requiresFullAccess={false}
               />
             }
           />
@@ -207,7 +207,7 @@ const App = () => {
             element={
               <ProtectedRoute
                 element={<ForgiveType />}
-                requiresFullAccess={true}
+                requiresFullAccess={false}
               />
             }
           />

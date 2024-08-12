@@ -5,8 +5,10 @@ import CreateIcon from "../../assets/create.png";
 import DeleteIcon from "../../assets/delete-2.png";
 import dayTypeService from "../../services/dayType";
 import * as XLSX from "xlsx";
+import { useSelector } from "react-redux";
 
 const CommandType = () => {
+  const user = useSelector((state) => state.user.user);
   const [formData, setFormData] = useState({ name: "" });
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("create");
@@ -109,19 +111,28 @@ const CommandType = () => {
           <h1 className="text-[#1976D2] font-medium text-[23px]">
             ბრძანების ტიპი
           </h1>
-          <div className="flex items-center gap-8">
-            <button
-              className="bg-[#FBD15B] text-[#1976D2] px-4 py-4 rounded-md flex items-center gap-2"
-              onClick={openAddModal}
-            >
-              + დაამატე ბრძანების ტიპი
-            </button>
-            <button onClick={exportToExcel} className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">
-              ჩამოტვირთვა
-              <img src={ArrowDownIcon} className="ml-3" alt="Arrow Down Icon" />
-              <span className="absolute inset-0 border border-white border-dashed rounded"></span>
-            </button>
-          </div>
+          {user.user_type.name == "ადმინისტრატორი" && (
+            <div className="flex items-center gap-8">
+              <button
+                className="bg-[#FBD15B] text-[#1976D2] px-4 py-4 rounded-md flex items-center gap-2"
+                onClick={openAddModal}
+              >
+                + დაამატე ბრძანების ტიპი
+              </button>
+              <button
+                onClick={exportToExcel}
+                className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative"
+              >
+                ჩამოტვირთვა
+                <img
+                  src={ArrowDownIcon}
+                  className="ml-3"
+                  alt="Arrow Down Icon"
+                />
+                <span className="absolute inset-0 border border-white border-dashed rounded"></span>
+              </button>
+            </div>
+          )}
         </div>
         <div className="p-4">
           {dayTypeList &&
@@ -133,14 +144,16 @@ const CommandType = () => {
                 <div className="flex items-center gap-2 text-sm">
                   <p className="text-gray-700 font-medium">{dayType.name}</p>
                 </div>
-                <div className="flex space-x-2">
-                  <button onClick={() => openEditModal(dayType)}>
-                    <img src={CreateIcon} alt="Edit Icon" />
-                  </button>
-                  <button onClick={() => handleDelete(dayType.id)}>
-                    <img src={DeleteIcon} alt="Delete Icon" />
-                  </button>
-                </div>
+                {user.user_type.name == "ადმინისტრატორი" && (
+                  <div className="flex space-x-2">
+                    <button onClick={() => openEditModal(dayType)}>
+                      <img src={CreateIcon} alt="Edit Icon" />
+                    </button>
+                    <button onClick={() => handleDelete(dayType.id)}>
+                      <img src={DeleteIcon} alt="Delete Icon" />
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
         </div>

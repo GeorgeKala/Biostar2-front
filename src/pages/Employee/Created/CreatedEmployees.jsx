@@ -7,8 +7,7 @@ import ArrowDownIcon from "../../../assets/arrow-down-2.png";
 import NewIcon from "../../../assets/new.png";
 import DeleteIcon from "../../../assets/delete.png";
 import EditIcon from "../../../assets/edit.png";
-import GeneralInputGroup from "../../../components/GeneralInputGroup";
-import SearchIcon from "../../../assets/search.png";
+
 import EmployeeEditModal from "../../../components/EmployeeEditModal";
 import * as XLSX from "xlsx";
 import EmployeeStatusModal from "../../../components/EmployeeStatusModal";
@@ -172,9 +171,12 @@ const CreatedEmployees = () => {
     <AuthenticatedLayout>
       <div className="w-full px-10 py-4 flex flex-col gap-8 2xl:px-20">
         <div className="flex justify-between w-full">
-          <h1 className="text-[#1976D2] font-medium text-[23px]">თანამშრომლები</h1>
+          <h1 className="text-[#1976D2] font-medium text-[23px]">
+            თანამშრომლები
+          </h1>
           <div className="flex items-center gap-8">
-            {user?.user_type?.name !== "დეპარტამენტის ხელმძღვანელი" && (
+            {user?.user_type?.has_full_access ||
+            user?.user_type?.name == "მენეჯერი-რეგიონები" ? (
               <>
                 <Link
                   to="/employees/create"
@@ -198,7 +200,7 @@ const CreatedEmployees = () => {
                   წაშლა
                 </button>
               </>
-            )}
+            ) : null}
             <button
               onClick={exportToExcel}
               className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative"
@@ -211,7 +213,7 @@ const CreatedEmployees = () => {
         <div className="container mx-auto mt-10 overflow-x-auto">
           <table className="w-full text-center divide-y divide-gray-200 table-fixed border-collapse">
             <thead className="bg-[#1976D2] text-white text-xs">
-            <tr>
+              <tr>
                 <th className="w-[30px]"></th>
                 <th
                   className="border font-normal border-gray-200 text-left px-2 customized-th-tr cursor-pointer relative"
@@ -220,7 +222,11 @@ const CreatedEmployees = () => {
                   სახელი/გვარი
                   {sortConfig.key === "fullname" && (
                     <span className="absolute right-2 top-1/2 transform -translate-y-1/2">
-                      {sortConfig.direction === "ascending" ? <ArrowUpIcon /> : <ArrowDownIcon />}
+                      {sortConfig.direction === "ascending" ? (
+                        <ArrowUpIcon />
+                      ) : (
+                        <ArrowDownIcon />
+                      )}
                     </span>
                   )}
                 </th>
@@ -231,7 +237,11 @@ const CreatedEmployees = () => {
                   დეპარტამენტი
                   {sortConfig.key === "department.name" && (
                     <span className="absolute right-2 top-1/2 transform -translate-y-1/2">
-                      {sortConfig.direction === "ascending" ? <ArrowUpIcon /> : <ArrowDownIcon />}
+                      {sortConfig.direction === "ascending" ? (
+                        <ArrowUpIcon />
+                      ) : (
+                        <ArrowDownIcon />
+                      )}
                     </span>
                   )}
                 </th>
@@ -242,7 +252,11 @@ const CreatedEmployees = () => {
                   პოზიცია
                   {sortConfig.key === "position" && (
                     <span className="absolute right-2 top-1/2 transform -translate-y-1/2">
-                      {sortConfig.direction === "ascending" ? <ArrowUpIcon /> : <ArrowDownIcon />}
+                      {sortConfig.direction === "ascending" ? (
+                        <ArrowUpIcon />
+                      ) : (
+                        <ArrowDownIcon />
+                      )}
                     </span>
                   )}
                 </th>
@@ -253,7 +267,11 @@ const CreatedEmployees = () => {
                   პირადი ნომერი
                   {sortConfig.key === "personal_id" && (
                     <span className="absolute right-2 top-1/2 transform -translate-y-1/2">
-                      {sortConfig.direction === "ascending" ? <ArrowUpIcon /> : <ArrowDownIcon />}
+                      {sortConfig.direction === "ascending" ? (
+                        <ArrowUpIcon />
+                      ) : (
+                        <ArrowDownIcon />
+                      )}
                     </span>
                   )}
                 </th>
@@ -264,7 +282,11 @@ const CreatedEmployees = () => {
                   ტელეფონის ნომერი
                   {sortConfig.key === "phone_number" && (
                     <span className="">
-                      {sortConfig.direction === "ascending" ? <ArrowUpIcon /> : <ArrowDownIcon />}
+                      {sortConfig.direction === "ascending" ? (
+                        <ArrowUpIcon />
+                      ) : (
+                        <ArrowDownIcon />
+                      )}
                     </span>
                   )}
                 </th>
@@ -275,7 +297,11 @@ const CreatedEmployees = () => {
                   ბარათის ნომერი
                   {sortConfig.key === "card_number" && (
                     <span className="absolute right-2 top-1/2 transform -translate-y-1/2">
-                      {sortConfig.direction === "ascending" ? <ArrowUpIcon /> : <ArrowDownIcon />}
+                      {sortConfig.direction === "ascending" ? (
+                        <ArrowUpIcon />
+                      ) : (
+                        <ArrowDownIcon />
+                      )}
                     </span>
                   )}
                 </th>
@@ -286,7 +312,11 @@ const CreatedEmployees = () => {
                   ჯგუფი
                   {sortConfig.key === "group.name" && (
                     <span className="absolute right-2 top-1/2 transform -translate-y-1/2">
-                      {sortConfig.direction === "ascending" ? <ArrowUpIcon /> : <ArrowDownIcon />}
+                      {sortConfig.direction === "ascending" ? (
+                        <ArrowUpIcon />
+                      ) : (
+                        <ArrowDownIcon />
+                      )}
                     </span>
                   )}
                 </th>
@@ -297,7 +327,11 @@ const CreatedEmployees = () => {
                   განრიგი
                   {sortConfig.key === "schedule.name" && (
                     <span className="absolute right-2 top-1/2 transform -translate-y-1/2">
-                      {sortConfig.direction === "ascending" ? <ArrowUpIcon /> : <ArrowDownIcon />}
+                      {sortConfig.direction === "ascending" ? (
+                        <ArrowUpIcon />
+                      ) : (
+                        <ArrowDownIcon />
+                      )}
                     </span>
                   )}
                 </th>
@@ -308,7 +342,11 @@ const CreatedEmployees = () => {
                   საპატიო წუთები
                   {sortConfig.key === "honorable_minutes_per_day" && (
                     <span className="absolute right-2 top-1/2 transform -translate-y-1/2">
-                      {sortConfig.direction === "ascending" ? <ArrowUpIcon /> : <ArrowDownIcon />}
+                      {sortConfig.direction === "ascending" ? (
+                        <ArrowUpIcon />
+                      ) : (
+                        <ArrowDownIcon />
+                      )}
                     </span>
                   )}
                 </th>
@@ -319,13 +357,19 @@ const CreatedEmployees = () => {
                   დასვენების დღეები
                   {sortConfig.key === "holidays" && (
                     <span className="absolute right-2 top-1/2 transform -translate-y-1/2">
-                      {sortConfig.direction === "ascending" ? <ArrowUpIcon /> : <ArrowDownIcon />}
+                      {sortConfig.direction === "ascending" ? (
+                        <ArrowUpIcon />
+                      ) : (
+                        <ArrowDownIcon />
+                      )}
                     </span>
                   )}
                 </th>
               </tr>
               <tr>
-                <th className="w-[30px]"><img className="w-[20px] m-auto" src={FilterIcon} alt="" /></th>
+                <th className="w-[30px]">
+                  <img className="w-[20px] m-auto" src={FilterIcon} alt="" />
+                </th>
                 {[
                   "fullname",
                   "department_name",
@@ -338,7 +382,10 @@ const CreatedEmployees = () => {
                   "honorable_minutes_per_day",
                   "holidays",
                 ].map((filterKey) => (
-                  <th key={filterKey} className="border border-gray-200 text-center">
+                  <th
+                    key={filterKey}
+                    className="border border-gray-200 text-center"
+                  >
                     <input
                       type="text"
                       name={filterKey}
@@ -356,7 +403,9 @@ const CreatedEmployees = () => {
                 <tr
                   key={employee.id}
                   onClick={() => setSelectedEmployee(employee)}
-                  className={`text-center ${selectedEmployee?.id === employee.id ? "bg-blue-200" : ""}`}
+                  className={`text-center ${
+                    selectedEmployee?.id === employee.id ? "bg-blue-200" : ""
+                  }`}
                 >
                   <td className={`px-2 py-1 border border-gray-200 max-w-3`}>
                     {selectedEmployee?.id === employee.id && (
