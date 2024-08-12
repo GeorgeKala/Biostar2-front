@@ -12,7 +12,7 @@ import * as XLSX from "xlsx";
 import NestedDropdownModal from '../../../components/NestedDropdownModal';
 
 const CommentTable = () => {
-    const columns = ["თანამშრომელი", "დეპარტამენტი", "პატიების ტიპი", "მომხმარებელი", "ჩაწერის თარიღი", "კომენტარი"];
+
     const dispatch = useDispatch();
     const user = useSelector((state) => state.user.user);
     const { departments, nestedDepartments } = useSelector((state) => state.departments);
@@ -307,7 +307,7 @@ const CommentTable = () => {
               <table className="min-w-full divide-y divide-gray-200 table-fixed border-collapse">
                 <thead className="bg-[#1976D2] text-white">
                   <tr>
-                    {columns.map((header) => (
+                    {["თანამშრომელი", "დეპარტამენტი", "პატიების ტიპი", "მომხმარებელი", "ჩაწერის თარიღი", "კომენტარი"].map((header) => (
                       <th
                         key={header}
                         className="px-4 py-2 border border-gray-200 w-1/6 truncate"
