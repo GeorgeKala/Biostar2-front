@@ -17,11 +17,11 @@ export const login = async (username, password) => {
 
 export const fetchUser = async () => {
   try {
+     console.log("Fetching user...");
     const response = await axiosInstance.get('/user');
     return response.data
   } catch (error) {
     console.error('Error fetching user:', error);
-  } finally {
   }
 };
   

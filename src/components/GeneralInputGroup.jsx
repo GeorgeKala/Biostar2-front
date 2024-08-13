@@ -15,6 +15,7 @@ const GeneralInputGroup = ({ placeholder, type, name, value = "", onChange }) =>
           name={name}
           onChange={onChange}
           className="outline-none border border-[#105D8D] py-3 rounded px-2 w-full pr-10"
+          autoComplete="off"
         />
         {value && (
           <button

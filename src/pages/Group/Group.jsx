@@ -1,8 +1,7 @@
-// src/pages/Group.js
+
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import AuthenticatedLayout from "../../Layouts/AuthenticatedLayout";
-import NewIcon from "../../assets/new.png";
 import ArrowDownIcon from "../../assets/arrow-down-2.png";
 import CreateIcon from "../../assets/create.png";
 import DeleteIcon from "../../assets/delete-2.png";
@@ -15,7 +14,9 @@ import {
 } from "../../redux/groupSlice";
 import * as XLSX from "xlsx";
 
+
 const Group = () => {
+  const user = useSelector((state) => state.user.user);
   const dispatch = useDispatch();
   const groupItems = useSelector((state) => state.groups.items);
   const groupStatus = useSelector((state) => state.groups.status);
@@ -68,27 +69,36 @@ const Group = () => {
     XLSX.writeFile(workbook, "ჯგუფები.xlsx");
   };
 
+  console.log(user);
+  
+
   return (
     <AuthenticatedLayout>
       <div className="w-full px-20 py-4 flex flex-col gap-8">
         <div className="flex justify-between w-full">
           <h1 className="text-[#1976D2] font-medium text-[23px]">ჯგუფები</h1>
-          <div className="flex items-center gap-8">
-            <button
-              className="bg-[#FBD15B] text-[#1976D2] px-4 py-4 rounded-md flex items-center gap-2"
-              onClick={() => setModalOpen(true)}
-            >
-              + დაამატე ახალი ჯგუფი
-            </button>
-            <button
-              className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative"
-              onClick={exportToExcel}
-            >
-              ჩამოტვირთვა
-              <img src={ArrowDownIcon} className="ml-3" alt="Arrow Down Icon" />
-              <span className="absolute inset-0 border border-white border-dashed rounded"></span>
-            </button>
-          </div>
+          {user.user_type.name == "ადმინისტრატორი" && (
+            <div className="flex items-center gap-8">
+              <button
+                className="bg-[#FBD15B] text-[#1976D2] px-4 py-4 rounded-md flex items-center gap-2"
+                onClick={() => setModalOpen(true)}
+              >
+                + დაამატე ახალი ჯგუფი
+              </button>
+              <button
+                className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative"
+                onClick={exportToExcel}
+              >
+                ჩამოტვირთვა
+                <img
+                  src={ArrowDownIcon}
+                  className="ml-3"
+                  alt="Arrow Down Icon"
+                />
+                <span className="absolute inset-0 border border-white border-dashed rounded"></span>
+              </button>
+            </div>
+          )}
         </div>
         <div className="p-4">
           {groupItems.map((item) => (
@@ -99,14 +109,16 @@ const Group = () => {
               <div className="flex-1 text-sm text-gray-700 font-medium">
                 {item.name}
               </div>
-              <div className="flex space-x-2">
-                <button onClick={() => openModal(item.id)}>
-                  <img src={CreateIcon} alt="Edit Icon" />
-                </button>
-                <button onClick={() => handleDeleteGroup(item.id)}>
-                  <img src={DeleteIcon} alt="Delete Icon" />
-                </button>
-              </div>
+              {user.user_type.name == "ადმინისტრატორი" && (
+                <div className="flex space-x-2">
+                  <button onClick={() => openModal(item.id)}>
+                    <img src={CreateIcon} alt="Edit Icon" />
+                  </button>
+                  <button onClick={() => handleDeleteGroup(item.id)}>
+                    <img src={DeleteIcon} alt="Delete Icon" />
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>

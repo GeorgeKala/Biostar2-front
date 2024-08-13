@@ -156,6 +156,14 @@ const CommentAnalyze = () => {
     }));
   };
 
+  const filteredNestedDepartments = user?.user_type?.has_full_access
+    ? nestedDepartments
+    : nestedDepartments.filter(
+        (dept) =>
+          dept.id === user?.department?.id ||
+          dept.parent_id === user?.department?.id
+      );
+
   return (
     <AuthenticatedLayout>
       <div className="w-full px-20 py-4 flex flex-col gap-8">
@@ -187,30 +195,48 @@ const CommentAnalyze = () => {
             value={filters.end_date}
             onChange={handleInputChange}
           />
-           <div className="w-full flex flex-col gap-2 relative">
-              <div className="flex">
-                <input 
-                  className="bg-white border border-[#105D8D] outline-none rounded-l py-3 px-4 w-full pr-10"
-                  placeholder="დეპარტამენტი"
-                  value={departments.find((d) => d.id === filters.department_id)?.name || ""}
-                  readOnly
-                />
-                {filters.department_id && (
+          <div className="w-full flex flex-col gap-2 relative">
+            <div className="flex">
+              <input
+                className="bg-white border border-[#105D8D] outline-none rounded-l py-3 px-4 w-full pr-10"
+                placeholder="დეპარტამენტი"
+                value={
+                  departments.find((d) => d.id === filters.department_id)
+                    ?.name || ""
+                }
+                readOnly
+              />
+              {filters.department_id &&
+                user?.user_type?.has_full_access !== 0 && (
                   <button
                     type="button"
                     onClick={handleClearDepartment}
                     className="absolute right-12 top-[50%] transform -translate-y-1/2 mr-4"
                   >
-                    <svg className="w-6 h-6" fill="none" stroke="black" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      stroke="black"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M6 18L18 6M6 6l12 12"
+                      ></path>
                     </svg>
                   </button>
                 )}
-                <button onClick={() => setOpenNestedDropdown(true)} className="bg-[#105D8D] px-4 rounded-r">
-                  <img className="w-[20px]" src={SearchIcon} alt="" />
-                </button>
-              </div>
+              <button
+                onClick={() => setOpenNestedDropdown(true)}
+                className="bg-[#105D8D] px-4 rounded-r"
+              >
+                <img className="w-[20px]" src={SearchIcon} alt="" />
+              </button>
             </div>
+          </div>
           <div className="w-full flex flex-col gap-2">
             <select
               id="forgive_type_id"
@@ -251,7 +277,9 @@ const CommentAnalyze = () => {
                     {date}
                   </th>
                 ))}
-                <th className="border text-center border-gray-200">{monthName}</th>
+                <th className="border text-center border-gray-200">
+                  {monthName}
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -261,7 +289,10 @@ const CommentAnalyze = () => {
                     {employeeFullname}
                   </td>
                   {uniqueDates.map((date) => (
-                    <td key={date} className="border text-center border-gray-200">
+                    <td
+                      key={date}
+                      className="border text-center border-gray-200"
+                    >
                       {groupedComments[employeeFullname].times[date] !==
                       undefined
                         ? groupedComments[employeeFullname].times[date]
@@ -278,15 +309,15 @@ const CommentAnalyze = () => {
         </div>
       </div>
       {openNestedDropdown && (
-          <NestedDropdownModal 
-            header="დეპარტამენტები"
-            isOpen={openNestedDropdown}
-            onClose={() => setOpenNestedDropdown(false)}
-            onSelect={handleDepartmentSelect}
-            data={nestedDepartments}
-            link={'/departments'}
-          />
-        )}
+        <NestedDropdownModal
+          header="დეპარტამენტები"
+          isOpen={openNestedDropdown}
+          onClose={() => setOpenNestedDropdown(false)}
+          onSelect={handleDepartmentSelect}
+          data={filteredNestedDepartments}
+          link={"/departments"}
+        />
+      )}
       <EmployeeModal
         isOpen={isEmployeeModalOpen}
         onClose={() => setIsEmployeeModalOpen(false)}

@@ -9,11 +9,9 @@ import DataProvider from './provider/DataProvider.jsx'
 
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
     <Provider store={store}>
       <DataProvider>
           <App />
         </DataProvider>
     </Provider>
-  </React.StrictMode>
 );

@@ -4,11 +4,10 @@ import GeneralInputGroup from "../../../components/GeneralInputGroup";
 import { useEffect, useState } from "react";
 import reportService from "../../../services/report";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchDepartments } from "../../../redux/departmentsSlice";
 import { fetchForgiveTypes } from "../../../redux/forgiveTypeSlice";
 import SearchIcon from "../../../assets/search.png";
 import EmployeeModal from "../../../components/employee/EmployeeModal";
-
+import FilterIcon from '../../../assets/filter-icon.png'; 
 import * as XLSX from "xlsx";
 import NestedDropdownModal from "../../../components/NestedDropdownModal";
 
@@ -16,6 +15,12 @@ const GeneralReport = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.user)
   const { departments, nestedDepartments } = useSelector((state) => state.departments);
+  const [reports, setReports] = useState([]);
+  const [filteredReports, setFilteredReports] = useState([]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [EmployeeModalOpen, setEmployeeModalOpen] = useState(false);
+  const [openNestedDropdown, setOpenNestedDropdown] = useState(false);
+
   const forgiveTypeItems = useSelector(
     (state) => state.forgiveTypes.forgiveTypes
   );
@@ -26,8 +31,6 @@ const GeneralReport = () => {
     employee: "",
   });
 
-  const [reports, setReports] = useState([]);
-  const [modalOpen, setModalOpen] = useState(false);
   const [editData, setEditData] = useState({
     employee_id: "",
     employee_name: "",
@@ -37,12 +40,66 @@ const GeneralReport = () => {
     final_penalized_time: "",
     comment_datetime: "",
   });
-  const [EmployeeModalOpen, setEmployeeModalOpen] = useState(false);
-  const [openNestedDropdown, setOpenNestedDropdown] = useState(false);
 
-  useEffect(() => {
-    dispatch(fetchForgiveTypes());
-  }, [dispatch]);
+  const [filters, setFilters] = useState({
+    fullname: "",
+    department: "",
+    position: "",
+    date: "",
+    come_time: "",
+    come_early: "",
+    come_late: "",
+    penalized_time: "",
+    leave_time: "",
+    leave_early: "",
+    leave_late: "",
+    worked_hours: "",
+    day_type: "",
+    week_day: "",
+    homorable_minutes: "",
+    schedule: "",
+    final_penalized_time: "",
+    comment: "",
+  });
+
+  const applyFilters = () => {
+    const filtered = reports.filter((report) => {
+      const matches = (value, filter) =>
+        !filter ||
+        (value &&
+          value.toString().toLowerCase().includes(filter.toLowerCase()));
+
+      return (
+        matches(report.fullname, filters.fullname) &&
+        matches(report.department, filters.department) &&
+        matches(report.position, filters.position) &&
+        matches(report.date, filters.date) &&
+        matches(report.come_time, filters.come_time) &&
+        matches(report.come_early, filters.come_early) &&
+        matches(report.come_late, filters.come_late) &&
+        matches(report.penalized_time, filters.penalized_time) &&
+        matches(report.leave_time, filters.leave_time) &&
+        matches(report.leave_early, filters.leave_early) &&
+        matches(report.leave_late, filters.leave_late) &&
+        matches(report.worked_hours, filters.worked_hours) &&
+        matches(report.day_type, filters.day_type) &&
+        matches(report.week_day, filters.week_day) &&
+        matches(report.homorable_minutes, filters.homorable_minutes) &&
+        matches(report.schedule, filters.schedule) &&
+        matches(report.final_penalized_time, filters.final_penalized_time) &&
+        matches(report.comment, filters.comment)
+      );
+    });
+
+    setFilteredReports(filtered);
+  };
+
+
+   const handleFilterChange = (e) => {
+     const { name, value } = e.target;
+     setFilters({ ...filters, [name]: value });
+   };
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -138,6 +195,15 @@ const GeneralReport = () => {
       console.error("Error saving data:", error);
     }
   };
+
+
+  useEffect(() => {
+    applyFilters();
+  }, [reports, filters]);
+
+  useEffect(() => {
+    dispatch(fetchForgiveTypes());
+  }, [dispatch]);
 
   const handleModalInputChange = (e) => {
     const { name, value } = e.target;
@@ -272,6 +338,17 @@ const GeneralReport = () => {
     }));
   };
 
+  const filteredNestedDepartments = user?.user_type?.has_full_access
+    ? nestedDepartments
+    : nestedDepartments.filter(
+        (dept) =>
+          dept.id === user?.department?.id ||
+          dept.parent_id === user?.department?.id
+      );
+
+    
+      
+
   return (
     <AuthenticatedLayout>
       <div className="w-full px-10 py-4 flex flex-col gap-8 2xl:px-20">
@@ -305,31 +382,49 @@ const GeneralReport = () => {
           />
           <div className="w-full flex flex-col gap-2 relative">
             <div className="flex">
-              <input 
+              <input
                 className="bg-white border border-[#105D8D] outline-none rounded-l py-3 px-4 w-full pr-10"
                 placeholder="დეპარტამენტი"
-                value={departments.find((d) => d.id === formData.department_id)?.name || ""}
+                value={
+                  departments.find((d) => d.id === formData.department_id)
+                    ?.name || ""
+                }
                 readOnly
               />
-              {formData.department_id && (
-                <button
-                  type="button"
-                  onClick={() =>handleClear("department_id")}
-                  className="absolute right-12 top-[50%] transform -translate-y-1/2 mr-4"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="black" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-                  </svg>
-                </button>
-              )}
-              <button onClick={() => setOpenNestedDropdown(true)} className="bg-[#105D8D] px-4 rounded-r">
+              {formData.department_id &&
+                user?.user_type?.has_full_access !== 0 && (
+                  <button
+                    type="button"
+                    onClick={() => handleClear("department_id")}
+                    className="absolute right-12 top-[50%] transform -translate-y-1/2 mr-4"
+                  >
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      stroke="black"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M6 18L18 6M6 6l12 12"
+                      ></path>
+                    </svg>
+                  </button>
+                )}
+              <button
+                onClick={() => setOpenNestedDropdown(true)}
+                className="bg-[#105D8D] px-4 rounded-r"
+              >
                 <img className="w-[20px]" src={SearchIcon} alt="" />
               </button>
             </div>
           </div>
           <div className="w-full flex flex-col gap-2 relative">
             <div className="flex">
-              <input 
+              <input
                 className="bg-white border border-[#105D8D] outline-none rounded-l py-3 px-4 w-full pr-10"
                 placeholder="თანამშრომელი"
                 value={formData.employee}
@@ -339,15 +434,29 @@ const GeneralReport = () => {
               {formData.employee && (
                 <button
                   type="button"
-                  onClick={() =>handleClear("employee")}
+                  onClick={() => handleClear("employee")}
                   className="absolute right-12 top-[50%] transform -translate-y-1/2 mr-4"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="black" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="black"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    ></path>
                   </svg>
                 </button>
               )}
-              <button onClick={openModal} className="bg-[#105D8D] px-4 rounded-r">
+              <button
+                onClick={openModal}
+                className="bg-[#105D8D] px-4 rounded-r"
+              >
                 <img className="w-[20px]" src={SearchIcon} alt="" />
               </button>
             </div>
@@ -364,6 +473,7 @@ const GeneralReport = () => {
             <table className="min-w-full divide-y divide-gray-200 table-fixed border-collapse">
               <thead className="bg-[#1976D2] text-white text-xs">
                 <tr>
+                  <th className="w-[30px]"></th>
                   {[
                     "სახელი/გვარი",
                     "დეპარტამენტი",
@@ -386,22 +496,58 @@ const GeneralReport = () => {
                   ].map((header) => (
                     <th
                       key={header}
-                      className=" border border-gray-200 customized-th-tr"
+                      className="border border-gray-200 customized-th-tr"
                     >
-                      <input 
-                        type="text" 
-                        value={header} 
+                      <input
+                        type="text"
+                        value={header}
                         className="font-normal px-2 py-1 w-full outline-none border-none bg-transparent"
                         readOnly
-                        />
-                      
+                      />
+                    </th>
+                  ))}
+                </tr>
+                <tr>
+                  <th className="w-[30px]"><img className="w-[20px] m-auto" src={FilterIcon} alt="" /></th>
+                  {[
+                    "fullname",
+                    "department",
+                    "position",
+                    "date",
+                    "come_time",
+                    "come_early",
+                    "come_late",
+                    "penalized_time",
+                    "leave_time",
+                    "leave_early",
+                    "leave_late",
+                    "worked_hours",
+                    "day_type",
+                    "week_day",
+                    "homorable_minutes",
+                    "schedule",
+                    "final_penalized_time",
+                    "comment",
+                  ].map((filterKey) => (
+                    <th
+                      key={filterKey}
+                      className="border border-gray-200 customized-th-tr"
+                    >
+                      <input
+                        type="text"
+                        name={filterKey}
+                        value={filters[filterKey]}
+                        onChange={handleFilterChange}
+                        className="font-normal px-2 py-1 w-full outline-none border-none bg-transparent"
+                        autoComplete="off"
+                      />
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200 text-xs">
-                {reports &&
-                  reports.map((item, index) => (
+                {filteredReports &&
+                  filteredReports.map((item, index) => (
                     <tr
                       key={index}
                       className={`px-2 py-1 border border-gray-200 w-20 ${getRowClassName(
@@ -409,12 +555,13 @@ const GeneralReport = () => {
                       )}`}
                       onDoubleClick={() => handleRowDoubleClick(item)}
                     >
+                      <td className="w-[30px]"></td>
                       <td className="border border-gray-200 customized-th-tr">
-                      <input 
-                        type="text" 
-                        value={item.fullname} 
-                        className="font-normal px-2 py-1 w-full outline-none border-none bg-transparent"
-                        readOnly
+                        <input
+                          type="text"
+                          value={item.fullname}
+                          className="font-normal px-2 py-1 w-full outline-none border-none bg-transparent"
+                          readOnly
                         />
                       </td>
                       <td className="px-2 py-1 border border-gray-200 customized-th-tr">
@@ -559,15 +706,15 @@ const GeneralReport = () => {
         )}
       </div>
       {openNestedDropdown && (
-          <NestedDropdownModal 
-            header="დეპარტამენტები"
-            isOpen={openNestedDropdown}
-            onClose={() => setOpenNestedDropdown(false)}
-            onSelect={handleDepartmentSelect}
-            data={nestedDepartments}
-            link={'/departments'}
-          />
-        )}
+        <NestedDropdownModal
+          header="დეპარტამენტები"
+          isOpen={openNestedDropdown}
+          onClose={() => setOpenNestedDropdown(false)}
+          onSelect={handleDepartmentSelect}
+          data={filteredNestedDepartments}
+          link={"/departments"}
+        />
+      )}
       <EmployeeModal
         isOpen={EmployeeModalOpen}
         onClose={closeModal}

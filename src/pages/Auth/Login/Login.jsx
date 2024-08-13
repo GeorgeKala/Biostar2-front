@@ -22,11 +22,12 @@ const Login = () => {
             const response = await login(email, password);
         
             if(response.status == 200){
-                dispatch(fetchGroups());
-                dispatch(fetchDepartments());
-                dispatch(fetchSchedules());
-                dispatch(fetchAsyncUser());
-                dispatch(fetchNestedDepartments());
+                await dispatch(fetchAsyncUser());
+                 dispatch(fetchGroups());
+                 dispatch(fetchDepartments());
+                 dispatch(fetchSchedules());
+                 dispatch(fetchNestedDepartments());
+                 
                 navigate('/reports/general')
             }
         } catch (error) {

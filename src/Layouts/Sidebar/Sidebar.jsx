@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import BiostarIcon from '../../assets/biostar-icon.png';
-import BiostarLogo from '../../assets/Biostar.png';
-import LogoutIcon from '../../assets/logout-icon.png';
-import ArrowRight from '../../assets/arrow-right.png';
-import { logout } from '../../services/auth';
-import useAuth from '../../hooks/useAuth';
-
+import React, { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import BiostarIcon from "../../assets/biostar-icon.png";
+import BiostarLogo from "../../assets/Biostar.png";
+import LogoutIcon from "../../assets/logout-icon.png";
+import ArrowRight from "../../assets/arrow-right.png";
+import { logout } from "../../services/auth";
+import useAuth from "../../hooks/useAuth";
 
 const Sidebar = () => {
   const location = useLocation();
@@ -18,8 +17,10 @@ const Sidebar = () => {
     settings: false,
   });
   const { user } = useAuth();
-  // const user = useSelector((state) => state.user)
 
+  const canAccessPage = (allowedUserTypes) => {
+    return allowedUserTypes.includes(user?.user?.user_type.name);
+  };
 
   const toggleSection = (section) => {
     setSections((prevSections) => ({
@@ -30,15 +31,15 @@ const Sidebar = () => {
 
   const handleLogout = async () => {
     try {
-        await logout();
-        navigate('/'); 
+      await logout();
+      navigate("/");
     } catch (error) {
-        console.error('Logout error:', error);
+      console.error("Logout error:", error);
     }
-};
+  };
 
   return (
-    <div className="bg-[#1976D2] w-[18%]  flex flex-col gap-8 py-4">
+    <div className="bg-[#1976D2] w-[18%] flex flex-col gap-8 py-4">
       <div className="flex justify-center gap-2">
         <img src={BiostarIcon} alt="Biostar Icon" />
         <img src={BiostarLogo} className="w-[90px]" alt="Biostar Logo" />
@@ -69,7 +70,13 @@ const Sidebar = () => {
                 <img src={ArrowRight} alt="Arrow Right Icon" />
                 პერიოდის რეპორტი
               </Link>
-              {user?.user?.user_type.name === "ადმინისტრატორი" && (
+              {canAccessPage([
+                "ადმინისტრატორი",
+                "HR",
+                "IT",
+                "მენეჯერი",
+                "მენეჯერი-რეგიონები",
+              ]) && (
                 <Link
                   to="/employees/create"
                   className={`flex items-center gap-3 text-white text-[14px] ${
@@ -80,25 +87,18 @@ const Sidebar = () => {
                   თანამშრომლის დამატება
                 </Link>
               )}
+              {canAccessPage(["ადმინისტრატორი", "HR", "IT", "მენეჯერი 1"]) && (
+                <Link
+                  to="/comments/table"
+                  className={`flex items-center gap-3 text-white text-[14px] ${
+                    location.pathname === "/comments/table" ? "font-bold" : ""
+                  }`}
+                >
+                  <img src={ArrowRight} alt="Arrow Right Icon" />
+                  კომენტარების ცხრილი
+                </Link>
+              )}
 
-              {/* <Link
-                to="/employees"
-                className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === "/employees" ? "font-bold" : ""
-                }`}
-              >
-                <img src={ArrowRight} alt="Arrow Right Icon" />
-                თანამშრომლები
-              </Link> */}
-              <Link
-                to="/comments/table"
-                className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === "/comments/table" ? "font-bold" : ""
-                }`}
-              >
-                <img src={ArrowRight} alt="Arrow Right Icon" />
-                კომენტარების ცხრილი
-              </Link>
               <Link
                 to="/comments/analyze"
                 className={`flex items-center gap-3 text-white text-[14px] ${
@@ -145,7 +145,12 @@ const Sidebar = () => {
                 <img src={ArrowRight} alt="Arrow Right Icon" />
                 თანამშრომლები
               </Link>
-              {user?.user?.user_type.name === "ადმინისტრატორი" && (
+              {canAccessPage([
+                "ადმინისტრატორი",
+                "HR",
+                "IT",
+                "მენეჯერი-რეგიონები",
+              ]) && (
                 <Link
                   to="/groups"
                   className={`flex items-center gap-3 text-white text-[14px] ${
@@ -156,7 +161,12 @@ const Sidebar = () => {
                   ჯგუფები
                 </Link>
               )}
-              {user?.user?.user_type.name === "ადმინისტრატორი" && (
+              {canAccessPage([
+                "ადმინისტრატორი",
+                "IT",
+                "მენეჯერი 1",
+                "მენეჯერი-რეგიონები",
+              ]) && (
                 <Link
                   to="/departments"
                   className={`flex items-center gap-3 text-white text-[14px] ${
@@ -167,7 +177,7 @@ const Sidebar = () => {
                   დეპარტამენტები
                 </Link>
               )}
-              {user?.user?.user_type.name === "ადმინისტრატორი" && (
+              {canAccessPage(["ადმინისტრატორი", "IT"]) && (
                 <Link
                   to="/schedules"
                   className={`flex items-center gap-3 text-white text-[14px] ${
@@ -178,7 +188,13 @@ const Sidebar = () => {
                   განრიგები
                 </Link>
               )}
-              {user?.user?.user_type.name === "ადმინისტრატორი" && (
+              {canAccessPage([
+                "ადმინისტრატორი",
+                "HR",
+                "IT",
+                "მენეჯერი",
+                "მენეჯერი-რეგიონები",
+              ]) && (
                 <Link
                   to="/command-types"
                   className={`flex items-center gap-3 text-white text-[14px] ${
@@ -189,7 +205,11 @@ const Sidebar = () => {
                   ბრძანების ტიპები
                 </Link>
               )}
-              {user?.user?.user_type.name === "ადმინისტრატორი" && (
+              {canAccessPage([
+                "ადმინისტრატორი",
+                "IT",
+                "მენეჯერი-რეგიონები",
+              ]) && (
                 <Link
                   to="/forgive-types"
                   className={`flex items-center gap-3 text-white text-[14px] ${
@@ -200,17 +220,7 @@ const Sidebar = () => {
                   პატიების ტიპები
                 </Link>
               )}
-
-              <Link
-                to="/employees/archived"
-                className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === "/employees/archived" ? "font-bold" : ""
-                }`}
-              >
-                <img src={ArrowRight} alt="Arrow Right Icon" />
-                არქივი
-              </Link>
-              {user?.user?.user_type.name === "ადმინისტრატორი" && (
+              {canAccessPage(["ადმინისტრატორი"]) && (
                 <Link
                   to="/devices"
                   className={`flex items-center gap-3 text-white text-[14px] ${
@@ -241,7 +251,7 @@ const Sidebar = () => {
 
           {sections.comments && (
             <div className="pl-4 flex flex-col gap-4 mt-4">
-              {user?.user?.user_type.name === "ადმინისტრატორი" && (
+              {canAccessPage(["ადმინისტრატორი"]) && (
                 <Link
                   to="/users"
                   className={`flex items-center gap-3 text-white text-[14px] ${
@@ -252,7 +262,7 @@ const Sidebar = () => {
                   მომხმარებლები
                 </Link>
               )}
-              {user?.user?.user_type.name === "ადმინისტრატორი" && (
+              {canAccessPage(["ადმინისტრატორი"]) && (
                 <Link
                   to="/user-types"
                   className={`flex items-center gap-3 text-white text-[14px] ${
@@ -263,7 +273,7 @@ const Sidebar = () => {
                   მომხმარებლების ტიპები
                 </Link>
               )}
-              {user?.user?.user_type.name === "ადმინისტრატორი" && (
+              {canAccessPage(["ადმინისტრატორი"]) && (
                 <Link
                   to="/buildings"
                   className={`flex items-center gap-3 text-white text-[14px] ${
@@ -274,7 +284,7 @@ const Sidebar = () => {
                   შენობები
                 </Link>
               )}
-              {user?.user?.user_type.name === "ადმინისტრატორი" && (
+              {canAccessPage(["ადმინისტრატორი"]) && (
                 <Link
                   to="/departments-distributions"
                   className={`flex items-center gap-3 text-white text-[14px] ${
@@ -287,7 +297,7 @@ const Sidebar = () => {
                   დეპარტამენტების განაწილება
                 </Link>
               )}
-              {user?.user?.user_type.name === "ადმინისტრატორი" && (
+              {canAccessPage(["ადმინისტრატორი"]) && (
                 <Link
                   to="/employees/access"
                   className={`flex items-center gap-3 text-white text-[14px] ${
@@ -298,7 +308,7 @@ const Sidebar = () => {
                   თანამშრომლის დაშვება
                 </Link>
               )}
-              {user?.user?.user_type.name === "ადმინისტრატორი" && (
+              {canAccessPage(["ადმინისტრატორი", "IT"]) && (
                 <Link
                   to="/direct"
                   className={`flex items-center gap-3 text-white text-[14px] ${
@@ -312,36 +322,6 @@ const Sidebar = () => {
             </div>
           )}
         </div>
-        {/* Settings Section */}
-        {/* <div>
-          <div
-            className="flex items-center gap-3 text-white text-[14px] cursor-pointer"
-            onClick={() => toggleSection("settings")}
-          >
-            <img
-              src={ArrowRight}
-              alt="Arrow Right Icon"
-              className={`transform ${
-                sections.settings ? "rotate-0" : "-rotate-90"
-              } transition-transform duration-300`}
-            />
-            სამზარეულოს ანგარიშები
-          </div>
-          {sections.settings && (
-            <div className="pl-4 flex flex-col gap-4 mt-4">
-              
-              <Link
-                to="/orders"
-                className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === "/orders" ? "font-bold" : ""
-                }`}
-              >
-                <img src={ArrowRight} alt="Arrow Right Icon" />
-                ბრძანებები
-              </Link>
-            </div>
-          )}
-        </div> */}
       </div>
       <div className="flex gap-2 items-center justify-center">
         <button onClick={handleLogout} className="text-white flex gap-2">
@@ -354,5 +334,3 @@ const Sidebar = () => {
 };
 
 export default Sidebar;
-
-

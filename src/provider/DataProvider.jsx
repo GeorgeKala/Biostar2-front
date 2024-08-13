@@ -7,33 +7,21 @@ import { useEffect } from 'react';
 import { fetchGroups } from '../redux/groupSlice';
 import { fetchForgiveTypes } from '../redux/forgiveTypeSlice';
 import { fetchBuildings } from '../redux/buildingSlice';
+import { fetchAsyncUser } from '../redux/userDataSlice';
 
 const DataProvider = ({ children }) => {
   const dispatch = useDispatch();
-  useFetchUser();
-
   useEffect(() => {
-    dispatch(fetchNestedDepartments());
-  }, [dispatch]);
-
-  useEffect(() => {
-    dispatch(fetchDepartments());
-  }, [dispatch]);
-
-  useEffect(() => {
-    dispatch(fetchSchedules());
-  },[dispatch])
-
-  useEffect(() => {
-    dispatch(fetchGroups());
-  }, [dispatch]);
-
-  useEffect(() => {
-    dispatch(fetchForgiveTypes());
-  }, [dispatch]);
-
-  useEffect(() => {
-    dispatch(fetchBuildings());
+    const fetchData = async () => {
+      // dispatch(fetchAsyncUser());
+      dispatch(fetchDepartments());
+      dispatch(fetchNestedDepartments());
+      dispatch(fetchSchedules());
+      dispatch(fetchGroups());
+      dispatch(fetchForgiveTypes());
+      dispatch(fetchBuildings());
+    };
+    fetchData();
   }, [dispatch]);
 
   

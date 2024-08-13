@@ -1,43 +1,45 @@
-import React, { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import AuthenticatedLayout from '../../Layouts/AuthenticatedLayout';
-import NewIcon from '../../assets/new.png';
-import ArrowDownIcon from '../../assets/arrow-down-2.png';
+import React, { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import AuthenticatedLayout from "../../Layouts/AuthenticatedLayout";
+import NewIcon from "../../assets/new.png";
+import ArrowDownIcon from "../../assets/arrow-down-2.png";
 import CreateIcon from "../../assets/create.png";
 import DeleteIcon from "../../assets/delete-2.png";
-import GeneralInputGroup from '../../components/GeneralInputGroup';
-import { fetchUsers } from '../../redux/userDataSlice';
-import { fetchUserTypes } from '../../redux/userTypeSlice';
-import { fetchDepartments } from '../../redux/departmentsSlice';
-import userService from '../../services/users';
-import EmployeeModal from '../../components/employee/EmployeeModal';
-import SearchIcon from "../../assets/search.png";
+import { fetchUsers } from "../../redux/userDataSlice";
+import { fetchUserTypes } from "../../redux/userTypeSlice";
+import { fetchDepartments } from "../../redux/departmentsSlice";
+import userService from "../../services/users";
+import EmployeeModal from "../../components/employee/EmployeeModal";
 import * as XLSX from "xlsx";
-import NestedDropdownModal from '../../components/NestedDropdownModal';
+import NestedDropdownModal from "../../components/NestedDropdownModal";
+import FilterIcon from "../../assets/filter-icon.png";
 
 const User = () => {
   const dispatch = useDispatch();
-  const usersData = useSelector(state => state.user.users.items);
-  const userTypes = useSelector(state => state.userType.items);
-  const { departments, nestedDepartments } = useSelector((state) => state.departments);
+  const usersData = useSelector((state) => state.user.users.items);
+  const userTypes = useSelector((state) => state.userType.items);
+  const { departments, nestedDepartments } = useSelector(
+    (state) => state.departments
+  );
   const [openNestedDropdown, setOpenNestedDropdown] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
-    username: '',
-    userType: '',
-    department: '',
-    employeeId: ''
+    name: "",
+    username: "",
+    userType: "",
+    department: "",
+    employeeId: "",
   });
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState('create');
+  const [modalMode, setModalMode] = useState("create");
   const [users, setUsers] = useState([]);
   const [filters, setFilters] = useState({
-    name: '',
-    username: '',
-    userType: '',
-    department: '',
+    name: "",
+    username: "",
+    userType: "",
+    department: "",
+    employeeFullname: "",
   });
 
   const [filteredUsers, setFilteredUsers] = useState([]);
@@ -45,6 +47,7 @@ const User = () => {
   useEffect(() => {
     dispatch(fetchUsers());
     dispatch(fetchUserTypes());
+    dispatch(fetchDepartments());
   }, [dispatch]);
 
   useEffect(() => {
@@ -52,41 +55,69 @@ const User = () => {
     setFilteredUsers(usersData);
   }, [usersData]);
 
+  const applyFilters = () => {
+    const filtered = users.filter(
+      (user) =>
+        user.name.toLowerCase().includes(filters.name.toLowerCase()) &&
+        user.username.toLowerCase().includes(filters.username.toLowerCase()) &&
+        (filters.userType
+          ? user.user_type?.name
+              .toLowerCase()
+              .includes(filters.userType.toLowerCase())
+          : true) &&
+        (filters.department
+          ? user.department?.name
+              .toLowerCase()
+              .includes(filters.department.toLowerCase())
+          : true) &&
+        (filters.employeeFullname
+          ? user.employee?.fullname
+              .toLowerCase()
+              .includes(filters.employeeFullname.toLowerCase())
+          : true)
+    );
+    setFilteredUsers(filtered);
+  };
+
+  useEffect(() => {
+    applyFilters();
+  }, [filters]);
+
   const openAddModal = () => {
     setIsAddModalOpen(true);
-    setModalMode('create');
+    setModalMode("create");
     setFormData({
-      name: '',
-      username: '',
-      userType: '',
-      department: '',
-      employeeId: ''
+      name: "",
+      username: "",
+      userType: "",
+      department: "",
+      employeeId: "",
     });
   };
 
   const openUpdateModal = (user) => {
     setIsAddModalOpen(true);
-    setModalMode('update');
+    setModalMode("update");
     setSelectedUserId(user.id);
     setFormData({
       name: user.name,
       username: user.username,
       userType: user.user_type.id,
-      department: user.department ? user.department.id : '',
-      employeeId: user.employee ? user.employee.id : ''
+      department: user.department ? user.department.id : "",
+      employeeId: user.employee ? user.employee.id : "",
     });
   };
 
   const closeAddModal = () => {
     setIsAddModalOpen(false);
-    setModalMode('create');
+    setModalMode("create");
     setSelectedUserId(null);
     setFormData({
-      name: '',
-      username: '',
-      userType: '',
-      department: '',
-      employeeId: ''
+      name: "",
+      username: "",
+      userType: "",
+      department: "",
+      employeeId: "",
     });
   };
 
@@ -100,17 +131,21 @@ const User = () => {
       username: username,
       user_type_id: userType,
       department_id: department,
-      employee_id: employeeId
+      employee_id: employeeId,
     };
 
     try {
-      if (modalMode === 'create') {
+      if (modalMode === "create") {
         await userService.createUser(userData);
-
         closeAddModal();
-      } else if (modalMode === 'update' && selectedUserId) {
-        const updatedUser = await userService.updateUser(selectedUserId, userData);
-        const updatedIndex = users.findIndex(user => user.id === selectedUserId);
+      } else if (modalMode === "update" && selectedUserId) {
+        const updatedUser = await userService.updateUser(
+          selectedUserId,
+          userData
+        );
+        const updatedIndex = users.findIndex(
+          (user) => user.id === selectedUserId
+        );
         if (updatedIndex !== -1) {
           const updatedUsers = [...users];
           updatedUsers[updatedIndex] = updatedUser;
@@ -118,7 +153,6 @@ const User = () => {
         }
         closeAddModal();
       }
-
       dispatch(fetchUsers());
     } catch (error) {
       alert("Failed to save user: " + error.message);
@@ -129,7 +163,7 @@ const User = () => {
     if (window.confirm("Are you sure you want to delete this user?")) {
       try {
         await userService.deleteUser(userId);
-        setUsers(users.filter(user => user.id !== userId));
+        setUsers(users.filter((user) => user.id !== userId));
       } catch (error) {
         alert("Failed to delete user: " + error.message);
       }
@@ -142,9 +176,9 @@ const User = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prevState => ({
+    setFormData((prevState) => ({
       ...prevState,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -153,20 +187,20 @@ const User = () => {
   };
 
   const handleSelectEmployee = (employee) => {
-    setFormData(prevState => ({
+    setFormData((prevState) => ({
       ...prevState,
-      employeeId: employee.id
+      employeeId: employee.id,
     }));
   };
 
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(
-      users.map((user) => ({
-        "მომხმარებელი": user.username,
+      filteredUsers.map((user) => ({
+        მომხმარებელი: user.username,
         "სახელი გვარი": user.name,
         "მომხმარებლის ტიპი": user.user_type.name,
-        "დეპარტამენტი": user.department?.name,
-        "თანამშრომელი": user.employee?.fullname,
+        დეპარტამენტი: user.department?.name,
+        თანამშრომელი: user.employee?.fullname,
       }))
     );
     const workbook = XLSX.utils.book_new();
@@ -176,27 +210,16 @@ const User = () => {
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
-    setFilters(prevState => ({
+    setFilters((prevState) => ({
       ...prevState,
-      [name]: value
+      [name]: value,
     }));
   };
 
-  const handleFilterClick = () => {
-    const filtered = users.filter(user => 
-      user.name.toLowerCase().includes(filters.name.toLowerCase()) &&
-      user.username.toLowerCase().includes(filters.username.toLowerCase()) &&
-      (filters.userType ? user.user_type.id === parseInt(filters.userType) : true) &&
-      (filters.department_id ? user.department?.id === parseInt(filters.department_id) : true)
-    );
-    setFilteredUsers(filtered);
-  };
-
-
-  const handleDepartmentSelect = (departmentId, departmentName) => {
+  const handleDepartmentSelect = (departmentId) => {
     setFilters((prevData) => ({
       ...prevData,
-      department_id: departmentId,
+      department: departmentId,
     }));
     setOpenNestedDropdown(false);
   };
@@ -204,10 +227,9 @@ const User = () => {
   const handleClearDepartment = () => {
     setFilters((prevData) => ({
       ...prevData,
-      department_id: "",
+      department: "",
     }));
   };
-
 
   return (
     <AuthenticatedLayout>
@@ -234,89 +256,54 @@ const User = () => {
             </button>
           </div>
         </div>
-        <div className="flex items-center gap-4">
-          <GeneralInputGroup
-            name="name"
-            placeholder="სახელი"
-            type="text"
-            value={filters.name}
-            onChange={handleFilterChange}
-          />
-          <div className="w-full flex flex-col gap-2 relative">
-              <div className="flex">
-                <input 
-                  className="bg-white border border-[#105D8D] outline-none rounded-l py-3 px-4 w-full pr-10"
-                  placeholder="დეპარტამენტი"
-                  value={departments.find((d) => d.id === filters.department_id)?.name || ""}
-                  readOnly
-                />
-                {filters.department_id && (
-                  <button
-                    type="button"
-                    onClick={handleClearDepartment}
-                    className="absolute right-12 top-[50%] transform -translate-y-1/2 mr-4"
-                  >
-                    <svg className="w-6 h-6" fill="none" stroke="black" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                  </button>
-                )}
-                <button onClick={() => setOpenNestedDropdown(true)} className="bg-[#105D8D] px-4 rounded-r">
-                  <img className="w-[20px]" src={SearchIcon} alt="" />
-                </button>
-              </div>
-            </div>
-          <GeneralInputGroup
-            name="username"
-            placeholder="მომხმარებელი"
-            type="text"
-            value={filters.username}
-            onChange={handleFilterChange}
-          />
-          <button onClick={handleFilterClick} className="bg-[#1AB7C1] rounded-lg px-8 py-5" type="submit">
-            <img src={SearchIcon}  alt="Search Icon" />
-          </button>
-        </div>
         <div className="container mx-auto mt-10 overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 border">
             <thead className="bg-[#1976D2] text-white">
               <tr>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider border"
-                >
-                  მომხმარებელი
+                <th className="px-4 py-2 border"></th>
+                {[
+                  "მომხმარებელი",
+                  "სახელი გვარი",
+                  "მომხმარებლის ტიპი",
+                  "დეპარტამენტი",
+                  "თანამშრომელი",
+                  "მოქმედება",
+                ].map((header, index) => (
+                  <th
+                    key={index}
+                    className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider border"
+                  >
+                    {header}
+                  </th>
+                ))}
+              </tr>
+              <tr>
+                <th className="px-4  border">
+                  <img
+                    className="w-[20px] m-auto"
+                    src={FilterIcon}
+                    alt="Filter"
+                  />
                 </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider border"
-                >
-                  სახელი გვარი
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider border"
-                >
-                  მომხმარებლის ტიპი
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider border"
-                >
-                  დეპარტამენტი
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider border"
-                >
-                  თანამშრომელი
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-center text-xs font-medium text-white uppercase tracking-wider border"
-                >
-                  განახლება/წაშლა
-                </th>
+                {[
+                  "username",
+                  "name",
+                  "userType",
+                  "department",
+                  "employeeFullname",
+                ].map((filterKey, index) => (
+                  <th key={index} className=" border">
+                    <input
+                      type="text"
+                      name={filterKey}
+                      value={filters[filterKey]}
+                      onChange={handleFilterChange}
+                      className="font-normal px-2 py-1 w-full outline-none border-none bg-transparent"
+                      autoComplete="off"
+                    />
+                  </th>
+                ))}
+                <th></th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -329,22 +316,23 @@ const User = () => {
                     }`}
                     onClick={() => handleRowClick(user.id)}
                   >
+                    <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900 truncate max-w-xs border"></td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 truncate max-w-xs border">
                       {user?.username}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 truncate max-w-xs border">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm truncate max-w-xs border">
                       {user?.name}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 truncate max-w-xs border">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm truncate max-w-xs border">
                       {user?.user_type?.name}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 truncate max-w-xs border">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm truncate max-w-xs border">
                       {user?.department?.name}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 truncate max-w-xs border">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm truncate max-w-xs border">
                       {user?.employee?.fullname}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 flex justify-center gap-4 border">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm flex justify-center gap-4 border">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -518,16 +506,17 @@ const User = () => {
           </div>
         </div>
       )}
+
       {openNestedDropdown && (
-          <NestedDropdownModal 
-            header="დეპარტამენტები"
-            isOpen={openNestedDropdown}
-            onClose={() => setOpenNestedDropdown(false)}
-            onSelect={handleDepartmentSelect}
-            data={nestedDepartments}
-            link={'/departments'}
-          />
-        )}
+        <NestedDropdownModal
+          header="დეპარტამენტები"
+          isOpen={openNestedDropdown}
+          onClose={() => setOpenNestedDropdown(false)}
+          onSelect={handleDepartmentSelect}
+          data={nestedDepartments}
+          link={"/departments"}
+        />
+      )}
 
       <EmployeeModal
         isOpen={isEmployeeModalOpen}

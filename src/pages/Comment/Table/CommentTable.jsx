@@ -12,7 +12,7 @@ import * as XLSX from "xlsx";
 import NestedDropdownModal from '../../../components/NestedDropdownModal';
 
 const CommentTable = () => {
-    const columns = ["თანამშრომელი", "დეპარტამენტი", "პატიების ტიპი", "მომხმარებელი", "ჩაწერის თარიღი", "კომენტარი"];
+
     const dispatch = useDispatch();
     const user = useSelector((state) => state.user.user);
     const { departments, nestedDepartments } = useSelector((state) => state.departments);
@@ -149,6 +149,14 @@ const CommentTable = () => {
       }));
     };
 
+    const filteredNestedDepartments = user?.user_type?.has_full_access
+      ? nestedDepartments
+      : nestedDepartments.filter(
+          (dept) =>
+            dept.id === user?.department?.id ||
+            dept.parent_id === user?.department?.id
+        );
+
 
     return (
       <AuthenticatedLayout>
@@ -183,24 +191,41 @@ const CommentTable = () => {
             />
             <div className="w-full flex flex-col gap-2 relative">
               <div className="flex">
-                <input 
+                <input
                   className="bg-white border border-[#105D8D] outline-none rounded-l py-3 px-4 w-full pr-10"
                   placeholder="დეპარტამენტი"
-                  value={departments.find((d) => d.id === filters.department_id)?.name || ""}
+                  value={
+                    departments.find((d) => d.id === filters.department_id)
+                      ?.name || ""
+                  }
                   readOnly
                 />
-                {filters.department_id && (
+                {filters.department_id && user?.user_type?.has_full_access !== 0 && (
                   <button
                     type="button"
-                    onClick={() =>handleClear("department_id")}
+                    onClick={() => handleClear("department_id")}
                     className="absolute right-12 top-[50%] transform -translate-y-1/2 mr-4"
                   >
-                    <svg className="w-6 h-6" fill="none" stroke="black" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      stroke="black"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M6 18L18 6M6 6l12 12"
+                      ></path>
                     </svg>
                   </button>
                 )}
-                <button onClick={() => setOpenNestedDropdown(true)} className="bg-[#105D8D] px-4 rounded-r">
+                <button
+                  onClick={() => setOpenNestedDropdown(true)}
+                  className="bg-[#105D8D] px-4 rounded-r"
+                >
                   <img className="w-[20px]" src={SearchIcon} alt="" />
                 </button>
               </div>
@@ -223,30 +248,44 @@ const CommentTable = () => {
               </select>
             </div>
             <div className="w-full flex flex-col gap-2 relative">
-            <div className="flex">
-              <input 
-                className="bg-white border border-[#105D8D] outline-none rounded-l py-3 px-4 w-full pr-10"
-                placeholder="თანამშრომელი"
-                value={filters.employee}
-                onChange={handleInputChange}
-                readOnly
-              />
-              {filters.employee && (
+              <div className="flex">
+                <input
+                  className="bg-white border border-[#105D8D] outline-none rounded-l py-3 px-4 w-full pr-10"
+                  placeholder="თანამშრომელი"
+                  value={filters.employee}
+                  onChange={handleInputChange}
+                  readOnly
+                />
+                {filters.employee && (
+                  <button
+                    type="button"
+                    onClick={() => handleClear("employee")}
+                    className="absolute right-12 top-[50%] transform -translate-y-1/2 mr-4"
+                  >
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      stroke="black"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M6 18L18 6M6 6l12 12"
+                      ></path>
+                    </svg>
+                  </button>
+                )}
                 <button
-                  type="button"
-                  onClick={() =>handleClear("employee")}
-                  className="absolute right-12 top-[50%] transform -translate-y-1/2 mr-4"
+                  onClick={openModal}
+                  className="bg-[#105D8D] px-4 rounded-r"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="black" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-                  </svg>
+                  <img className="w-[20px]" src={SearchIcon} alt="" />
                 </button>
-              )}
-              <button onClick={openModal} className="bg-[#105D8D] px-4 rounded-r">
-                <img className="w-[20px]" src={SearchIcon} alt="" />
-              </button>
+              </div>
             </div>
-          </div>
             <button
               className="bg-[#1AB7C1] rounded-lg px-8 py-4"
               onClick={handleSubmit}
@@ -268,7 +307,7 @@ const CommentTable = () => {
               <table className="min-w-full divide-y divide-gray-200 table-fixed border-collapse">
                 <thead className="bg-[#1976D2] text-white">
                   <tr>
-                    {columns.map((header) => (
+                    {["თანამშრომელი", "დეპარტამენტი", "პატიების ტიპი", "მომხმარებელი", "ჩაწერის თარიღი", "კომენტარი"].map((header) => (
                       <th
                         key={header}
                         className="px-4 py-2 border border-gray-200 w-1/6 truncate"
@@ -316,13 +355,13 @@ const CommentTable = () => {
           </div>
         </div>
         {openNestedDropdown && (
-          <NestedDropdownModal 
+          <NestedDropdownModal
             header="დეპარტამენტები"
             isOpen={openNestedDropdown}
             onClose={() => setOpenNestedDropdown(false)}
             onSelect={handleDepartmentSelect}
-            data={nestedDepartments}
-            link={'/departments'}
+            data={filteredNestedDepartments}
+            link={"/departments"}
           />
         )}
         <EmployeeModal

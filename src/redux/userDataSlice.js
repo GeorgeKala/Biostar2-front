@@ -3,12 +3,9 @@ import { fetchUser, login } from "../services/auth";
 import userService from "../services/users";
 
 export const fetchAsyncUser = createAsyncThunk("user/fetchUser", async () => {
-  try {
-    const response = await fetchUser();
-    return response; 
-  } catch (error) {
-    throw error;
-  }
+  const response = await fetchUser();
+  return response;
+  
 });
 
 export const loginAsync = createAsyncThunk(
