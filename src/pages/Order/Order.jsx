@@ -11,6 +11,8 @@ import DeleteIcon from "../../assets/delete.png";
 import * as XLSX from "xlsx";
 import { useSelector } from "react-redux";
 import NestedDropdownModal from "../../components/NestedDropdownModal";
+import DepartmentInput from "../../components/DepartmentInput";
+import EmployeeInput from "../../components/employee/EmployeeInput";
 
 const Order = () => {
   const user = useSelector((state) => state.user.user);
@@ -199,6 +201,18 @@ const Order = () => {
       );
 
   
+      console.log(formData);
+
+  const handleClearFormData = () => {
+    setFormData((prevData) => (
+      {
+        ...prevData,
+        employee:"",
+        employee_id:"",
+      }
+    ));
+  };
+      
 
   return (
     <AuthenticatedLayout>
@@ -238,7 +252,7 @@ const Order = () => {
               onChange={handleInputChange}
             />
           </div> */}
-          <div className="w-full flex flex-col gap-2 relative">
+          {/* <div className="w-full flex flex-col gap-2 relative">
             <div className="flex">
               <input
                 className="bg-white border border-[#105D8D] outline-none rounded-l py-3 px-4 w-full pr-10"
@@ -276,49 +290,21 @@ const Order = () => {
                 <img className="w-[20px]" src={SearchIcon} alt="" />
               </button>
             </div>
-          </div>
-          <div className="w-full flex flex-col gap-2 relative">
-            <div className="flex">
-              <input
-                className="bg-white border border-[#105D8D] outline-none rounded-l py-3 px-4 w-full pr-10"
-                placeholder="დეპარტამენტი"
-                value={
-                  departments.find((d) => d.id === filters.department_id)
-                    ?.name || ""
-                }
-                readOnly
-              />
-              {filters.department_id &&
-                user?.user_type?.has_full_access ?(
-                  <button
-                    type="button"
-                    onClick={() => handleClear("department_id")}
-                    className="absolute right-12 top-[50%] transform -translate-y-1/2 mr-4"
-                  >
-                    <svg
-                      className="w-6 h-6"
-                      fill="none"
-                      stroke="black"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M6 18L18 6M6 6l12 12"
-                      ></path>
-                    </svg>
-                  </button>
-                ): ''}
-              <button
-                onClick={() => setOpenNestedDropdown(true)}
-                className="bg-[#105D8D] px-4 rounded-r"
-              >
-                <img className="w-[20px]" src={SearchIcon} alt="" />
-              </button>
-            </div>
-          </div>
+          </div> */}
+          <EmployeeInput
+            value={filters.employee}
+            onClear={() => handleClear("employee")}
+            onSearchClick={() => openEmployeeModal("filter")}
+            onChange={handleInputChange}
+          />
+          <DepartmentInput
+            value={
+              departments.find((d) => d.id === filters.department_id)?.name ||
+              ""
+            }
+            onClear={() => handleClear("department_id")}
+            onSearchClick={() => setOpenNestedDropdown(true)}
+          />
           <button className="bg-[#1AB7C1] rounded-lg px-6 py-4" type="submit">
             <img src={SearchIcon} className="w-[100px]" alt="Search Icon" />
           </button>
@@ -445,7 +431,7 @@ const Order = () => {
                 >
                   თანამშრომელი:
                 </label>
-                <input
+                {/* <input
                   type="text"
                   name="employee"
                   className="mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
@@ -453,6 +439,15 @@ const Order = () => {
                   onChange={handleFormInputChange}
                   required
                   onClick={() => openEmployeeModal("form")}
+                /> */}
+                <EmployeeInput
+                  value={formData.employee}
+                  onClear={handleClearFormData}
+                  onSearchClick={() => openEmployeeModal("form")}
+                  onChange={handleFormInputChange}
+                  className={
+                    " px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-l shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                  }
                 />
               </div>
               {modalMode === "create" && (

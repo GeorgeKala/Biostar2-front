@@ -10,6 +10,8 @@ import DeleteIcon from "../../../assets/delete.png";
 import reportService from '../../../services/report';
 import * as XLSX from "xlsx";
 import NestedDropdownModal from '../../../components/NestedDropdownModal';
+import DepartmentInput from '../../../components/DepartmentInput';
+import EmployeeInput from '../../../components/employee/EmployeeInput';
 
 const CommentTable = () => {
 
@@ -189,47 +191,14 @@ const CommentTable = () => {
               value={filters.end_date}
               onChange={handleInputChange}
             />
-            <div className="w-full flex flex-col gap-2 relative">
-              <div className="flex">
-                <input
-                  className="bg-white border border-[#105D8D] outline-none rounded-l py-3 px-4 w-full pr-10"
-                  placeholder="დეპარტამენტი"
-                  value={
-                    departments.find((d) => d.id === filters.department_id)
-                      ?.name || ""
-                  }
-                  readOnly
-                />
-                {filters.department_id && user?.user_type?.has_full_access !== 0 && (
-                  <button
-                    type="button"
-                    onClick={() => handleClear("department_id")}
-                    className="absolute right-12 top-[50%] transform -translate-y-1/2 mr-4"
-                  >
-                    <svg
-                      className="w-6 h-6"
-                      fill="none"
-                      stroke="black"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M6 18L18 6M6 6l12 12"
-                      ></path>
-                    </svg>
-                  </button>
-                )}
-                <button
-                  onClick={() => setOpenNestedDropdown(true)}
-                  className="bg-[#105D8D] px-4 rounded-r"
-                >
-                  <img className="w-[20px]" src={SearchIcon} alt="" />
-                </button>
-              </div>
-            </div>
+            <DepartmentInput
+              value={
+                departments.find((d) => d.id === filters.department_id)?.name ||
+                ""
+              }
+              onClear={() => handleClear("department_id")}
+              onSearchClick={() => setOpenNestedDropdown(true)}
+            />
             <div className="w-full flex flex-col gap-2">
               <select
                 id="forgive_type_id"
@@ -247,7 +216,7 @@ const CommentTable = () => {
                   ))}
               </select>
             </div>
-            <div className="w-full flex flex-col gap-2 relative">
+            {/* <div className="w-full flex flex-col gap-2 relative">
               <div className="flex">
                 <input
                   className="bg-white border border-[#105D8D] outline-none rounded-l py-3 px-4 w-full pr-10"
@@ -285,7 +254,13 @@ const CommentTable = () => {
                   <img className="w-[20px]" src={SearchIcon} alt="" />
                 </button>
               </div>
-            </div>
+            </div> */}
+            <EmployeeInput
+              value={filters.employee}
+              onClear={() => handleClear("employee")}
+              onSearchClick={openModal}
+              onChange={handleInputChange}
+            />
             <button
               className="bg-[#1AB7C1] rounded-lg px-8 py-4"
               onClick={handleSubmit}
@@ -307,7 +282,14 @@ const CommentTable = () => {
               <table className="min-w-full divide-y divide-gray-200 table-fixed border-collapse">
                 <thead className="bg-[#1976D2] text-white">
                   <tr>
-                    {["თანამშრომელი", "დეპარტამენტი", "პატიების ტიპი", "მომხმარებელი", "ჩაწერის თარიღი", "კომენტარი"].map((header) => (
+                    {[
+                      "თანამშრომელი",
+                      "დეპარტამენტი",
+                      "პატიების ტიპი",
+                      "მომხმარებელი",
+                      "ჩაწერის თარიღი",
+                      "კომენტარი",
+                    ].map((header) => (
                       <th
                         key={header}
                         className="px-4 py-2 border border-gray-200 w-1/6 truncate"

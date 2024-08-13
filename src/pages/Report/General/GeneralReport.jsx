@@ -10,6 +10,8 @@ import EmployeeModal from "../../../components/employee/EmployeeModal";
 import FilterIcon from '../../../assets/filter-icon.png'; 
 import * as XLSX from "xlsx";
 import NestedDropdownModal from "../../../components/NestedDropdownModal";
+import DepartmentInput from "../../../components/DepartmentInput";
+import EmployeeInput from "../../../components/employee/EmployeeInput";
 
 const GeneralReport = () => {
   const dispatch = useDispatch();
@@ -380,93 +382,20 @@ const GeneralReport = () => {
             value={formData.end_date}
             onChange={handleInputChange}
           />
-          <div className="w-full flex flex-col gap-2 relative">
-            <div className="flex">
-              <input
-                className="bg-white border border-[#105D8D] outline-none rounded-l py-3 px-4 w-full pr-10"
-                placeholder="დეპარტამენტი"
-                value={
-                  departments.find((d) => d.id === formData.department_id)
-                    ?.name || ""
-                }
-                readOnly
-              />
-              {formData.department_id &&
-                user?.user_type?.has_full_access !== 0 && (
-                  <button
-                    type="button"
-                    onClick={() => handleClear("department_id")}
-                    className="absolute right-12 top-[50%] transform -translate-y-1/2 mr-4"
-                  >
-                    <svg
-                      className="w-6 h-6"
-                      fill="none"
-                      stroke="black"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M6 18L18 6M6 6l12 12"
-                      ></path>
-                    </svg>
-                  </button>
-                )}
-              <button
-                onClick={() => setOpenNestedDropdown(true)}
-                className="bg-[#105D8D] px-4 rounded-r"
-              >
-                <img className="w-[20px]" src={SearchIcon} alt="" />
-              </button>
-            </div>
-          </div>
-          <div className="w-full flex flex-col gap-2 relative">
-            <div className="flex">
-              <input
-                className="bg-white border border-[#105D8D] outline-none rounded-l py-3 px-4 w-full pr-10"
-                placeholder="თანამშრომელი"
-                value={formData.employee}
-                onChange={handleInputChange}
-                readOnly
-              />
-              {formData.employee && (
-                <button
-                  type="button"
-                  onClick={() => handleClear("employee")}
-                  className="absolute right-12 top-[50%] transform -translate-y-1/2 mr-4"
-                >
-                  <svg
-                    className="w-6 h-6"
-                    fill="none"
-                    stroke="black"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M6 18L18 6M6 6l12 12"
-                    ></path>
-                  </svg>
-                </button>
-              )}
-              <button
-                onClick={openModal}
-                className="bg-[#105D8D] px-4 rounded-r"
-              >
-                <img className="w-[20px]" src={SearchIcon} alt="" />
-              </button>
-            </div>
-          </div>
-          <button
-            className="bg-[#1AB7C1] rounded-lg px-8 py-4"
-            onClick={handleSubmit}
-          >
-            <img src={SearchIcon} className="w-[100px]" alt="Search Icon" />
-          </button>
+          <DepartmentInput
+            value={
+              departments.find((d) => d.id === formData.department_id)?.name ||
+              ""
+            }
+            onClear={() => handleClear("department_id")}
+            onSearchClick={() => setOpenNestedDropdown(true)}
+          />
+          <EmployeeInput
+            value={formData.employee}
+            onClear={() => handleClear("employee")}
+            onSearchClick={openModal}
+            onChange={handleInputChange}
+          />
         </div>
         <div className="container mx-auto mt-10 overflow-x-auto">
           <div className="min-w-max">
@@ -508,7 +437,9 @@ const GeneralReport = () => {
                   ))}
                 </tr>
                 <tr>
-                  <th className="w-[30px]"><img className="w-[20px] m-auto" src={FilterIcon} alt="" /></th>
+                  <th className="w-[30px]">
+                    <img className="w-[20px] m-auto" src={FilterIcon} alt="" />
+                  </th>
                   {[
                     "fullname",
                     "department",

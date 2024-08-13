@@ -7,12 +7,13 @@ import CreateIcon from "../../assets/create.png";
 import DeleteIcon from "../../assets/delete-2.png";
 import { fetchUsers } from "../../redux/userDataSlice";
 import { fetchUserTypes } from "../../redux/userTypeSlice";
-import { fetchDepartments } from "../../redux/departmentsSlice";
 import userService from "../../services/users";
 import EmployeeModal from "../../components/employee/EmployeeModal";
 import * as XLSX from "xlsx";
 import NestedDropdownModal from "../../components/NestedDropdownModal";
 import FilterIcon from "../../assets/filter-icon.png";
+import EmployeeInput from "../../components/employee/EmployeeInput";
+import DepartmentInput from "../../components/DepartmentInput";
 
 const User = () => {
   const dispatch = useDispatch();
@@ -27,7 +28,8 @@ const User = () => {
     username: "",
     userType: "",
     department: "",
-    employeeId: "",
+    employee: "", 
+    employeeId: "", 
   });
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -47,7 +49,6 @@ const User = () => {
   useEffect(() => {
     dispatch(fetchUsers());
     dispatch(fetchUserTypes());
-    dispatch(fetchDepartments());
   }, [dispatch]);
 
   useEffect(() => {
@@ -91,6 +92,7 @@ const User = () => {
       username: "",
       userType: "",
       department: "",
+      employee: "",
       employeeId: "",
     });
   };
@@ -104,6 +106,7 @@ const User = () => {
       username: user.username,
       userType: user.user_type.id,
       department: user.department ? user.department.id : "",
+      employee: user.employee ? user.employee.fullname : "",
       employeeId: user.employee ? user.employee.id : "",
     });
   };
@@ -117,6 +120,7 @@ const User = () => {
       username: "",
       userType: "",
       department: "",
+      employee: "",
       employeeId: "",
     });
   };
@@ -189,6 +193,7 @@ const User = () => {
   const handleSelectEmployee = (employee) => {
     setFormData((prevState) => ({
       ...prevState,
+      employee: employee.fullname,
       employeeId: employee.id,
     }));
   };
@@ -217,17 +222,25 @@ const User = () => {
   };
 
   const handleDepartmentSelect = (departmentId) => {
-    setFilters((prevData) => ({
+    setFormData((prevData) => ({
       ...prevData,
-      department: departmentId,
+      department: departmentId, 
     }));
     setOpenNestedDropdown(false);
   };
 
   const handleClearDepartment = () => {
-    setFilters((prevData) => ({
+    setFormData((prevData) => ({
       ...prevData,
-      department: "",
+      department: "", 
+    }));
+  };
+
+  const handleClearFormData = () => {
+    setFormData((prevData) => ({
+      ...prevData,
+      employee: "",
+      employeeId: "",
     }));
   };
 
@@ -450,11 +463,11 @@ const User = () => {
               <div className="mb-4">
                 <label
                   htmlFor="department"
-                  className="block text-sm font-medium text-gray-700"
+                  className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   დეპარტამენტი:
                 </label>
-                <select
+                {/* <select
                   id="department"
                   name="department"
                   className="mt-1 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
@@ -468,23 +481,33 @@ const User = () => {
                         {item.name}
                       </option>
                     ))}
-                </select>
+                </select> */}
+                <DepartmentInput
+                  value={
+                    departments.find((d) => d.id === formData.department)
+                      ?.name || ""
+                  }
+                  onClear={handleClearDepartment}
+                  onSearchClick={() => setOpenNestedDropdown(true)}
+                  className={
+                    " px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-l shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                  }
+                />
               </div>
               <div className="mb-4">
                 <label
                   htmlFor="employeeId"
-                  className="block text-sm font-medium text-gray-700"
+                  className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   თანამშრომელი:
                 </label>
-                <input
-                  type="text"
-                  id="employeeId"
-                  name="employeeId"
-                  className="mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                  value={formData.employeeId}
-                  onClick={handleEmployeeInputClick}
-                  readOnly
+                <EmployeeInput
+                  value={formData.employee}
+                  onClear={handleClearFormData}
+                  onSearchClick={handleEmployeeInputClick}
+                  className={
+                    " px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-l shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                  }
                 />
               </div>
               <div className="flex justify-end mt-4">

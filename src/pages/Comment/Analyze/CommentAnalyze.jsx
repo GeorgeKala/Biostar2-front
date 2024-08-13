@@ -8,7 +8,8 @@ import EmployeeModal from "../../../components/employee/EmployeeModal";
 import * as XLSX from "xlsx";
 import { useSelector } from "react-redux";
 import NestedDropdownModal from "../../../components/NestedDropdownModal";
-import SearchIcon from '../../../assets/search.png';
+import DepartmentInput from "../../../components/DepartmentInput";
+import EmployeeInput from "../../../components/employee/EmployeeInput";
 
 const CommentAnalyze = () => {
   const user = useSelector((state) => state.user.user);
@@ -16,7 +17,9 @@ const CommentAnalyze = () => {
   const [loading, setLoading] = useState(false);
   const [groupedComments, setGroupedComments] = useState({});
   const [uniqueDates, setUniqueDates] = useState([]);
-  const { departments, nestedDepartments } = useSelector((state) => state.departments);
+  const { departments, nestedDepartments } = useSelector(
+    (state) => state.departments
+  );
   const forgiveTypes = useSelector((state) => state.forgiveTypes.forgiveTypes);
   const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
   const [openNestedDropdown, setOpenNestedDropdown] = useState(false);
@@ -28,7 +31,6 @@ const CommentAnalyze = () => {
     employee_id: "",
     employee_fullname: "",
   });
-  
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -41,7 +43,6 @@ const CommentAnalyze = () => {
   const getAnalyzedComments = async () => {
     setLoading(true);
     try {
-
       const data = await commentService.fetchAnalyzedComments(filters);
       const { groupedData, uniqueDates } = transformData(data);
       setCommentedDetails(data);
@@ -109,7 +110,6 @@ const CommentAnalyze = () => {
     ? getMonthName(filters.start_date)
     : "თვე";
 
-
   const handleEmployeeSelect = (employee) => {
     setFilters({
       ...filters,
@@ -140,7 +140,7 @@ const CommentAnalyze = () => {
     XLSX.writeFile(workbook, "Comments_Analysis.xlsx");
   };
 
-  const handleDepartmentSelect = (departmentId, departmentName) => {
+  const handleDepartmentSelect = (departmentId) => {
     setFilters((prevData) => ({
       ...prevData,
       department_id: departmentId,
@@ -148,11 +148,10 @@ const CommentAnalyze = () => {
     setOpenNestedDropdown(false);
   };
 
-
-  const handleClearDepartment = () => {
+  const handleClear = (field) => {
     setFilters((prevData) => ({
       ...prevData,
-      department_id: "",
+      [field]: "",
     }));
   };
 
@@ -163,6 +162,10 @@ const CommentAnalyze = () => {
           dept.id === user?.department?.id ||
           dept.parent_id === user?.department?.id
       );
+
+
+      console.log(filters);
+      
 
   return (
     <AuthenticatedLayout>
@@ -175,7 +178,7 @@ const CommentAnalyze = () => {
             className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative"
             onClick={exportToExcel}
           >
-            ჩაოტვირთვა
+            ჩამოტვირთვა
             <img src={ArrowDownIcon} className="ml-3" alt="Arrow Down Icon" />
             <span className="absolute inset-0 border border-white border-dashed rounded"></span>
           </button>
@@ -195,48 +198,14 @@ const CommentAnalyze = () => {
             value={filters.end_date}
             onChange={handleInputChange}
           />
-          <div className="w-full flex flex-col gap-2 relative">
-            <div className="flex">
-              <input
-                className="bg-white border border-[#105D8D] outline-none rounded-l py-3 px-4 w-full pr-10"
-                placeholder="დეპარტამენტი"
-                value={
-                  departments.find((d) => d.id === filters.department_id)
-                    ?.name || ""
-                }
-                readOnly
-              />
-              {filters.department_id &&
-                user?.user_type?.has_full_access !== 0 && (
-                  <button
-                    type="button"
-                    onClick={handleClearDepartment}
-                    className="absolute right-12 top-[50%] transform -translate-y-1/2 mr-4"
-                  >
-                    <svg
-                      className="w-6 h-6"
-                      fill="none"
-                      stroke="black"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M6 18L18 6M6 6l12 12"
-                      ></path>
-                    </svg>
-                  </button>
-                )}
-              <button
-                onClick={() => setOpenNestedDropdown(true)}
-                className="bg-[#105D8D] px-4 rounded-r"
-              >
-                <img className="w-[20px]" src={SearchIcon} alt="" />
-              </button>
-            </div>
-          </div>
+          <DepartmentInput
+            value={
+              departments.find((d) => d.id === filters.department_id)?.name ||
+              ""
+            }
+            onClear={() => handleClear("department_id")}
+            onSearchClick={() => setOpenNestedDropdown(true)}
+          />
           <div className="w-full flex flex-col gap-2">
             <select
               id="forgive_type_id"
@@ -254,18 +223,13 @@ const CommentAnalyze = () => {
                 ))}
             </select>
           </div>
-          <div className="w-full" onClick={() => setIsEmployeeModalOpen(true)}>
-            {" "}
-            <GeneralInputGroup
-              name="employee_fullname"
-              placeholder="თანამშრომელი"
-              type="text"
-              value={filters.employee_fullname}
-              readOnly
-            />
-          </div>
-
-          <SearchButton></SearchButton>
+          <EmployeeInput
+            value={filters.employee_fullname}
+            onClear={() => handleClear("employee_fullname")}
+            onSearchClick={() => setIsEmployeeModalOpen(true)}
+            placeholder="თანამშრომელი"
+          />
+          <SearchButton />
         </form>
         <div className="container mx-auto mt-10 overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 border-collapse border border-gray-200">
