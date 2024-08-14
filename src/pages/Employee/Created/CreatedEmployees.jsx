@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { fetchEmployees, deleteEmployee } from "../../../redux/employeeSlice";
 import AuthenticatedLayout from "../../../Layouts/AuthenticatedLayout";
-import ArrowDownIcon from "../../../assets/arrow-down-2.png";
 import NewIcon from "../../../assets/new.png";
 import DeleteIcon from "../../../assets/delete.png";
 import EditIcon from "../../../assets/edit.png";

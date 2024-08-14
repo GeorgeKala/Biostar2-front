@@ -12,13 +12,13 @@ import * as XLSX from "xlsx";
 import NestedDropdownModal from "../../../components/NestedDropdownModal";
 import DepartmentInput from "../../../components/DepartmentInput";
 import EmployeeInput from "../../../components/employee/EmployeeInput";
-import { fetchReports } from "../../../redux/reportSlice";
+import { fetchReports, updateOrAddReport } from "../../../redux/reportSlice";
 
 const GeneralReport = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.user)
   const { departments, nestedDepartments } = useSelector((state) => state.departments);
-  const { reports, status, error } = useSelector((state) => state.reports);
+  const { reports } = useSelector((state) => state.reports);
   const [filteredReports, setFilteredReports] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [EmployeeModalOpen, setEmployeeModalOpen] = useState(false);
@@ -165,6 +165,39 @@ const GeneralReport = () => {
     });
   };
 
+  // const handleModalSave = async () => {
+  //   try {
+  //     const data = {
+  //       employee_id: editData.employee_id,
+  //       date: editData.date,
+  //       forgive_type_id: editData.forgive_type_id,
+  //       comment: editData.comment,
+  //       final_penalized_time: editData.final_penalized_time,
+  //       comment_datetime: editData.comment_datetime,
+  //     };
+  //     const response = await reportService.updateOrCreateDayDetail(data);
+
+  //     setReports((prevReports) =>
+  //       prevReports.map((report) =>
+  //         report.user_id === editData.employee_id &&
+  //         report.date === editData.date
+  //           ? {
+  //               ...report,
+  //               forgive_type_id: editData.forgive_type_id,
+  //               comment: response.data.comment,
+  //               final_penalized_time: editData.final_penalized_time,
+  //               comment_datetime: editData.comment_datetime,
+  //             }
+  //           : report
+  //       )
+  //     );
+  //     handleModalClose();
+  //   } catch (error) {
+  //     console.error("Error saving data:", error);
+  //   }
+  // }; 
+
+
   const handleModalSave = async () => {
     try {
       const data = {
@@ -176,21 +209,17 @@ const GeneralReport = () => {
         comment_datetime: editData.comment_datetime,
       };
       const response = await reportService.updateOrCreateDayDetail(data);
-
-      setReports((prevReports) =>
-        prevReports.map((report) =>
-          report.user_id === editData.employee_id &&
-          report.date === editData.date
-            ? {
-                ...report,
-                forgive_type_id: editData.forgive_type_id,
-                comment: response.data.comment,
-                final_penalized_time: editData.final_penalized_time,
-                comment_datetime: editData.comment_datetime,
-              }
-            : report
-        )
-      );
+  
+      dispatch(updateOrAddReport({
+        user_id: editData.employee_id,
+        date: editData.date,
+        forgive_type_id: editData.forgive_type_id,
+        comment: response.data.comment,
+        final_penalized_time: editData.final_penalized_time,
+        fullname: editData.employee_name,
+        department: formData.department_id,
+      }));
+  
       handleModalClose();
     } catch (error) {
       console.error("Error saving data:", error);
@@ -293,18 +322,23 @@ const GeneralReport = () => {
       item.final_penalized_time > 0 &&
       !item.day_type_id &&
       !item.forgive_type
+    || item.day_type == "გაცდენა" && !item.day_type_id && !item.forgive_type
     ) {
       return "bg-yellow-300";
     } else if (
       item.final_penalized_time > 0 &&
       item.forgive_type.forgive == 0 &&
       !item.day_type_id
+
+      || item.day_type == "გაცდენა" && item.forgive_type.forgive == 0 && !item.day_type_id
+
     ) {
       return "bg-red-300";
     } else if (
       item.final_penalized_time > 0 &&
       item.forgive_type.forgive == 1 &&
       !item.day_type_id
+      || item.day_type == "გაცდენა" && item.forgive_type.forgive == 1 && !item.day_type_id
     ) {
       return "bg-green-300";
     } else {
@@ -349,6 +383,8 @@ const GeneralReport = () => {
   }
 
 
+  console.log(reports);
+  
   
   return (
     <AuthenticatedLayout>

@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import AuthenticatedLayout from "../../Layouts/AuthenticatedLayout";
 import NewIcon from "../../assets/new.png";
+import DeleteIcon from "../../assets/delete.png";
+import EditIcon from "../../assets/edit.png";
 import ArrowDownIcon from "../../assets/arrow-down-2.png";
-import CreateIcon from "../../assets/create.png";
-import DeleteIcon from "../../assets/delete-2.png";
 import { fetchUsers } from "../../redux/userDataSlice";
 import { fetchUserTypes } from "../../redux/userTypeSlice";
 import userService from "../../services/users";
@@ -28,8 +28,8 @@ const User = () => {
     username: "",
     userType: "",
     department: "",
-    employee: "", 
-    employeeId: "", 
+    employee: "",
+    employeeId: "",
   });
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -43,7 +43,6 @@ const User = () => {
     department: "",
     employeeFullname: "",
   });
-
   const [filteredUsers, setFilteredUsers] = useState([]);
 
   useEffect(() => {
@@ -97,18 +96,22 @@ const User = () => {
     });
   };
 
-  const openUpdateModal = (user) => {
-    setIsAddModalOpen(true);
-    setModalMode("update");
-    setSelectedUserId(user.id);
-    setFormData({
-      name: user.name,
-      username: user.username,
-      userType: user.user_type.id,
-      department: user.department ? user.department.id : "",
-      employee: user.employee ? user.employee.fullname : "",
-      employeeId: user.employee ? user.employee.id : "",
-    });
+  const openUpdateModal = () => {
+    if (selectedUserId) {
+      const user = users.find((u) => u.id === selectedUserId);
+      setIsAddModalOpen(true);
+      setModalMode("update");
+      setFormData({
+        name: user.name,
+        username: user.username,
+        userType: user.user_type.id,
+        department: user.department ? user.department.id : "",
+        employee: user.employee ? user.employee.fullname : "",
+        employeeId: user.employee ? user.employee.id : "",
+      });
+    } else {
+      alert("Please select a user to edit.");
+    }
   };
 
   const closeAddModal = () => {
@@ -127,7 +130,6 @@ const User = () => {
 
   const handleSave = async (e) => {
     e.preventDefault();
-
     const { name, username, userType, department, employeeId } = formData;
 
     const userData = {
@@ -163,14 +165,20 @@ const User = () => {
     }
   };
 
-  const handleDelete = async (userId) => {
-    if (window.confirm("Are you sure you want to delete this user?")) {
+  const handleDelete = async () => {
+    if (
+      selectedUserId &&
+      window.confirm("Are you sure you want to delete this user?")
+    ) {
       try {
-        await userService.deleteUser(userId);
-        setUsers(users.filter((user) => user.id !== userId));
+        await userService.deleteUser(selectedUserId);
+        setUsers(users.filter((user) => user.id !== selectedUserId));
+        setSelectedUserId(null);
       } catch (error) {
         alert("Failed to delete user: " + error.message);
       }
+    } else {
+      alert("Please select a user to delete.");
     }
   };
 
@@ -224,7 +232,7 @@ const User = () => {
   const handleDepartmentSelect = (departmentId) => {
     setFormData((prevData) => ({
       ...prevData,
-      department: departmentId, 
+      department: departmentId,
     }));
     setOpenNestedDropdown(false);
   };
@@ -232,7 +240,7 @@ const User = () => {
   const handleClearDepartment = () => {
     setFormData((prevData) => ({
       ...prevData,
-      department: "", 
+      department: "",
     }));
   };
 
@@ -260,6 +268,22 @@ const User = () => {
               ახალი
             </button>
             <button
+              onClick={openUpdateModal}
+              className="bg-[#1976D2] text-white px-4 py-4 rounded-md flex items-center gap-2"
+              disabled={!selectedUserId}
+            >
+              <img src={EditIcon} alt="Edit" />
+              შეცვლა
+            </button>
+            <button
+              onClick={handleDelete}
+              className="bg-[#D9534F] text-white px-4 py-4 rounded-md flex items-center gap-2"
+              disabled={!selectedUserId}
+            >
+              <img src={DeleteIcon} alt="Delete" />
+              წაშლა
+            </button>
+            <button
               onClick={exportToExcel}
               className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative"
             >
@@ -280,7 +304,6 @@ const User = () => {
                   "მომხმარებლის ტიპი",
                   "დეპარტამენტი",
                   "თანამშრომელი",
-                  "მოქმედება",
                 ].map((header, index) => (
                   <th
                     key={index}
@@ -316,7 +339,6 @@ const User = () => {
                     />
                   </th>
                 ))}
-                <th></th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -325,11 +347,28 @@ const User = () => {
                   <tr
                     key={user?.id}
                     className={`cursor-pointer ${
-                      user?.id === selectedUserId ? "bg-gray-200" : ""
+                      user?.id === selectedUserId ? "bg-blue-200" : ""
                     }`}
                     onClick={() => handleRowClick(user.id)}
                   >
-                    <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900 truncate max-w-xs border"></td>
+                    <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900 truncate max-w-xs border">
+                       {user?.id === selectedUserId && (
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4 text-blue-600"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M9 5l7 7-7 7"
+                        />
+                      </svg>
+                    )}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 truncate max-w-xs border">
                       {user?.username}
                     </td>
@@ -344,26 +383,6 @@ const User = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm truncate max-w-xs border">
                       {user?.employee?.fullname}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm flex justify-center gap-4 border">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          openUpdateModal(user);
-                        }}
-                        className="hover:text-gray-600 focus:outline-none"
-                      >
-                        <img src={CreateIcon} alt="Edit" />
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(user.id);
-                        }}
-                        className="hover:text-gray-600 focus:outline-none"
-                      >
-                        <img src={DeleteIcon} alt="Delete" />
-                      </button>
                     </td>
                   </tr>
                 ))}
@@ -467,21 +486,6 @@ const User = () => {
                 >
                   დეპარტამენტი:
                 </label>
-                {/* <select
-                  id="department"
-                  name="department"
-                  className="mt-1 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                  value={formData.department}
-                  onChange={handleChange}
-                >
-                  <option value="">აირჩიე დეპარტამენტი</option>
-                  {departments &&
-                    departments.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.name}
-                      </option>
-                    ))}
-                </select> */}
                 <DepartmentInput
                   value={
                     departments.find((d) => d.id === formData.department)

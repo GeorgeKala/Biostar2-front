@@ -11,7 +11,6 @@ const orderService = {
             throw error;
         }
     }
-
 }
 
 export default orderService;

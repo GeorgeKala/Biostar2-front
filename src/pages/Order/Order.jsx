@@ -9,17 +9,20 @@ import EmployeeModal from "../../components/employee/EmployeeModal";
 import reportService from "../../services/report";
 import DeleteIcon from "../../assets/delete.png";
 import * as XLSX from "xlsx";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import NestedDropdownModal from "../../components/NestedDropdownModal";
 import DepartmentInput from "../../components/DepartmentInput";
 import EmployeeInput from "../../components/employee/EmployeeInput";
+import { fetchEmployeeOrders } from "../../redux/orderSlice";
 
 const Order = () => {
   const user = useSelector((state) => state.user.user);
   const [openModal, setOpenModal] = useState(false);
+  const { orders } = useSelector((state) => state.orders);
   const [EmployeeModalOpen, setEmployeeModalOpen] = useState(false);
   const [currentEmployeeInput, setCurrentEmployeeInput] = useState("");
   const { departments, nestedDepartments } = useSelector((state) => state.departments);
+  const dispatch = useDispatch();
   const [filters, setFilters] = useState({
     start_date: "",
     end_date: "",
@@ -62,9 +65,7 @@ const Order = () => {
     if (filters.employee_id) payload.employee_id = filters.employee_id;
 
     try {
-      const response = await orderService.fetchEmployeeOrders(payload);
-
-      setData(response.data);
+      dispatch(fetchEmployeeOrders(payload))
     } catch (error) {
       console.error("Error fetching orders:", error);
     }
@@ -202,6 +203,17 @@ const Order = () => {
 
   
 
+  const handleClearFilterData = () => {
+    setFilters((prevData) => (
+      {
+        ...prevData,
+        employee:"",
+        employee_id:"",
+      }
+    ));
+  };
+
+
   const handleClearFormData = () => {
     setFormData((prevData) => (
       {
@@ -212,6 +224,7 @@ const Order = () => {
     ));
   };
       
+
 
   return (
     <AuthenticatedLayout>
@@ -292,7 +305,7 @@ const Order = () => {
           </div> */}
           <EmployeeInput
             value={filters.employee}
-            onClear={() => handleClear("employee")}
+            onClear={() => handleClearFilterData()}
             onSearchClick={() => openEmployeeModal("filter")}
             onChange={handleInputChange}
           />
@@ -338,8 +351,8 @@ const Order = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {data &&
-                data.map((item) => (
+              {orders &&
+                orders.map((item) => (
                   <tr key={item.id}>
                     <td className="px-4 py-2 border border-gray-200 w-1/6 truncate">
                       {item.date}

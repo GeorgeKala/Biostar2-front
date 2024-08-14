@@ -4,24 +4,24 @@ import GeneralInputGroup from '../../../components/GeneralInputGroup';
 import SearchIcon from '../../../assets/search.png';
 import EmployeeModal from '../../../components/employee/EmployeeModal';
 import { useState, useEffect } from 'react';
-import commentService from '../../../services/comment';
 import { useDispatch, useSelector } from 'react-redux';
 import DeleteIcon from "../../../assets/delete.png";
-import reportService from '../../../services/report';
 import * as XLSX from "xlsx";
 import NestedDropdownModal from '../../../components/NestedDropdownModal';
 import DepartmentInput from '../../../components/DepartmentInput';
 import EmployeeInput from '../../../components/employee/EmployeeInput';
+import {fetchCommentedDetails, removeComment } from '../../../redux/commentSlice';
+import reportService from '../../../services/report';
 
 const CommentTable = () => {
     const user = useSelector((state) => state.user.user);
+    const commentedDetails = useSelector((state) => state.comments.commentedDetails);
     const { departments, nestedDepartments } = useSelector((state) => state.departments);
     const forgiveTypeItems = useSelector((state) => state.forgiveTypes.forgiveTypes);
     const [selectedComment, setSelectedComment] = useState(null)
-    const [details, setDetails] = useState([]);
     const [employeeModalOpen, setEmployeeModalOpen] = useState(false);
     const [openNestedDropdown, setOpenNestedDropdown] = useState(false);
-
+    const dispatch = useDispatch();
     const [filters, setFilters] = useState({
       start_date: "",
       end_date: "",
@@ -32,6 +32,8 @@ const CommentTable = () => {
       employee_id: "",
     });
 
+    
+    
     
 
     const handleInputChange = (e) => {
@@ -68,9 +70,7 @@ const CommentTable = () => {
     
         e.preventDefault();
         try {
-            const response = await commentService.fetchCommentedDetails(data);
-
-            setDetails(response);
+          dispatch(fetchCommentedDetails())
         } catch (error) {
             console.error('Error fetching commented details:', error);
         }
@@ -96,17 +96,12 @@ const CommentTable = () => {
 
     const handleDelete = async () => {
       try {
-        const response = await reportService.deleteDayDetail(
-          selectedComment.id
-        );
-        setDetails(
-          details.filter((detail) => detail.id !== selectedComment.id)
-        );
+         await reportService.deleteDayDetail(selectedComment.id );
+        dispatch(removeComment(selectedComment.id));
       } catch (error) {
         console.error("Error deleting comment:", error);
       }
     };
-
    
 
     const exportToExcel = () => {
@@ -156,7 +151,6 @@ const CommentTable = () => {
             dept.id === user?.department?.id ||
             dept.parent_id === user?.department?.id
         );
-
 
     return (
       <AuthenticatedLayout>
@@ -298,8 +292,8 @@ const CommentTable = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {details &&
-                    details.map((item) => (
+                  {commentedDetails &&
+                    commentedDetails.map((item) => (
                       <tr
                         key={item.id}
                         onClick={() => setSelectedComment(item)}
