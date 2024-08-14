@@ -167,6 +167,18 @@ const CreatedEmployees = () => {
     </svg>
   );
 
+
+  const handleSearch = (status = 'active') => {
+    dispatch(fetchEmployees({ ...filters, status }));
+    setEmployeeStatusModal(false);
+  };
+
+
+  const handleRightClick = (e) => {
+    e.preventDefault();
+    setEmployeeStatusModal(true)
+  };
+
   return (
     <AuthenticatedLayout>
       <div className="w-full px-10 py-4 flex flex-col gap-8 2xl:px-20">
@@ -406,6 +418,7 @@ const CreatedEmployees = () => {
                   className={`text-center ${
                     selectedEmployee?.id === employee.id ? "bg-blue-200" : ""
                   }`}
+                  onContextMenu={(e) => handleRightClick(e, employee)}
                 >
                   <td className={`px-2 py-1 border border-gray-200 max-w-3`}>
                     {selectedEmployee?.id === employee.id && (
@@ -474,7 +487,7 @@ const CreatedEmployees = () => {
         <EmployeeStatusModal
           isOpen={employeeStatusModal}
           onClose={() => setEmployeeStatusModal(false)}
-          handleSearch={applyFilters}
+          handleSearch={handleSearch}
         />
       )}
     </AuthenticatedLayout>
@@ -482,33 +495,3 @@ const CreatedEmployees = () => {
 };
 
 export default CreatedEmployees;
-
-
-
-
-// <tr>
-//                 <th className="w-[30px]"><img className="w-[15px] m-auto" src={FilterIcon} alt="" /></th>
-//                 {[
-//                   "fullname",
-//                   "department_name",
-//                   "position",
-//                   "personal_id",
-//                   "phone_number",
-//                   "card_number",
-//                   "group_name",
-//                   "schedule_name",
-//                   "honorable_minutes_per_day",
-//                   "holidays",
-//                 ].map((filterKey) => (
-//                   <th key={filterKey} className="border border-gray-200 text-center">
-//                     <input
-//                       type="text"
-//                       name={filterKey}
-//                       value={filters[filterKey]}
-//                       onChange={handleFilterChange}
-//                       className="w-full text-center bg-transparent outline-none px-2 py-1"
-//                       autoComplete="off"
-//                     />
-//                   </th>
-//                 ))}
-//               </tr>

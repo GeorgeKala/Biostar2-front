@@ -38,7 +38,6 @@ const EmployeeCreate = () => {
   const dispatch = useDispatch();
   const holidays = useSelector(selectHolidays);
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedOptions, setSelectedOptions] = useState([]);
   const [devices, setDevices] = useState([]);
   const [selectedDevice, setSelectedDevice] = useState("")
   const [openNestedDropdown, setOpenNestedDropdown] = useState(false);

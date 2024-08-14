@@ -9,6 +9,7 @@ import departmentsReducer from './departmentsSlice';
 import commandTypeReducer from './commandTypeSlice';
 import holidaysReducer from './holidaySlice';
 import forgiveTypesReducer from './forgiveTypeSlice';
+import reportReducer from './reportSlice';
 
 export const store = configureStore({
   reducer: {
@@ -22,5 +23,6 @@ export const store = configureStore({
     commandTypes: commandTypeReducer,
     holidays: holidaysReducer,
     forgiveTypes: forgiveTypesReducer,
+    reports: reportReducer,
   },
 });

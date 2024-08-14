@@ -14,8 +14,6 @@ import DepartmentInput from '../../../components/DepartmentInput';
 import EmployeeInput from '../../../components/employee/EmployeeInput';
 
 const CommentTable = () => {
-
-    const dispatch = useDispatch();
     const user = useSelector((state) => state.user.user);
     const { departments, nestedDepartments } = useSelector((state) => state.departments);
     const forgiveTypeItems = useSelector((state) => state.forgiveTypes.forgiveTypes);

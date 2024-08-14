@@ -12,12 +12,13 @@ import * as XLSX from "xlsx";
 import NestedDropdownModal from "../../../components/NestedDropdownModal";
 import DepartmentInput from "../../../components/DepartmentInput";
 import EmployeeInput from "../../../components/employee/EmployeeInput";
+import { fetchReports } from "../../../redux/reportSlice";
 
 const GeneralReport = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.user)
   const { departments, nestedDepartments } = useSelector((state) => state.departments);
-  const [reports, setReports] = useState([]);
+  const { reports, status, error } = useSelector((state) => state.reports);
   const [filteredReports, setFilteredReports] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [EmployeeModalOpen, setEmployeeModalOpen] = useState(false);
@@ -132,9 +133,7 @@ const GeneralReport = () => {
         data.employee_id = formData.employee_id;
       }
 
-      const response = await reportService.fetchMonthlyReports(data);
-
-      setReports(response.data);
+      dispatch(fetchReports(data));
     } catch (error) {
       console.error("Error fetching report data:", error);
     }
@@ -232,17 +231,6 @@ const GeneralReport = () => {
   };
 
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await reportService.fetchMonthlyReports();
-      } catch (error) {
-        console.error("Error fetching report:", error);
-      }
-    };
-
-    fetchData();
-  }, []);
 
   const exportToExcel = () => {
     const dataToExport = [];
@@ -340,6 +328,7 @@ const GeneralReport = () => {
     }));
   };
 
+
   const filteredNestedDepartments = user?.user_type?.has_full_access
     ? nestedDepartments
     : nestedDepartments.filter(
@@ -349,8 +338,18 @@ const GeneralReport = () => {
       );
 
     
-      
+  const handleEmployeeClear = () => {
+    setFormData((prevData) => (
+      {
+        ...prevData,
+        employee:"",
+        employee_id:""
+      }
+    ))
+  }
 
+
+  
   return (
     <AuthenticatedLayout>
       <div className="w-full px-10 py-4 flex flex-col gap-8 2xl:px-20">
@@ -392,11 +391,18 @@ const GeneralReport = () => {
           />
           <EmployeeInput
             value={formData.employee}
-            onClear={() => handleClear("employee")}
+            onClear={() => handleEmployeeClear()}
             onSearchClick={openModal}
             onChange={handleInputChange}
           />
+          <button
+            className="bg-[#1AB7C1] rounded-lg px-8 py-5"
+            onClick={handleSubmit}
+          >
+            <img src={SearchIcon} className="w-[50px]" alt="Search Icon" />
+          </button>
         </div>
+        
         <div className="container mx-auto mt-10 overflow-x-auto">
           <div className="min-w-max">
             <table className="min-w-full divide-y divide-gray-200 table-fixed border-collapse">

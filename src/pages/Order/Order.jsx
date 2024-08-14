@@ -201,7 +201,6 @@ const Order = () => {
       );
 
   
-      console.log(formData);
 
   const handleClearFormData = () => {
     setFormData((prevData) => (
