@@ -6,6 +6,7 @@ const FilterModal = ({
   filterableData,
   onApply,
   position,
+  label = "Filters",
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilters, setSelectedFilters] = useState([]);
@@ -40,13 +41,11 @@ const FilterModal = ({
       className="absolute bg-white border border-gray-300 shadow-lg z-50 w-56 p-4 rounded-md"
       style={{ top: `${position.top}px`, left: `${position.left}px` }}
     >
-      <div className="mb-3 font-semibold text-gray-700 text-sm">
-        Text Filters
-      </div>
+      <div className="mb-3 font-semibold text-gray-700 text-sm">{label}</div>
       <div>
         <input
           type="text"
-          placeholder="Enter text to search..."
+          placeholder="Search..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full p-2 mb-3 text-sm border border-gray-300 rounded"

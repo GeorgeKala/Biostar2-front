@@ -11,27 +11,32 @@ import * as XLSX from "xlsx";
 import EmployeeStatusModal from "../../../components/EmployeeStatusModal";
 import SortableTh from "../../../components/SortableTh";
 import FilterModal from "../../../components/FilterModal";
+import { useFilter } from "../../../hooks/useFilter";
 import FilterIcon from "../../../assets/filter-icon.png"; // Assuming this is needed for the modal inputs
 
 const CreatedEmployees = () => {
   const dispatch = useDispatch();
   const employees = useSelector((state) => state.employees.items);
   const user = useSelector((state) => state.user.user);
+
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [employeeStatusModal, setEmployeeStatusModal] = useState(false);
-  const [filters, setFilters] = useState({
-    fullname: "",
-    department_name: "",
-    position: "",
-    personal_id: "",
-    phone_number: "",
-    card_number: "",
-    group_name: "",
-    schedule_name: "",
-    honorable_minutes_per_day: "",
-    holidays: "",
+
+  // Initialize filters using the custom useFilter hook
+  const { filters, handleInputChange, applyModalFilters, clearFilters } = useFilter({
+    fullname: { text: "", selected: [] },
+    department_name: { text: "", selected: [] },
+    position: { text: "", selected: [] },
+    personal_id: { text: "", selected: [] },
+    phone_number: { text: "", selected: [] },
+    card_number: { text: "", selected: [] },
+    group_name: { text: "", selected: [] },
+    schedule_name: { text: "", selected: [] },
+    honorable_minutes_per_day: { text: "", selected: [] },
+    holidays: { text: "", selected: [] },
   });
+
   const [filteredEmployees, setFilteredEmployees] = useState([]);
   const [sortConfig, setSortConfig] = useState({
     key: "",
@@ -39,7 +44,8 @@ const CreatedEmployees = () => {
   });
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [filterableData, setFilterableData] = useState([]);
-  const [modalPosition, setModalPosition] = useState({ top: 0, left: 0});
+  const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
+  const [currentFilterField, setCurrentFilterField] = useState("");
 
   useEffect(() => {
     dispatch(fetchEmployees());
@@ -51,9 +57,17 @@ const CreatedEmployees = () => {
 
   const applyFilters = () => {
     let filtered = employees.filter((employee) => {
-      const matches = (value, filter) =>
-        !filter ||
-        (value && value.toLowerCase().includes(filter.toLowerCase()));
+      const matches = (fieldValue, filter) => {
+        const textFilter = filter.text.toLowerCase();
+        const selectedFilters = filter.selected.map((f) => f.toLowerCase());
+
+        const matchesText = !textFilter || (fieldValue && fieldValue.toLowerCase().includes(textFilter));
+        const matchesSelected =
+          selectedFilters.length === 0 ||
+          selectedFilters.some((selected) => fieldValue && fieldValue.toLowerCase().includes(selected));
+
+        return matchesText && matchesSelected;
+      };
 
       return (
         matches(employee.fullname, filters.fullname) &&
@@ -64,14 +78,11 @@ const CreatedEmployees = () => {
         matches(employee.card_number, filters.card_number) &&
         matches(employee?.group?.name, filters.group_name) &&
         matches(employee?.schedule?.name, filters.schedule_name) &&
+        matches(employee.honorable_minutes_per_day?.toString(), filters.honorable_minutes_per_day) &&
         matches(
-          employee.honorable_minutes_per_day?.toString(),
-          filters.honorable_minutes_per_day
-        ) &&
-        (!filters.holidays ||
-          employee.holidays.some((holiday) =>
-            holiday.name.toLowerCase().includes(filters.holidays.toLowerCase())
-          ))
+          employee.holidays.map((holiday) => holiday.name).join(", "),
+          filters.holidays
+        )
       );
     });
 
@@ -104,25 +115,11 @@ const CreatedEmployees = () => {
     setSortConfig({ key, direction });
   };
 
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters({ ...filters, [name]: value });
-  };
-
-  const handleApplyFilter = (selectedFilters) => {
-    const updatedFilters = { ...filters };
-    Object.keys(selectedFilters).forEach((key) => {
-      if (!selectedFilters[key]) {
-        updatedFilters[key] = ""; 
-      }
-    });
-    setFilters(updatedFilters);
-  };
-
-  const handleOpenFilterModal = (data, rect) => {
+  const handleOpenFilterModal = (data, fieldName, rect) => {
     setFilterableData(data);
-    setModalPosition({ top: rect.bottom, left: rect.left - 240 });
     setIsFilterModalOpen(true);
+    setModalPosition({ top: rect.bottom, left: rect.left - 240 });
+    setCurrentFilterField(fieldName);
   };
 
   const exportToExcel = () => {
@@ -173,9 +170,7 @@ const CreatedEmployees = () => {
     <AuthenticatedLayout>
       <div className="w-full px-10 py-4 flex flex-col gap-8 2xl:px-20">
         <div className="flex justify-between w-full">
-          <h1 className="text-[#1976D2] font-medium text-[23px]">
-            თანამშრომლები
-          </h1>
+          <h1 className="text-[#1976D2] font-medium text-[23px]">თანამშრომლები</h1>
           <div className="flex items-center gap-8">
             {user?.user_type?.has_full_access ||
             user?.user_type?.name === "მენეჯერი-რეგიონები" ? (
@@ -195,7 +190,7 @@ const CreatedEmployees = () => {
                   შეცვლა
                 </button>
                 <button
-                  onClick={() => handleDelete(selectedEmployee)}
+                  onClick={() => deleteEmployee(selectedEmployee)}
                   className="bg-[#D9534F] text-white px-4 py-4 rounded-md flex items-center gap-2"
                 >
                   <img src={DeleteIcon} alt="Delete" />
@@ -224,9 +219,10 @@ const CreatedEmployees = () => {
                   onSort={handleSort}
                   onFilterClick={(rect) =>
                     handleOpenFilterModal(
-                      employees
+                      filteredEmployees
                         .map((employee) => employee.fullname)
                         .filter(Boolean),
+                      "fullname", // Pass the filter field name
                       rect
                     )
                   }
@@ -238,9 +234,10 @@ const CreatedEmployees = () => {
                   onSort={handleSort}
                   onFilterClick={(rect) =>
                     handleOpenFilterModal(
-                      employees
+                      filteredEmployees
                         .map((employee) => employee?.department?.name)
                         .filter(Boolean),
+                      "department_name",
                       rect
                     )
                   }
@@ -252,9 +249,10 @@ const CreatedEmployees = () => {
                   onSort={handleSort}
                   onFilterClick={(rect) =>
                     handleOpenFilterModal(
-                      employees
+                      filteredEmployees
                         .map((employee) => employee.position)
                         .filter(Boolean),
+                      "position",
                       rect
                     )
                   }
@@ -266,9 +264,10 @@ const CreatedEmployees = () => {
                   onSort={handleSort}
                   onFilterClick={(rect) =>
                     handleOpenFilterModal(
-                      employees
+                      filteredEmployees
                         .map((employee) => employee.personal_id)
                         .filter(Boolean),
+                      "personal_id",
                       rect
                     )
                   }
@@ -280,9 +279,10 @@ const CreatedEmployees = () => {
                   onSort={handleSort}
                   onFilterClick={(rect) =>
                     handleOpenFilterModal(
-                      employees
+                      filteredEmployees
                         .map((employee) => employee.phone_number)
                         .filter(Boolean),
+                      "phone_number",
                       rect
                     )
                   }
@@ -294,9 +294,10 @@ const CreatedEmployees = () => {
                   onSort={handleSort}
                   onFilterClick={(rect) =>
                     handleOpenFilterModal(
-                      employees
+                      filteredEmployees
                         .map((employee) => employee.card_number)
                         .filter(Boolean),
+                      "card_number",
                       rect
                     )
                   }
@@ -308,9 +309,10 @@ const CreatedEmployees = () => {
                   onSort={handleSort}
                   onFilterClick={(rect) =>
                     handleOpenFilterModal(
-                      employees
+                      filteredEmployees
                         .map((employee) => employee?.group?.name)
                         .filter(Boolean),
+                      "group_name",
                       rect
                     )
                   }
@@ -322,9 +324,10 @@ const CreatedEmployees = () => {
                   onSort={handleSort}
                   onFilterClick={(rect) =>
                     handleOpenFilterModal(
-                      employees
+                      filteredEmployees
                         .map((employee) => employee?.schedule?.name)
                         .filter(Boolean),
+                      "schedule_name",
                       rect
                     )
                   }
@@ -336,11 +339,12 @@ const CreatedEmployees = () => {
                   onSort={handleSort}
                   onFilterClick={(rect) =>
                     handleOpenFilterModal(
-                      employees
+                      filteredEmployees
                         .map((employee) =>
                           employee.honorable_minutes_per_day?.toString()
                         )
                         .filter(Boolean),
+                      "honorable_minutes_per_day",
                       rect
                     )
                   }
@@ -352,9 +356,10 @@ const CreatedEmployees = () => {
                   onSort={handleSort}
                   onFilterClick={(rect) =>
                     handleOpenFilterModal(
-                      employees.flatMap((employee) =>
+                      filteredEmployees.flatMap((employee) =>
                         employee.holidays.map((holiday) => holiday.name)
                       ),
+                      "holidays",
                       rect
                     )
                   }
@@ -376,16 +381,13 @@ const CreatedEmployees = () => {
                   "honorable_minutes_per_day",
                   "holidays",
                 ].map((filterKey) => (
-                  <th
-                    key={filterKey}
-                    className="border border-gray-200 text-center"
-                  >
+                  <th key={filterKey} className="border border-gray-200 text-center">
                     <input
                       type="text"
                       name={filterKey}
-                      value={filters[filterKey]}
-                      onChange={handleFilterChange}
-                      className="w-full text-center bg-transparent outline-none px-2 py-1"
+                      value={filters[filterKey]?.text || ""}
+                      onChange={handleInputChange}
+                      className="w-full text-center bg-transparent outline-none px-2 py-1 font-normal"
                       autoComplete="off"
                     />
                   </th>
@@ -393,7 +395,7 @@ const CreatedEmployees = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200 text-xs">
-              {filteredEmployees.map((employee, index) => (
+              {filteredEmployees.map((employee) => (
                 <tr
                   key={employee.id}
                   onClick={() => setSelectedEmployee(employee)}
@@ -402,7 +404,7 @@ const CreatedEmployees = () => {
                   }`}
                   onContextMenu={(e) => handleRightClick(e, employee)}
                 >
-                  <td className={`px-2 py-1 border border-gray-200 max-w-3`}>
+                  <td className="px-2 py-1 border border-gray-200 max-w-3">
                     {selectedEmployee?.id === employee.id && (
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -476,7 +478,7 @@ const CreatedEmployees = () => {
         isOpen={isFilterModalOpen}
         onClose={() => setIsFilterModalOpen(false)}
         filterableData={filterableData}
-        onApply={handleApplyFilter}
+        onApply={(selectedFilters) => applyModalFilters(currentFilterField, selectedFilters)}
         position={modalPosition}
       />
     </AuthenticatedLayout>
