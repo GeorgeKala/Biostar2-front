@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import deviceService from "../../../services/device";
 import NestedDropdownModal from "../../../components/NestedDropdownModal";
 import SearchIcon from "../../../assets/search.png";
+import CardScanModal from "../../../components/CardScanModal";
 
 const EmployeeCreate = () => {
   const { departments, nestedDepartments } = useSelector((state) => state.departments);
@@ -41,6 +42,8 @@ const EmployeeCreate = () => {
   const [devices, setDevices] = useState([]);
   const [selectedDevice, setSelectedDevice] = useState("")
   const [openNestedDropdown, setOpenNestedDropdown] = useState(false);
+  const [isCardScanModalOpen, setIsCardScanModalOpen] = useState(false);
+
 
   useEffect(() => {
       dispatch(fetchHolidays());
@@ -176,16 +179,22 @@ const EmployeeCreate = () => {
   };
 
   const handleScanCard = async () => {
-    const scanResult = await deviceService.scanCard(selectedDevice);
-    const updatedFormData = {
-      ...formData,
-      card_number: scanResult.Card.card_id,
-      display_card_id: scanResult.Card.display_card_id
-    };
-
-    setFormData(updatedFormData);
-    
-  }
+    setIsCardScanModalOpen(true); 
+    try {
+      const scanResult = await deviceService.scanCard(selectedDevice);
+      const updatedFormData = {
+        ...formData,
+        card_number: scanResult.Card.card_id,
+        display_card_id: scanResult.Card.display_card_id,
+      };
+      setIsCardScanModalOpen(false); 
+      setFormData(updatedFormData);
+      
+    } catch (error) {
+      console.error("Error scanning card:", error);
+      
+    }
+  };
 
   const renderHolidays = () => {
       return (
@@ -478,6 +487,10 @@ const EmployeeCreate = () => {
             link={'/departments'}
           />
         )}
+        <CardScanModal
+          isOpen={isCardScanModalOpen}
+          onClose={() => setIsCardScanModalOpen(false)}
+        />
       </div>
     </AuthenticatedLayout>
   );

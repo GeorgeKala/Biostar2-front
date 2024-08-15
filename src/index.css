@@ -82,8 +82,35 @@
   max-width: 10px;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space:nowrap;
-  
+  white-space: nowrap;
+}
+
+.customized-th-tr:hover .filter-icon {
+  display: block;
+  width: 10px; /* Show the filter icon on hover */
+}
+
+
+
+.customized-th-tr .truncate {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.customized-th-tr:hover .truncate {
+  width: auto;
+}
+
+.customized-th-tr .flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.customized-th-tr .flex-grow {
+  flex-grow: 1; /* Ensures text takes up remaining space */
 }
 
 

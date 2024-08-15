@@ -2,10 +2,10 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { fetchUser, login } from "../services/auth";
 import userService from "../services/users";
 
+// Existing thunks
 export const fetchAsyncUser = createAsyncThunk("user/fetchUser", async () => {
   const response = await fetchUser();
   return response;
-  
 });
 
 export const loginAsync = createAsyncThunk(
@@ -13,7 +13,7 @@ export const loginAsync = createAsyncThunk(
   async ({ email, password }) => {
     try {
       const response = await login(email, password);
-      return response; 
+      return response;
     } catch (error) {
       throw error;
     }
@@ -28,30 +28,32 @@ export const fetchUsers = createAsyncThunk(
   }
 );
 
-// export const createUser = createAsyncThunk(
-//   "users/createUser",
-//   async (userData) => {
-//     const response = await userService.createUser(userData);
-//     return response;
-//   }
-// );
+// New thunks for creating, updating, and deleting users
+export const createUser = createAsyncThunk(
+  "users/createUser",
+  async (userData) => {
+    const response = await userService.createUser(userData);
+    return response;
+  }
+);
 
-// export const updateUser = createAsyncThunk(
-//   "users/updateUser",
-//   async ({ id, userData }) => {
-//     const response = await userService.updateUser(id, userData);
-//     return response;
-//   }
-// );
+export const updateUser = createAsyncThunk(
+  "users/updateUser",
+  async ({ id, userData }) => {
+    const response = await userService.updateUser(id, userData);
+    return response;
+  }
+);
 
-// export const deleteUser = createAsyncThunk(
-//   "users/deleteUser",
-//   async (id) => {
-//     await userService.deleteUser(id);
-//     return id;
-//   }
-// );
+export const deleteUser = createAsyncThunk(
+  "users/deleteUser",
+  async (id) => {
+    await userService.deleteUser(id);
+    return id;
+  }
+);
 
+// Initial state remains unchanged
 const initialUserState = {
   loading: false,
   user: null,
@@ -122,22 +124,25 @@ const userSlice = createSlice({
         state.users.status = "failed";
         state.users.error = action.error.message;
       })
-      // .addCase(createUser.fulfilled, (state, action) => {
-      //   state.users.items.push(action.payload);
-      // })
-      // .addCase(updateUser.fulfilled, (state, action) => {
-      //   const index = state.users.items.findIndex(
-      //     (item) => item.id === action.payload.id
-      //   );
-      //   if (index !== -1) {
-      //     state.users.items[index] = action.payload;
-      //   }
-      // })
-      // .addCase(deleteUser.fulfilled, (state, action) => {
-      //   state.users.items = state.users.items.filter((item) => item.id !== action.payload);
-      // });
+      .addCase(createUser.fulfilled, (state, action) => {
+        state.users.items.push(action.payload);
+      })
+      .addCase(updateUser.fulfilled, (state, action) => {
+        const index = state.users.items.findIndex(
+          (item) => item.id === action.payload.id
+        );
+        if (index !== -1) {
+          state.users.items[index] = action.payload;
+        }
+      })
+      .addCase(deleteUser.fulfilled, (state, action) => {
+        state.users.items = state.users.items.filter(
+          (item) => item.id !== action.payload
+        );
+      });
   },
 });
+
 export const selectUser = (state) => state.user;
 export const selectUsers = (state) => state.user.users.items;
 

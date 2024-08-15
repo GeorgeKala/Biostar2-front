@@ -25,6 +25,20 @@ const reportSlice = createSlice({
       state.status = 'idle';
       state.error = null;
     },
+
+    updateOrAddReport(state, action) {
+      const index = state.reports.findIndex(
+        (report) =>
+          report.user_id === action.payload.user_id &&
+          report.date === action.payload.date
+      );
+
+      if (index !== -1) {
+        state.reports[index] = { ...state.reports[index], ...action.payload };
+      } else {
+        state.reports.push(action.payload);
+      }
+    },
   },
 });
 
@@ -38,6 +52,6 @@ export const fetchReports = (filters) => async (dispatch) => {
   }
 };
 
-export const { setReports, setLoading, setError, clearReports } = reportSlice.actions;
+export const { setReports, setLoading, setError, clearReports, updateOrAddReport } = reportSlice.actions;
 
 export default reportSlice.reducer;
