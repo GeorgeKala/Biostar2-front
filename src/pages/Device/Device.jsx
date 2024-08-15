@@ -128,7 +128,8 @@ const Device = () => {
   };
 
 
-  console.log(selectedItem);
+  console.log(accessGroups);
+  
 
   return (
     <AuthenticatedLayout>
@@ -240,8 +241,8 @@ const Device = () => {
               >
                 <option>აირჩიე მოწყობილობა</option>
                 {accessGroups.map((group) => (
-                  <option key={group.id} value={group.id}>
-                    {group.name}
+                  <option key={group.access_group_id} value={group.access_group_id}>
+                    {group.device_name}
                   </option>
                 ))}
               </select>
