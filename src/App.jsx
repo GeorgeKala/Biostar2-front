@@ -24,6 +24,7 @@ import Device from "./pages/Device/Device";
 import useAuth from "./hooks/useAuth";
 import { fetchAsyncUser } from "./redux/userDataSlice";
 import ProtectedRoute from "./components/ProtectedRoute";
+import FullRecords from "./pages/Report/FullRecords/FullRecords";
 
 const App = () => {
   const [initialLoad, setInitialLoad] = useState(true);
@@ -83,6 +84,15 @@ const App = () => {
             element={
               <ProtectedRoute
                 element={<GeneralReport />}
+                requiresFullAccess={false}
+              />
+            }
+          />
+          <Route
+            path="/records/full"
+            element={
+              <ProtectedRoute
+                element={<FullRecords />}
                 requiresFullAccess={false}
               />
             }

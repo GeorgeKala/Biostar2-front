@@ -70,6 +70,15 @@ const Sidebar = () => {
                 <img src={ArrowRight} alt="Arrow Right Icon" />
                 პერიოდის რეპორტი
               </Link>
+              <Link
+                to="/records/full"
+                className={`flex items-center gap-3 text-white text-[14px] ${
+                  location.pathname === "/records/full" ? "font-bold" : ""
+                }`}
+              >
+                <img src={ArrowRight} alt="Arrow Right Icon" />
+                სრული ჩანაწერები
+              </Link>
               {canAccessPage([
                 "ადმინისტრატორი",
                 "HR",

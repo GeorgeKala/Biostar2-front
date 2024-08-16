@@ -26,6 +26,7 @@ const routeNames = {
   "/settings": "პარამეტრები",
   "/notifications": "შეტყობინებები",
   "/dashboard": "დაფა",
+  "/records/full":"სრული ჩანაწერები",
 };
 
 const Navbar = () => {
