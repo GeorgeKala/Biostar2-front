@@ -12,13 +12,10 @@ import userService from "../../services/users";
 import EmployeeModal from "../../components/employee/EmployeeModal";
 import * as XLSX from "xlsx";
 import NestedDropdownModal from "../../components/NestedDropdownModal";
-import FilterIcon from "../../assets/filter-icon.png";
-
 import { useFilter } from "../../hooks/useFilter";
 import FilterModal from "../../components/FilterModal";
-import SortableTh from "../../components/SortableTh";
+import Table from "../../components/Table";
 import UserForm from "../../components/user/UserForm";
-
 
 const User = () => {
   const dispatch = useDispatch();
@@ -28,13 +25,14 @@ const User = () => {
     (state) => state.departments
   );
 
-  const { filters, handleInputChange, applyModalFilters, clearFilters } = useFilter({
-    username: { text: "", selected: [] },
-    name: { text: "", selected: [] },
-    userType: { text: "", selected: [] },
-    department: { text: "", selected: [] },
-    employeeFullname: { text: "", selected: [] },
-  });
+  const { filters, handleInputChange, applyModalFilters, clearFilters } =
+    useFilter({
+      username: { text: "", selected: [] },
+      name: { text: "", selected: [] },
+      userType: { text: "", selected: [] },
+      department: { text: "", selected: [] },
+      employeeFullname: { text: "", selected: [] },
+    });
 
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
@@ -52,7 +50,10 @@ const User = () => {
     employeeId: "",
   });
 
-  const [sortConfig, setSortConfig] = useState({ key: "", direction: "ascending" });
+  const [sortConfig, setSortConfig] = useState({
+    key: "",
+    direction: "ascending",
+  });
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [filterableData, setFilterableData] = useState([]);
   const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
@@ -78,10 +79,15 @@ const User = () => {
         const textFilter = filter.text.toLowerCase();
         const selectedFilters = filter.selected.map((f) => f.toLowerCase());
 
-        const matchesText = !textFilter || (fieldValue && fieldValue.toLowerCase().includes(textFilter));
+        const matchesText =
+          !textFilter ||
+          (fieldValue && fieldValue.toLowerCase().includes(textFilter));
         const matchesSelected =
           selectedFilters.length === 0 ||
-          selectedFilters.some((selected) => fieldValue && fieldValue.toLowerCase().includes(selected));
+          selectedFilters.some(
+            (selected) =>
+              fieldValue && fieldValue.toLowerCase().includes(selected)
+          );
 
         return matchesText && matchesSelected;
       };
@@ -97,8 +103,12 @@ const User = () => {
 
     if (sortConfig.key) {
       filtered.sort((a, b) => {
-        const aValue = sortConfig.key.split(".").reduce((o, i) => (o ? o[i] : ""), a);
-        const bValue = sortConfig.key.split(".").reduce((o, i) => (o ? o[i] : ""), b);
+        const aValue = sortConfig.key
+          .split(".")
+          .reduce((o, i) => (o ? o[i] : ""), a);
+        const bValue = sortConfig.key
+          .split(".")
+          .reduce((o, i) => (o ? o[i] : ""), b);
         if (aValue < bValue) {
           return sortConfig.direction === "ascending" ? -1 : 1;
         }
@@ -186,8 +196,13 @@ const User = () => {
         await userService.createUser(userData);
         closeAddModal();
       } else if (modalMode === "update" && selectedUserId) {
-        const updatedUser = await userService.updateUser(selectedUserId, userData);
-        const updatedIndex = users.findIndex((user) => user.id === selectedUserId);
+        const updatedUser = await userService.updateUser(
+          selectedUserId,
+          userData
+        );
+        const updatedIndex = users.findIndex(
+          (user) => user.id === selectedUserId
+        );
         if (updatedIndex !== -1) {
           const updatedUsers = [...users];
           updatedUsers[updatedIndex] = updatedUser;
@@ -263,7 +278,6 @@ const User = () => {
     XLSX.writeFile(workbook, "Users.xlsx");
   };
 
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
@@ -276,11 +290,42 @@ const User = () => {
     setIsEmployeeModalOpen(true);
   };
 
+
+  const tableHeaders = [
+    {
+      label: "მომხმარებელი",
+      key: "username",
+      extractValue: (user) => user.username,
+    },
+    {
+      label: "სახელი გვარი",
+      key: "name",
+      extractValue: (user) => user.name,
+    },
+    {
+      label: "მომხმარებლის ტიპი",
+      key: "user_type.name",
+      extractValue: (user) => user?.user_type?.name,
+    },
+    {
+      label: "დეპარტამენტი",
+      key: "department.name",
+      extractValue: (user) => user?.department?.name,
+    },
+    {
+      label: "თანამშრომელი",
+      key: "employee.fullname",
+      extractValue: (user) => user?.employee?.fullname,
+    },
+  ];
+
   return (
     <AuthenticatedLayout>
       <div className="w-full px-20 py-4 flex flex-col gap-8">
         <div className="flex justify-between items-center w-full">
-          <h1 className="text-[#1976D2] font-medium text-[23px]">მომხმარებლები</h1>
+          <h1 className="text-[#1976D2] font-medium text-[23px]">
+            მომხმარებლები
+          </h1>
           <div className="flex items-center gap-8">
             <button
               className="bg-[#1976D2] text-white px-4 py-4 rounded-md flex items-center gap-2"
@@ -289,23 +334,27 @@ const User = () => {
               <img src={NewIcon} alt="New" />
               ახალი
             </button>
-              <button
-                  onClick={() => openUpdateModal(users.find((user) => user.id === selectedUserId))}
-                  className="bg-[#1976D2] text-white px-4 py-4 rounded-md flex items-center gap-2"
-                >
-                  <img src={EditIcon} alt="Edit" />
-                  შეცვლა
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDelete(selectedUserId);
-                  }}
-                  className="bg-[#D9534F] text-white px-4 py-4 rounded-md flex items-center gap-2"
-                >
-                  <img src={DeleteIcon} alt="Delete" />
-                  წაშლა
-                </button>
+            <button
+              onClick={() =>
+                openUpdateModal(
+                  users.find((user) => user.id === selectedUserId)
+                )
+              }
+              className="bg-[#1976D2] text-white px-4 py-4 rounded-md flex items-center gap-2"
+            >
+              <img src={EditIcon} alt="Edit" />
+              შეცვლა
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete(selectedUserId);
+              }}
+              className="bg-[#D9534F] text-white px-4 py-4 rounded-md flex items-center gap-2"
+            >
+              <img src={DeleteIcon} alt="Delete" />
+              წაშლა
+            </button>
             <button
               onClick={exportToExcel}
               className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative"
@@ -316,147 +365,26 @@ const User = () => {
             </button>
           </div>
         </div>
-        <div className="container mx-auto mt-10 overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 border">
-            <thead className="bg-[#1976D2] text-white">
-              <tr>
-                <th className="px-4 py-2 border"></th>
-                <SortableTh
-                  label="მომხმარებელი"
-                  sortKey="username"
-                  sortConfig={sortConfig}
-                  onSort={handleSort}
-                  onFilterClick={(rect) =>
-                    handleOpenFilterModal(
-                      filteredUsers.map((user) => user.username).filter(Boolean),
-                      "username",
-                      rect
-                    )
-                  }
-                />
-                <SortableTh
-                  label="სახელი გვარი"
-                  sortKey="name"
-                  sortConfig={sortConfig}
-                  onSort={handleSort}
-                  onFilterClick={(rect) =>
-                    handleOpenFilterModal(
-                      filteredUsers.map((user) => user.name).filter(Boolean),
-                      "name",
-                      rect
-                    )
-                  }
-                />
-                <SortableTh
-                  label="მომხმარებლის ტიპი"
-                  sortKey="user_type.name"
-                  sortConfig={sortConfig}
-                  onSort={handleSort}
-                  onFilterClick={(rect) =>
-                    handleOpenFilterModal(
-                      filteredUsers.map((user) => user?.user_type?.name).filter(Boolean),
-                      "userType",
-                      rect
-                    )
-                  }
-                />
-                <SortableTh
-                  label="დეპარტამენტი"
-                  sortKey="department.name"
-                  sortConfig={sortConfig}
-                  onSort={handleSort}
-                  onFilterClick={(rect) =>
-                    handleOpenFilterModal(
-                      filteredUsers.map((user) => user?.department?.name).filter(Boolean),
-                      "department",
-                      rect
-                    )
-                  }
-                />
-                <SortableTh
-                  label="თანამშრომელი"
-                  sortKey="employee.fullname"
-                  sortConfig={sortConfig}
-                  onSort={handleSort}
-                  onFilterClick={(rect) =>
-                    handleOpenFilterModal(
-                      filteredUsers.map((user) => user?.employee?.fullname).filter(Boolean),
-                      "employeeFullname",
-                      rect
-                    )
-                  }
-                />
-              </tr>
-              <tr>
-                <th className="px-4 border">
-                  <img className="w-[20px] m-auto" src={FilterIcon} alt="Filter" />
-                </th>
-                {[
-                  "username",
-                  "name",
-                  "userType",
-                  "department",
-                  "employeeFullname",
-                ].map((filterKey, index) => (
-                  <th key={index} className="border">
-                    <input
-                      type="text"
-                      name={filterKey}
-                      value={filters[filterKey]?.text || ""}
-                      onChange={handleInputChange}
-                      className="font-normal px-2  w-full outline-none border-none bg-transparent"
-                      autoComplete="off"
-                    />
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredUsers &&
-                filteredUsers.map((user) => (
-                  <tr
-                    key={user?.id}
-                    className={`cursor-pointer ${user?.id === selectedUserId ? "bg-blue-200" : ""}`}
-                    onClick={() => handleRowClick(user.id)}
-                  >
-                    <td className="px-2 py-1 border border-gray-200 max-w-3">
-                    {user?.id === selectedUserId && (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 text-blue-600"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M9 5l7 7-7 7"
-                        />
-                      </svg>
-                    )}
-                  </td>
-                    <td className="px-6  whitespace-nowrap text-sm font-medium text-gray-900 truncate max-w-xs border">
-                      {user?.username}
-                    </td>
-                    <td className="px-6  whitespace-nowrap text-sm truncate max-w-xs border">
-                      {user?.name}
-                    </td>
-                    <td className="px-6  whitespace-nowrap text-sm truncate max-w-xs border">
-                      {user?.user_type?.name}
-                    </td>
-                    <td className="px-6  whitespace-nowrap text-sm truncate max-w-xs border">
-                      {user?.department?.name}
-                    </td>
-                    <td className="px-6  whitespace-nowrap text-sm truncate max-w-xs border">
-                      {user?.employee?.fullname}
-                    </td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
-        </div>
+        <Table
+          data={filteredUsers}
+          headers={tableHeaders}
+          filters={filters}
+          sortConfig={sortConfig}
+          onSort={handleSort}
+          onFilterClick={handleOpenFilterModal}
+          onFilterChange={handleInputChange}
+          rowClassName={(user) =>
+            user?.id === selectedUserId ? "bg-blue-200" : ""
+          }
+          onRowClick={(user) => handleRowClick(user.id)}
+          filterableFields={[
+            "username",
+            "name",
+            "userType",
+            "department",
+            "employeeFullname",
+          ]}
+        />
       </div>
 
       {isAddModalOpen && (
@@ -497,7 +425,9 @@ const User = () => {
         isOpen={isFilterModalOpen}
         onClose={() => setIsFilterModalOpen(false)}
         filterableData={filterableData}
-        onApply={(selectedFilters) => applyModalFilters(currentFilterField, selectedFilters)}
+        onApply={(selectedFilters) =>
+          applyModalFilters(currentFilterField, selectedFilters)
+        }
         position={modalPosition}
       />
     </AuthenticatedLayout>

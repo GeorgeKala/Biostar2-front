@@ -12,6 +12,7 @@ import DepartmentInput from '../../../components/DepartmentInput';
 import EmployeeInput from '../../../components/employee/EmployeeInput';
 import {fetchCommentedDetails, removeComment } from '../../../redux/commentSlice';
 import reportService from '../../../services/report';
+import Table from '../../../components/Table';
 
 const CommentTable = () => {
     const user = useSelector((state) => state.user.user);
@@ -151,6 +152,40 @@ const CommentTable = () => {
             dept.id === user?.department?.id ||
             dept.parent_id === user?.department?.id
         );
+
+
+      const tableHeaders = [
+        {
+          label: "თანამშრომელი",
+          key: "employee",
+          extractValue: (comment) => comment.employee,
+        },
+        {
+          label: "დეპარტამენტი",
+          key: "department",
+          extractValue: (comment) => comment.department,
+        },
+        {
+          label: "პატიების ტიპი",
+          key: "forgive_type",
+          extractValue: (comment) => comment.forgive_type,
+        },
+        {
+          label: "მომხმარებელი",
+          key: "user",
+          extractValue: (comment) => comment.user,
+        },
+        {
+          label: "ჩაწერის თარიღი",
+          key: "created_at",
+          extractValue: (comment) => comment.created_at,
+        },
+        {
+          label: "კომენტარი",
+          key: "comment",
+          extractValue: (comment) => comment.comment,
+        },
+      ];
 
     return (
       <AuthenticatedLayout>
@@ -325,6 +360,14 @@ const CommentTable = () => {
                     ))}
                 </tbody>
               </table>
+              {/* <Table
+                data={commentedDetails}
+                headers={tableHeaders}
+                onRowClick={(item) => setSelectedComment(item)}
+                rowClassName={(item) =>
+                  selectedComment?.id === item.id ? "bg-blue-200" : ""
+                }
+              /> */}
             </div>
           </div>
         </div>

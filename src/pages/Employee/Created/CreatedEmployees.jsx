@@ -1,18 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
 import { fetchEmployees, deleteEmployee } from "../../../redux/employeeSlice";
 import AuthenticatedLayout from "../../../Layouts/AuthenticatedLayout";
+import EmployeeEditModal from "../../../components/EmployeeEditModal";
+import EmployeeStatusModal from "../../../components/EmployeeStatusModal";
+import * as XLSX from "xlsx";
+import FilterModal from "../../../components/FilterModal";
+import { useFilter } from "../../../hooks/useFilter";
+import Table from "../../../components/Table";
 import NewIcon from "../../../assets/new.png";
 import DeleteIcon from "../../../assets/delete.png";
 import EditIcon from "../../../assets/edit.png";
-import EmployeeEditModal from "../../../components/EmployeeEditModal";
-import * as XLSX from "xlsx";
-import EmployeeStatusModal from "../../../components/EmployeeStatusModal";
-import SortableTh from "../../../components/SortableTh";
-import FilterModal from "../../../components/FilterModal";
-import { useFilter } from "../../../hooks/useFilter";
-import FilterIcon from "../../../assets/filter-icon.png"; // Assuming this is needed for the modal inputs
+import { Link } from "react-router-dom";
 
 const CreatedEmployees = () => {
   const dispatch = useDispatch();
@@ -22,22 +21,6 @@ const CreatedEmployees = () => {
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [employeeStatusModal, setEmployeeStatusModal] = useState(false);
-
-  // Initialize filters using the custom useFilter hook
-  const { filters, handleInputChange, applyModalFilters, clearFilters } = useFilter({
-    fullname: { text: "", selected: [] },
-    department_name: { text: "", selected: [] },
-    position: { text: "", selected: [] },
-    personal_id: { text: "", selected: [] },
-    phone_number: { text: "", selected: [] },
-    card_number: { text: "", selected: [] },
-    group_name: { text: "", selected: [] },
-    schedule_name: { text: "", selected: [] },
-    honorable_minutes_per_day: { text: "", selected: [] },
-    holidays: { text: "", selected: [] },
-  });
-
-  const [filteredEmployees, setFilteredEmployees] = useState([]);
   const [sortConfig, setSortConfig] = useState({
     key: "",
     direction: "ascending",
@@ -46,6 +29,22 @@ const CreatedEmployees = () => {
   const [filterableData, setFilterableData] = useState([]);
   const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
   const [currentFilterField, setCurrentFilterField] = useState("");
+
+  const { filters, handleInputChange, applyModalFilters, clearFilters } =
+    useFilter({
+      fullname: { text: "", selected: [] },
+      department_name: { text: "", selected: [] },
+      position: { text: "", selected: [] },
+      personal_id: { text: "", selected: [] },
+      phone_number: { text: "", selected: [] },
+      card_number: { text: "", selected: [] },
+      group_name: { text: "", selected: [] },
+      schedule_name: { text: "", selected: [] },
+      honorable_minutes_per_day: { text: "", selected: [] },
+      holidays: { text: "", selected: [] },
+    });
+
+  const [filteredEmployees, setFilteredEmployees] = useState([]);
 
   useEffect(() => {
     dispatch(fetchEmployees());
@@ -61,10 +60,15 @@ const CreatedEmployees = () => {
         const textFilter = filter.text.toLowerCase();
         const selectedFilters = filter.selected.map((f) => f.toLowerCase());
 
-        const matchesText = !textFilter || (fieldValue && fieldValue.toLowerCase().includes(textFilter));
+        const matchesText =
+          !textFilter ||
+          (fieldValue && fieldValue.toLowerCase().includes(textFilter));
         const matchesSelected =
           selectedFilters.length === 0 ||
-          selectedFilters.some((selected) => fieldValue && fieldValue.toLowerCase().includes(selected));
+          selectedFilters.some(
+            (selected) =>
+              fieldValue && fieldValue.toLowerCase().includes(selected)
+          );
 
         return matchesText && matchesSelected;
       };
@@ -78,7 +82,10 @@ const CreatedEmployees = () => {
         matches(employee.card_number, filters.card_number) &&
         matches(employee?.group?.name, filters.group_name) &&
         matches(employee?.schedule?.name, filters.schedule_name) &&
-        matches(employee.honorable_minutes_per_day?.toString(), filters.honorable_minutes_per_day) &&
+        matches(
+          employee.honorable_minutes_per_day?.toString(),
+          filters.honorable_minutes_per_day
+        ) &&
         matches(
           employee.holidays.map((holiday) => holiday.name).join(", "),
           filters.holidays
@@ -122,6 +129,10 @@ const CreatedEmployees = () => {
     setCurrentFilterField(fieldName);
   };
 
+  const handleDeleteEmployee = (employeeId) => {
+    dispatch(deleteEmployee(employeeId));
+  };
+
   const exportToExcel = () => {
     const dataToExport = [
       [
@@ -156,30 +167,86 @@ const CreatedEmployees = () => {
     XLSX.writeFile(workbook, "Employees.xlsx");
   };
 
-  const handleSearch = (status = "active") => {
-    dispatch(fetchEmployees({ ...filters, status }));
-    setEmployeeStatusModal(false);
-  };
-
   const handleRightClick = (e) => {
     e.preventDefault();
     setEmployeeStatusModal(true);
   };
 
+  const handleSearch = (status = "active") => {
+    dispatch(fetchEmployees({ status })); 
+    setEmployeeStatusModal(false);
+  };
+
+  const employeeHeaders = [
+    {
+      label: "სახელი/გვარი",
+      key: "fullname",
+      extractValue: (employee) => employee.fullname,
+    },
+    {
+      label: "დეპარტამენტი",
+      key: "department.name",
+      extractValue: (employee) => employee?.department?.name || "",
+    },
+    {
+      label: "პოზიცია",
+      key: "position",
+      extractValue: (employee) => employee.position,
+    },
+    {
+      label: "პირადი ნომერი",
+      key: "personal_id",
+      extractValue: (employee) => employee.personal_id,
+    },
+    {
+      label: "ტელეფონის ნომერი",
+      key: "phone_number",
+      extractValue: (employee) => employee.phone_number,
+    },
+    {
+      label: "ბარათის ნომერი",
+      key: "card_number",
+      extractValue: (employee) => employee.card_number,
+    },
+    {
+      label: "ჯგუფი",
+      key: "group.name",
+      extractValue: (employee) => employee?.group?.name || "",
+    },
+    {
+      label: "განრიგი",
+      key: "schedule.name",
+      extractValue: (employee) => employee?.schedule?.name || "",
+    },
+    {
+      label: "საპატიო წუთები",
+      key: "honorable_minutes_per_day",
+      extractValue: (employee) => employee.honorable_minutes_per_day,
+    },
+    {
+      label: "დასვენების დღეები",
+      key: "holidays",
+      extractValue: (employee) =>
+        employee.holidays.map((holiday) => holiday.name).join(", "),
+    },
+  ];
+
   return (
     <AuthenticatedLayout>
       <div className="w-full px-10 py-4 flex flex-col gap-8 2xl:px-20">
         <div className="flex justify-between w-full">
-          <h1 className="text-[#1976D2] font-medium text-[23px]">თანამშრომლები</h1>
+          <h1 className="text-[#1976D2] font-medium text-[23px]">
+            თანამშრომლები
+          </h1>
           <div className="flex items-center gap-8">
             {user?.user_type?.has_full_access ||
             user?.user_type?.name === "მენეჯერი-რეგიონები" ? (
               <>
                 <Link
-                  to="/employees/create"
-                  className="bg-[#5CB85C] text-white px-4 py-4 rounded-md flex items-center gap-2"
+                to={'/employee/create'}
+                  className="bg-[#1976D2] text-white px-4 py-4 rounded-md flex items-center gap-2"
                 >
-                  <img src={NewIcon} alt="New Icon" />
+                  <img src={NewIcon} alt="New" />
                   ახალი
                 </Link>
                 <button
@@ -190,7 +257,7 @@ const CreatedEmployees = () => {
                   შეცვლა
                 </button>
                 <button
-                  onClick={() => deleteEmployee(selectedEmployee)}
+                  onClick={() => handleDeleteEmployee(selectedEmployee?.id)}
                   className="bg-[#D9534F] text-white px-4 py-4 rounded-md flex items-center gap-2"
                 >
                   <img src={DeleteIcon} alt="Delete" />
@@ -207,258 +274,32 @@ const CreatedEmployees = () => {
             </button>
           </div>
         </div>
-        <div className="container mx-auto mt-10 overflow-x-auto">
-          <table className="w-full text-center divide-y divide-gray-200 table-fixed border-collapse">
-            <thead className="bg-[#1976D2] text-white text-xs">
-              <tr>
-                <th className="w-[30px]"></th>
-                <SortableTh
-                  label="სახელი/გვარი"
-                  sortKey="fullname"
-                  sortConfig={sortConfig}
-                  onSort={handleSort}
-                  onFilterClick={(rect) =>
-                    handleOpenFilterModal(
-                      filteredEmployees
-                        .map((employee) => employee.fullname)
-                        .filter(Boolean),
-                      "fullname", // Pass the filter field name
-                      rect
-                    )
-                  }
-                />
-                <SortableTh
-                  label="დეპარტამენტი"
-                  sortKey="department.name"
-                  sortConfig={sortConfig}
-                  onSort={handleSort}
-                  onFilterClick={(rect) =>
-                    handleOpenFilterModal(
-                      filteredEmployees
-                        .map((employee) => employee?.department?.name)
-                        .filter(Boolean),
-                      "department_name",
-                      rect
-                    )
-                  }
-                />
-                <SortableTh
-                  label="პოზიცია"
-                  sortKey="position"
-                  sortConfig={sortConfig}
-                  onSort={handleSort}
-                  onFilterClick={(rect) =>
-                    handleOpenFilterModal(
-                      filteredEmployees
-                        .map((employee) => employee.position)
-                        .filter(Boolean),
-                      "position",
-                      rect
-                    )
-                  }
-                />
-                <SortableTh
-                  label="პირადი ნომერი"
-                  sortKey="personal_id"
-                  sortConfig={sortConfig}
-                  onSort={handleSort}
-                  onFilterClick={(rect) =>
-                    handleOpenFilterModal(
-                      filteredEmployees
-                        .map((employee) => employee.personal_id)
-                        .filter(Boolean),
-                      "personal_id",
-                      rect
-                    )
-                  }
-                />
-                <SortableTh
-                  label="ტელეფონის ნომერი"
-                  sortKey="phone_number"
-                  sortConfig={sortConfig}
-                  onSort={handleSort}
-                  onFilterClick={(rect) =>
-                    handleOpenFilterModal(
-                      filteredEmployees
-                        .map((employee) => employee.phone_number)
-                        .filter(Boolean),
-                      "phone_number",
-                      rect
-                    )
-                  }
-                />
-                <SortableTh
-                  label="ბარათის ნომერი"
-                  sortKey="card_number"
-                  sortConfig={sortConfig}
-                  onSort={handleSort}
-                  onFilterClick={(rect) =>
-                    handleOpenFilterModal(
-                      filteredEmployees
-                        .map((employee) => employee.card_number)
-                        .filter(Boolean),
-                      "card_number",
-                      rect
-                    )
-                  }
-                />
-                <SortableTh
-                  label="ჯგუფი"
-                  sortKey="group.name"
-                  sortConfig={sortConfig}
-                  onSort={handleSort}
-                  onFilterClick={(rect) =>
-                    handleOpenFilterModal(
-                      filteredEmployees
-                        .map((employee) => employee?.group?.name)
-                        .filter(Boolean),
-                      "group_name",
-                      rect
-                    )
-                  }
-                />
-                <SortableTh
-                  label="განრიგი"
-                  sortKey="schedule.name"
-                  sortConfig={sortConfig}
-                  onSort={handleSort}
-                  onFilterClick={(rect) =>
-                    handleOpenFilterModal(
-                      filteredEmployees
-                        .map((employee) => employee?.schedule?.name)
-                        .filter(Boolean),
-                      "schedule_name",
-                      rect
-                    )
-                  }
-                />
-                <SortableTh
-                  label="საპატიო წუთები"
-                  sortKey="honorable_minutes_per_day"
-                  sortConfig={sortConfig}
-                  onSort={handleSort}
-                  onFilterClick={(rect) =>
-                    handleOpenFilterModal(
-                      filteredEmployees
-                        .map((employee) =>
-                          employee.honorable_minutes_per_day?.toString()
-                        )
-                        .filter(Boolean),
-                      "honorable_minutes_per_day",
-                      rect
-                    )
-                  }
-                />
-                <SortableTh
-                  label="დასვენების დღეები"
-                  sortKey="holidays"
-                  sortConfig={sortConfig}
-                  onSort={handleSort}
-                  onFilterClick={(rect) =>
-                    handleOpenFilterModal(
-                      filteredEmployees.flatMap((employee) =>
-                        employee.holidays.map((holiday) => holiday.name)
-                      ),
-                      "holidays",
-                      rect
-                    )
-                  }
-                />
-              </tr>
-              <tr>
-                <th className="w-[30px]">
-                  <img className="w-[20px] m-auto" src={FilterIcon} alt="" />
-                </th>
-                {[
-                  "fullname",
-                  "department_name",
-                  "position",
-                  "personal_id",
-                  "phone_number",
-                  "card_number",
-                  "group_name",
-                  "schedule_name",
-                  "honorable_minutes_per_day",
-                  "holidays",
-                ].map((filterKey) => (
-                  <th key={filterKey} className="border border-gray-200 text-center">
-                    <input
-                      type="text"
-                      name={filterKey}
-                      value={filters[filterKey]?.text || ""}
-                      onChange={handleInputChange}
-                      className="w-full text-center bg-transparent outline-none px-2 py-1 font-normal"
-                      autoComplete="off"
-                    />
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200 text-xs">
-              {filteredEmployees.map((employee) => (
-                <tr
-                  key={employee.id}
-                  onClick={() => setSelectedEmployee(employee)}
-                  className={`text-center ${
-                    selectedEmployee?.id === employee.id ? "bg-blue-200" : ""
-                  }`}
-                  onContextMenu={(e) => handleRightClick(e, employee)}
-                >
-                  <td className="px-2 py-1 border border-gray-200 max-w-3">
-                    {selectedEmployee?.id === employee.id && (
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 text-blue-600"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M9 5l7 7-7 7"
-                        />
-                      </svg>
-                    )}
-                  </td>
-                  <td className="px-2 py-1 border border-gray-200 customized-th-tr whitespace-normal">
-                    {employee.fullname}
-                  </td>
-                  <td className="px-2 py-1 border border-gray-200 customized-th-tr">
-                    {employee?.department?.name}
-                  </td>
-                  <td className="px-2 py-1 border border-gray-200 customized-th-tr">
-                    {employee.position}
-                  </td>
-                  <td className="px-2 py-1 border border-gray-200 customized-th-tr">
-                    {employee.personal_id}
-                  </td>
-                  <td className="px-2 py-1 border border-gray-200 customized-th-tr">
-                    {employee.phone_number}
-                  </td>
-                  <td className="px-2 py-1 border border-gray-200 customized-th-tr">
-                    {employee.card_number}
-                  </td>
-                  <td className="px-2 py-1 border border-gray-200 customized-th-tr">
-                    {employee?.group?.name}
-                  </td>
-                  <td className="px-2 py-1 border border-gray-200 customized-th-tr">
-                    {employee?.schedule?.name}
-                  </td>
-                  <td className="px-2 py-1 border border-gray-200 customized-th-tr">
-                    {employee.honorable_minutes_per_day}
-                  </td>
-                  <td className="px-2 py-1 border border-gray-200 customized-th-tr">
-                    {employee.holidays.map((holiday, idx) => (
-                      <span key={idx}>{holiday.name}, </span>
-                    ))}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <Table
+          data={filteredEmployees}
+          headers={employeeHeaders}
+          onContext={handleRightClick}
+          filters={filters}
+          sortConfig={sortConfig}
+          onSort={handleSort}
+          onFilterClick={handleOpenFilterModal}
+          onFilterChange={handleInputChange}
+          rowClassName={(employee) =>
+            selectedEmployee?.id === employee.id ? "bg-blue-200" : ""
+          }
+          onRowClick={(employee) => setSelectedEmployee(employee)}
+          filterableFields={[
+            "fullname",
+            "department_name",
+            "position",
+            "personal_id",
+            "phone_number",
+            "card_number",
+            "group_name",
+            "schedule_name",
+            "honorable_minutes_per_day",
+            "holidays",
+          ]}
+        />
       </div>
       {editModalOpen && (
         <EmployeeEditModal
@@ -478,7 +319,9 @@ const CreatedEmployees = () => {
         isOpen={isFilterModalOpen}
         onClose={() => setIsFilterModalOpen(false)}
         filterableData={filterableData}
-        onApply={(selectedFilters) => applyModalFilters(currentFilterField, selectedFilters)}
+        onApply={(selectedFilters) =>
+          applyModalFilters(currentFilterField, selectedFilters)
+        }
         position={modalPosition}
       />
     </AuthenticatedLayout>
