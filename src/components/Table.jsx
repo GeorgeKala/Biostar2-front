@@ -13,6 +13,7 @@ const Table = ({
   rowClassName,
   onRowClick,
   filterableFields,
+  onContext
 }) => {
   return (
     <div className="container mx-auto mt-10 overflow-x-auto">
@@ -74,6 +75,7 @@ const Table = ({
                 item
               )}`}
               onClick={() => onRowClick(item)}
+              onContextMenu={(e) => onContext(e)}
             >
               <td className="w-[30px]"></td>
               {headers.map((header) => (

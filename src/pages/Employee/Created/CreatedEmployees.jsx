@@ -30,7 +30,6 @@ const CreatedEmployees = () => {
   const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
   const [currentFilterField, setCurrentFilterField] = useState("");
 
-  // Initialize filters using the custom useFilter hook
   const { filters, handleInputChange, applyModalFilters, clearFilters } =
     useFilter({
       fullname: { text: "", selected: [] },
@@ -168,6 +167,16 @@ const CreatedEmployees = () => {
     XLSX.writeFile(workbook, "Employees.xlsx");
   };
 
+  const handleRightClick = (e) => {
+    e.preventDefault();
+    setEmployeeStatusModal(true);
+  };
+
+  const handleSearch = (status = "active") => {
+    dispatch(fetchEmployees({ status })); 
+    setEmployeeStatusModal(false);
+  };
+
   const employeeHeaders = [
     {
       label: "სახელი/გვარი",
@@ -268,6 +277,7 @@ const CreatedEmployees = () => {
         <Table
           data={filteredEmployees}
           headers={employeeHeaders}
+          onContext={handleRightClick}
           filters={filters}
           sortConfig={sortConfig}
           onSort={handleSort}
@@ -302,6 +312,7 @@ const CreatedEmployees = () => {
         <EmployeeStatusModal
           isOpen={employeeStatusModal}
           onClose={() => setEmployeeStatusModal(false)}
+          handleSearch={handleSearch}
         />
       )}
       <FilterModal
