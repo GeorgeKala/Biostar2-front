@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchFullRecords } from "../../../redux/reportSlice";
 import AuthenticatedLayout from "../../../Layouts/AuthenticatedLayout";
@@ -8,23 +8,19 @@ import { useFilter } from "../../../hooks/useFilter";
 import GeneralInputGroup from "../../../components/GeneralInputGroup";
 import DepartmentInput from "../../../components/DepartmentInput";
 import NestedDropdownModal from "../../../components/NestedDropdownModal";
-import SearchIcon from "../../../assets/search.png"
+import SearchIcon from "../../../assets/search.png";
 import EmployeeInput from "../../../components/employee/EmployeeInput";
 import EmployeeModal from "../../../components/employee/EmployeeModal";
+import useFilterAndSort from "../../../hooks/useFilterAndSort";
 
 const FullRecords = () => {
   const dispatch = useDispatch();
-  const { fullRecords } = useSelector((state) => ({
-    fullRecords: state.reports.fullRecords,
-  }));
-
-  const { departments, nestedDepartments } = useSelector((state) => state.departments)
+  const fullRecords = useSelector((state) => state.reports.fullRecords);
+  const { departments, nestedDepartments } = useSelector(
+    (state) => state.departments
+  );
   const buildings = useSelector((state) => state.building);
 
-  const [sortConfig, setSortConfig] = useState({
-    key: "",
-    direction: "ascending",
-  });
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [filterableData, setFilterableData] = useState([]);
   const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
@@ -49,83 +45,28 @@ const FullRecords = () => {
     building_name: { text: "", selected: [] },
   });
 
-  const [filteredRecords, setFilteredRecords] = useState([]);
+  const {
+    filteredAndSortedData: filteredRecords,
+    handleSort,
+    sortConfig,
+  } = useFilterAndSort(fullRecords, filters, {
+    key: "",
+    direction: "ascending",
+  });
 
-
-  useEffect(() => {
-    applyFilters();
-  }, [fullRecords, filters, sortConfig]);
-
-  const applyFilters = () => {
-    let filtered = fullRecords.filter((record) => {
-      const matches = (fieldValue, filter) => {
-        const textFilter = filter.text.toLowerCase();
-        const selectedFilters = filter.selected.map((f) => f.toLowerCase());
-
-        const matchesText =
-          !textFilter ||
-          (fieldValue && fieldValue.toLowerCase().includes(textFilter));
-        const matchesSelected =
-          selectedFilters.length === 0 ||
-          selectedFilters.some(
-            (selected) =>
-              fieldValue && fieldValue.toLowerCase().includes(selected)
-          );
-
-        return matchesText && matchesSelected;
-      };
-
-      return (
-        matches(record.employee_fullname, filters.employee_fullname) &&
-        matches(record.department, filters.department) &&
-        matches(record.position, filters.position) &&
-        matches(record.device_name, filters.device_name) &&
-        matches(record.group, filters.group) &&
-        matches(record.building_name, filters.building_name)
-      );
-    });
-
-    if (sortConfig.key) {
-      filtered = filtered.sort((a, b) => {
-        const aValue = sortConfig.key
-          .split(".")
-          .reduce((o, i) => (o ? o[i] : ""), a);
-        const bValue = sortConfig.key
-          .split(".")
-          .reduce((o, i) => (o ? o[i] : ""), b);
-        if (aValue < bValue) {
-          return sortConfig.direction === "ascending" ? -1 : 1;
-        }
-        if (aValue > bValue) {
-          return sortConfig.direction === "ascending" ? 1 : -1;
-        }
-        return 0;
-      });
-    }
-
-    setFilteredRecords(filtered);
-  };
-
-  const handleSort = (key) => {
-    let direction = "ascending";
-    if (sortConfig.key === key && sortConfig.direction === "ascending") {
-      direction = "descending";
-    }
-    setSortConfig({ key, direction });
-  };
-
-  const handleOpenFilterModal = (data, fieldName, rect) => {
-    setFilterableData(data);
+  const handleOpenFilterModal = useCallback((data, fieldName, rect) => {
+    const uniqueData = [...new Set(data)];
+    setFilterableData(uniqueData);
     setIsFilterModalOpen(true);
     setModalPosition({ top: rect.bottom, left: rect.left - 240 });
     setCurrentFilterField(fieldName);
-  };
+  }, []);
 
-  const handleClear = (field) => {
+  const handleClear = useCallback((field) => {
     setFormData((prev) => ({ ...prev, [field]: "" }));
-  };
+  }, []);
 
-  const handleSubmit = () => {
+  const handleSubmit = useCallback(() => {
     const filters = {
       start_date: formData.start_date,
       end_date: formData.end_date,
@@ -134,26 +75,27 @@ const FullRecords = () => {
     };
 
     dispatch(fetchFullRecords(filters));
-  };
+  }, [formData, dispatch]);
 
-  const openModal = () => setEmployeeModalOpen(true);
-  const closeModal = () => setEmployeeModalOpen(false);
+  const openModal = useCallback(() => setEmployeeModalOpen(true), []);
+  const closeModal = useCallback(() => setEmployeeModalOpen(false), []);
 
-  const handleDepartmentSelect = (departmentId) => {
+  const handleDepartmentSelect = useCallback((departmentId) => {
     setFormData((prevData) => ({
       ...prevData,
       department_id: departmentId,
     }));
     setOpenNestedDropdown(false);
-  };
+  }, []);
 
-   const handleEmployeeSelect = (employee) => {
-     setFormData({
-       ...formData,
-       employee_id: employee.id,
-       employee: employee.fullname,
-     });
-   };
+  const handleEmployeeSelect = useCallback((employee) => {
+    setFormData((prev) => ({
+      ...prev,
+      employee_id: employee.id,
+      employee: employee.fullname,
+    }));
+  }, []);
+
   const recordHeaders = [
     {
       label: "სახელი/გვარი",
@@ -175,11 +117,7 @@ const FullRecords = () => {
       key: "device_name",
       extractValue: (record) => record.device_name,
     },
-    {
-      label: "ჯგუფი",
-      key: "group",
-      extractValue: (record) => record.group,
-    },
+    { label: "ჯგუფი", key: "group", extractValue: (record) => record.group },
     {
       label: "შენობა",
       key: "building_name",
@@ -188,11 +126,11 @@ const FullRecords = () => {
     {
       label: "წვდომა",
       key: "has_access",
-      extractValue: (record) => (record.has_access ? "Yes" : "No"),
+      extractValue: (record) => (record.has_access ? "კი" : "არა"),
     },
   ];
 
-  const exportToExcel = () => {
+  const exportToExcel = useCallback(() => {
     const dataToExport = [
       [
         "სახელი/გვარი",
@@ -210,7 +148,7 @@ const FullRecords = () => {
         record.device_name,
         record.group,
         record.building_name,
-        record.has_access ? "Yes" : "No",
+        record.has_access ? "კი" : "არა",
       ]),
     ];
 
@@ -218,7 +156,10 @@ const FullRecords = () => {
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "FullRecords");
     XLSX.writeFile(workbook, "FullRecords.xlsx");
-  };
+  }, [filteredRecords]);
+
+
+  
 
   return (
     <AuthenticatedLayout>
@@ -233,7 +174,6 @@ const FullRecords = () => {
             className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative"
           >
             ჩამოტვირთვა
-            {/* <img src={ArrowDownIcon} className="ml-3" alt="Arrow Down Icon" /> */}
             <span className="absolute inset-0 border border-white border-dashed rounded"></span>
           </button>
         </div>
@@ -265,25 +205,6 @@ const FullRecords = () => {
             onClear={() => handleClear("department_id")}
             onSearchClick={() => setOpenNestedDropdown(true)}
           />
-          {/* <div className="relative">
-            <select
-              className="bg-white border border-gray-300 rounded-lg px-4 py-2"
-              value={formData.building_id}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  building_id: e.target.value,
-                }))
-              }
-            >
-              <option value="">Select Building</option>
-              {buildings.map((building) => (
-                <option key={building.id} value={building.id}>
-                  {building.name}
-                </option>
-              ))}
-            </select>
-          </div> */}
           <EmployeeInput
             value={formData.employee}
             onClear={() => handleClear("employee")}
@@ -317,7 +238,7 @@ const FullRecords = () => {
             "device_name",
             "group",
             "building_name",
-            "has_access"
+            "has_access",
           ]}
         />
       </div>
