@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import GorgiaLogo from "../../assets/gorgia-jobs-cover.png";
 
 const routeNames = {
   "/reports/general": "პერიოდის რეპორტი",
@@ -55,10 +54,8 @@ const Navbar = () => {
   };
 
   return (
-    <div className="bg-[#1976D2] w-full flex justify-between items-center px-4">
-      <div className="flex items-center">
-        <img src={GorgiaLogo} className="w-[155px]" alt="Gorgia Logo" />
-      </div>
+    <div className="bg-[#1976D2] w-full flex justify-between items-center px-4 py-4">
+      
       <div className="flex space-x-2">
         {history.map((route, index) => (
           <div

@@ -101,6 +101,24 @@ const reportService = {
       throw error;
     }
   },
+
+  fetchFullRecords: async (data) => {
+    try {
+      const sessionToken = sessionStorage.getItem("sessionToken");
+      const response = await axiosInstance.post("/full-records", data, {
+        headers: {
+          "bs-session-id": sessionToken,
+        },
+      });
+      if (response.status === 200) {
+        return response.data; 
+      } else {
+        throw new Error("Failed to fetch full records");
+      }
+    } catch (error) {
+      throw error;
+    }
+  },
 };
   
 export default reportService;

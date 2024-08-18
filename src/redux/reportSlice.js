@@ -1,28 +1,34 @@
-import { createSlice } from '@reduxjs/toolkit';
-import reportService from '../services/report';
+import { createSlice } from "@reduxjs/toolkit";
+import reportService from "../services/report";
 
 const reportSlice = createSlice({
-  name: 'reports',
+  name: "reports",
   initialState: {
     reports: [],
-    status: 'idle',
+    fullRecords: [],
+    status: "idle",
     error: null,
   },
   reducers: {
     setReports(state, action) {
       state.reports = action.payload;
-      state.status = 'succeeded';
+      state.status = "succeeded";
+    },
+    setFullRecords(state, action) {
+      state.fullRecords = action.payload;
+      state.status = "succeeded";
     },
     setLoading(state) {
-      state.status = 'loading';
+      state.status = "loading";
     },
     setError(state, action) {
-      state.status = 'failed';
+      state.status = "failed";
       state.error = action.payload;
     },
     clearReports(state) {
       state.reports = [];
-      state.status = 'idle';
+      state.fullRecords = [];
+      state.status = "idle";
       state.error = null;
     },
 
@@ -52,6 +58,23 @@ export const fetchReports = (filters) => async (dispatch) => {
   }
 };
 
-export const { setReports, setLoading, setError, clearReports, updateOrAddReport } = reportSlice.actions;
+export const fetchFullRecords = (filters) => async (dispatch) => {
+  dispatch(setLoading());
+  try {
+    const response = await reportService.fetchFullRecords(filters);
+    dispatch(setFullRecords(response));
+  } catch (error) {
+    dispatch(setError(error.toString()));
+  }
+};
+
+export const {
+  setReports,
+  setFullRecords,
+  setLoading,
+  setError,
+  clearReports,
+  updateOrAddReport,
+} = reportSlice.actions;
 
 export default reportSlice.reducer;

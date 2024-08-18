@@ -6,6 +6,8 @@ import LogoutIcon from "../../assets/logout-icon.png";
 import ArrowRight from "../../assets/arrow-right.png";
 import { logout } from "../../services/auth";
 import useAuth from "../../hooks/useAuth";
+import GorgiaLogo from "../../assets/gorgia-jobs-cover.png";
+
 
 const Sidebar = () => {
   const location = useLocation();
@@ -39,10 +41,13 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="bg-[#1976D2] w-[18%] flex flex-col gap-8 py-4">
-      <div className="flex justify-center gap-2">
-        <img src={BiostarIcon} alt="Biostar Icon" />
-        <img src={BiostarLogo} className="w-[90px]" alt="Biostar Logo" />
+    <div className="bg-[#1976D2] w-[18%] flex flex-col gap-8 ">
+      <div className="flex flex-col items-center w-full">
+        <img src={GorgiaLogo} className="w-[155px]" alt="Gorgia Logo" />
+        <div className="flex justify-center gap-2">
+          <img src={BiostarIcon} alt="Biostar Icon" />
+          <img src={BiostarLogo} className="w-[90px]" alt="Biostar Logo" />
+        </div>
       </div>
       <div className="flex flex-col h-full gap-6 px-4">
         <div>

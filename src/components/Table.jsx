@@ -10,10 +10,10 @@ const Table = ({
   onSort,
   onFilterClick,
   onFilterChange,
-  rowClassName,
+  rowClassName = () => "",
   onRowClick,
   filterableFields,
-  onContext
+  onContext,
 }) => {
   return (
     <div className="container mx-auto mt-10 overflow-x-auto">
@@ -68,26 +68,29 @@ const Table = ({
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200 text-xs">
-          {data && data.map((item, index) => (
-            <tr
-              key={index}
-              className={`px-2 py-1 border border-gray-200 w-20 ${rowClassName(
-                item
-              )}`}
-              onClick={() => onRowClick(item)}
-              onContextMenu={(e) => onContext(e)}
-            >
-              <td className="w-[30px]"></td>
-              {headers.map((header) => (
-                <td
-                  key={header.key}
-                  className="px-2 py-1 border border-gray-200 customized-th-tr"
-                >
-                  {header.extractValue(item)}
-                </td>
-              ))}
-            </tr>
-          ))}
+          {data &&
+            data.map((item, index) => (
+              <tr
+                key={index}
+                className={`px-2 py-1 border border-gray-200 w-20 ${rowClassName(
+                  item
+                )}`}
+                onClick={() => onRowClick(item)}
+                onContextMenu={(e) => onContext(e)}
+              >
+                <td className="w-[30px]"></td>
+                {headers.map((header) => (
+                  <td
+                    key={header.key}
+                    className="px-2 py-1 border border-gray-200 customized-th-tr"
+                  >
+                    {header.extractValue
+                      ? header.extractValue(item)
+                      : item[header.key]}
+                  </td>
+                ))}
+              </tr>
+            ))}
         </tbody>
       </table>
     </div>

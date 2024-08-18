@@ -12,7 +12,6 @@ import DepartmentInput from '../../../components/DepartmentInput';
 import EmployeeInput from '../../../components/employee/EmployeeInput';
 import {fetchCommentedDetails, removeComment } from '../../../redux/commentSlice';
 import reportService from '../../../services/report';
-import Table from '../../../components/Table';
 
 const CommentTable = () => {
     const user = useSelector((state) => state.user.user);
