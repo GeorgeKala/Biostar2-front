@@ -165,9 +165,6 @@ const FullRecords = () => {
     XLSX.writeFile(workbook, "FullRecords.xlsx");
   }, [filteredRecords]);
 
-
-  console.log(fullRecords);
-  
   
 
   return (
