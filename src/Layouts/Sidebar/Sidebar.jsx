@@ -8,7 +8,6 @@ import { logout } from "../../services/auth";
 import useAuth from "../../hooks/useAuth";
 import GorgiaLogo from "../../assets/gorgia-jobs-cover.png";
 
-
 const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -17,6 +16,7 @@ const Sidebar = () => {
     reports: false,
     comments: false,
     settings: false,
+    kitchenReport: false, // Added kitchenReport section state
   });
   const { user } = useAuth();
 
@@ -41,7 +41,7 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="bg-[#1976D2] w-[18%] flex flex-col gap-8 ">
+    <div className="bg-[#1976D2] w-[18%] flex flex-col gap-8">
       <div className="flex flex-col items-center w-full">
         <img src={GorgiaLogo} className="w-[155px]" alt="Gorgia Logo" />
         <div className="flex justify-center gap-2">
@@ -134,6 +134,7 @@ const Sidebar = () => {
             </div>
           )}
         </div>
+
         <div>
           <div
             className="flex items-center gap-3 text-white text-[14px] cursor-pointer"
@@ -248,6 +249,7 @@ const Sidebar = () => {
             </div>
           )}
         </div>
+
         <div>
           <div
             className="flex items-center gap-3 text-white text-[14px] cursor-pointer"
@@ -333,6 +335,37 @@ const Sidebar = () => {
                   პირდაპირი
                 </Link>
               )}
+            </div>
+          )}
+        </div>
+
+        {/* Kitchen Report Section */}
+        <div>
+          <div
+            className="flex items-center gap-3 text-white text-[14px] cursor-pointer"
+            onClick={() => toggleSection("kitchenReport")}
+          >
+            <img
+              src={ArrowRight}
+              alt="Arrow Right Icon"
+              className={`transform ${
+                sections.kitchenReport ? "rotate-0" : "-rotate-90"
+              } transition-transform duration-300`}
+            />
+            სამზარეულოს რეპორტი {/* Added Kitchen Report Section */}
+          </div>
+          {sections.kitchenReport && (
+            <div className="pl-4 flex flex-col gap-4 mt-4">
+              
+              <Link
+                to="/reports/kitchen"
+                className={`flex items-center gap-3 text-white text-[14px] ${
+                  location.pathname === "/reports/kitchen" ? "font-bold" : ""
+                }`}
+              >
+                <img src={ArrowRight} alt="Arrow Right Icon" />
+                რეპორტი
+              </Link>
             </div>
           )}
         </div>

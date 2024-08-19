@@ -243,7 +243,7 @@ const CreatedEmployees = () => {
             user?.user_type?.name === "მენეჯერი-რეგიონები" ? (
               <>
                 <Link
-                to={'/employee/create'}
+                to={'/employees/create'}
                   className="bg-[#1976D2] text-white px-4 py-4 rounded-md flex items-center gap-2"
                 >
                   <img src={NewIcon} alt="New" />

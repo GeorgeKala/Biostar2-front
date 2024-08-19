@@ -25,6 +25,7 @@ import useAuth from "./hooks/useAuth";
 import { fetchAsyncUser } from "./redux/userDataSlice";
 import ProtectedRoute from "./components/ProtectedRoute";
 import FullRecords from "./pages/Report/FullRecords/FullRecords";
+import KitchenReport from "./pages/Report/KitchenReport/KitchenReport";
 
 const App = () => {
   const [initialLoad, setInitialLoad] = useState(true);
@@ -225,6 +226,12 @@ const App = () => {
             path="/devices"
             element={
               <ProtectedRoute element={<Device />} requiresFullAccess={true} />
+            }
+          />
+          <Route
+            path="/reports/kitchen"
+            element={
+              <ProtectedRoute element={<KitchenReport />} requiresFullAccess={false} />
             }
           />
         </Routes>

@@ -26,6 +26,8 @@ const FullRecords = () => {
   const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
   const [currentFilterField, setCurrentFilterField] = useState("");
   const [selectedRecord, setSelectedRecord] = useState(null);
+  
+  
   const [formData, setFormData] = useState({
     start_date: "",
     end_date: "",
@@ -103,6 +105,11 @@ const FullRecords = () => {
       extractValue: (record) => record.employee_fullname,
     },
     {
+        label: "თარიღი და დრო",
+        key: "server_datetime",
+        extractValue: (record) => record.server_datetime,
+    },
+    {
       label: "დეპარტამენტი",
       key: "department",
       extractValue: (record) => record.department,
@@ -159,15 +166,16 @@ const FullRecords = () => {
   }, [filteredRecords]);
 
 
+  console.log(fullRecords);
+  
   
 
   return (
     <AuthenticatedLayout>
       <div className="w-full px-10 py-4 flex flex-col gap-8 2xl:px-20">
-        {/* Header Section */}
         <div className="flex justify-between w-full">
           <h1 className="text-[#1976D2] font-medium text-[23px]">
-            პერიოდის რეპორტი
+            სრული ჩანაწერები
           </h1>
           <button
             onClick={exportToExcel}
@@ -233,6 +241,7 @@ const FullRecords = () => {
           onRowClick={(record) => setSelectedRecord(record)}
           filterableFields={[
             "employee_fullname",
+            "server_datetime",
             "department",
             "position",
             "device_name",
