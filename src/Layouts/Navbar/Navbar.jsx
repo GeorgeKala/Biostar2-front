@@ -26,7 +26,7 @@ const routeNames = {
   "/notifications": "შეტყობინებები",
   "/dashboard": "დაფა",
   "/records/full": "სრული ჩანაწერები",
-  "/reports/kitchen":"სამზარეულო"
+  "/reports/kitchen": "სამზარეულო"
 };
 
 const Navbar = () => {
@@ -35,7 +35,6 @@ const Navbar = () => {
   const navigate = useNavigate();
   const [currentIndex, setCurrentIndex] = useState(0);
   const maxVisibleTabs = 6;
-  const tabsContainerRef = useRef(null);
 
   useEffect(() => {
     const savedHistory = JSON.parse(sessionStorage.getItem("navHistory")) || [];
@@ -62,6 +61,9 @@ const Navbar = () => {
   };
 
   const handleDelete = (route) => {
+    // Clear the session data associated with this route
+    sessionStorage.removeItem(route);
+
     const updatedHistory = history.filter((item) => item !== route);
     setHistory(updatedHistory);
     sessionStorage.setItem("navHistory", JSON.stringify(updatedHistory));
@@ -69,10 +71,7 @@ const Navbar = () => {
 
   return (
     <div className="bg-[#1976D2] w-full flex items-center px-4 py-4 border-b-2 border-[#0A5FB6] relative">
-      <div
-        className="flex space-x-2 overflow-hidden mx-8"
-        ref={tabsContainerRef}
-      >
+      <div className="flex space-x-2 overflow-hidden mx-8">
         {history
           .slice(currentIndex, currentIndex + maxVisibleTabs)
           .map((route, index) => (
@@ -122,7 +121,7 @@ const Navbar = () => {
 
         <button
           onClick={handleScrollRight}
-          className="text-white bg-[#0A5FB6] px-2 py-1 rounded-md "
+          className="text-white bg-[#0A5FB6] px-2 py-1 rounded-md"
           disabled={currentIndex >= history.length - maxVisibleTabs}
         >
           &gt;

@@ -16,6 +16,7 @@ const KitchenReport = () => {
     end_date: '',
     department_id: '',
     employee: '',
+    employee_id: '',
   });
 
   const [openNestedDropdown, setOpenNestedDropdown] = useState(false);
@@ -36,7 +37,6 @@ const KitchenReport = () => {
       console.error('Error fetching kitchen report:', error);
     }
   };
-
 
   const handleClear = useCallback((field) => {
     setFormData((prev) => ({ ...prev, [field]: '' }));
@@ -60,6 +60,7 @@ const KitchenReport = () => {
       employee_id: employee.id,
       employee: employee.fullname,
     }));
+    setEmployeeModalOpen(false);
   }, []);
 
   const reportPeriods = reportData?.report_periods || [];
