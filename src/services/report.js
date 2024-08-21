@@ -123,10 +123,11 @@ const reportService = {
   fetchKitchenReport: async (data) => {
     try {
       const sessionToken = sessionStorage.getItem("sessionToken");
-      const response = await axiosInstance.get("/kitchen-report", data, {
-        headers: {
-          "bs-session-id": sessionToken,
-        },
+      const response = await axiosInstance.get("/kitchen-report", {
+      headers: {
+        "bs-session-id": sessionToken,
+      },
+      params: data,
       });
       if (response.status === 200) {
         return response.data;
