@@ -67,6 +67,7 @@ const KitchenReport = () => {
   const datesGroupedByMonth = reportData?.dates_grouped_by_month || [];
   const departmentTotals = reportData?.department_totals || {};
   const employeeData = reportData?.employee_data || {};
+  const yearlyTotals = reportData?.yearly_totals || {};
 
   return (
     <AuthenticatedLayout>
@@ -148,7 +149,7 @@ const KitchenReport = () => {
                           {index === 0 && (
                             <td
                               className="py-2 px-4 border font-bold"
-                              rowSpan={Object.keys(employeeData[month][department]).length}
+                              rowSpan={Object.keys(employeeData[month][department]).length + 1}
                             >
                               {department}
                             </td>
@@ -156,41 +157,50 @@ const KitchenReport = () => {
                           <td className="py-2 px-4 border">{employee}</td>
                           {datesGroupedByMonth.map((dates, monthIndex) => (
                             <React.Fragment key={monthIndex}>
-                              {dates.map((date) => (
-                                <td key={date} className="py-2 px-4 border text-center">
-                                  {employeeData[month][department][employee][date] || 0}
-                                </td>
-                              ))}
-                              {/* Monthly Total */}
+                              {dates.map((date) => {
+                                const isFixed = employeeData[month][department][employee][date] > 0;
+                                return (
+                                  <td
+                                    key={date}
+                                    className={`py-2 px-4 border text-center ${
+                                      isFixed ? "bg-green-500 text-white" : ""
+                                    }`}
+                                  >
+                                    {employeeData[month][department][employee][date] || 0}
+                                  </td>
+                                );
+                              })}
                               <td className="py-2 px-4 border font-bold text-center">
-                                {employeeData[month][department][employee]['Month Total']}
+                                {employeeData[month][department][employee]["Month Total"]}
                               </td>
                             </React.Fragment>
                           ))}
                           <td className="py-2 px-4 border font-bold text-center">
-                            {employeeData[month][department][employee]['Grand Total']}
+                            {employeeData[month][department][employee]["Grand Total"] || 0}
                           </td>
                         </tr>
                       ))}
                       <tr className="bg-gray-200">
-                        <td className="py-2 px-4 border font-bold" colSpan={2}>
+                        <td className="py-2 px-4 border font-bold" colSpan={1}>
                           {department} ჯამური
                         </td>
                         {datesGroupedByMonth.map((dates, monthIndex) => (
                           <React.Fragment key={monthIndex}>
                             {dates.map((date) => (
-                              <td key={date} className="py-2 px-4 border font-bold text-center">
+                              <td
+                                key={date}
+                                className="py-2 px-4 border font-bold text-center"
+                              >
                                 {departmentTotals[month][department][date] || 0}
                               </td>
                             ))}
-                            {/* Monthly Total */}
                             <td className="py-2 px-4 border font-bold text-center">
-                              {departmentTotals[month][department]['Month Total']}
+                              {departmentTotals[month][department]["Month Total"]}
                             </td>
                           </React.Fragment>
                         ))}
                         <td className="py-2 px-4 border font-bold text-center">
-                          {departmentTotals[month][department]['Grand Total']}
+                          {yearlyTotals[department]["Year Total"] || 0}
                         </td>
                       </tr>
                     </React.Fragment>

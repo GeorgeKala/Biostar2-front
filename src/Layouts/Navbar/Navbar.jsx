@@ -34,7 +34,7 @@ const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const maxVisibleTabs = 6;
+  const maxVisibleTabs = 5;
 
   useEffect(() => {
     const savedHistory = JSON.parse(sessionStorage.getItem("navHistory")) || [];
