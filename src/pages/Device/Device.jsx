@@ -17,9 +17,10 @@ const Device = () => {
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedBuildingId, setSelectedBuildingId] = useState("");
-  const [selectedAccessGroups, setSelectedAccessGroups] = useState([]);
+  const [selectedAccessGroup, setSelectedAccessGroup] = useState(null);
   const [accessGroups, setAccessGroups] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [isKitchen, setIsKitchen] = useState(false); // State for kitchen checkbox
 
   const dispatch = useDispatch();
   const buildings = useSelector((state) => state.building.items);
@@ -39,63 +40,69 @@ const Device = () => {
     fetchBuildingsWithAccessGroups();
   }, []);
 
-
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchAccessGroups = async () => {
       try {
         const response = await accessGroupService.fetchAccessGroups();
         setAccessGroups(response);
       } catch (error) {
-        console.error(error);
+        console.error("Error fetching access groups:", error);
       }
     };
 
-    fetchData();
+    fetchAccessGroups();
   }, []);
 
   const handleAddClick = () => {
     setShowModal(true);
     setSelectedBuildingId("");
-    setSelectedAccessGroups([]);
-    setSelectedItem(null); // Reset selected item for new addition
+    setSelectedAccessGroup(null);
+    setSelectedItem(null);
+    setIsKitchen(false); // Reset kitchen state
   };
 
   const handleEditClick = () => {
     if (selectedItem) {
       setShowModal(true);
       setSelectedBuildingId(selectedItem.building_id);
-      setSelectedAccessGroups(
-        selectedItem.access_groups.map((group) => group.id)
-      );
+      setSelectedAccessGroup(selectedItem.access_group);
+      setIsKitchen(selectedItem.type === 'kitchen'); // Set kitchen state
     }
   };
 
   const handleModalClose = () => {
     setShowModal(false);
     setSelectedBuildingId("");
-    setSelectedAccessGroups([]);
-    setSelectedItem(null); // Reset selected item
+    setSelectedAccessGroup(null);
+    setSelectedItem(null);
+    setIsKitchen(false);
   };
 
   const handleAddAccessGroup = async () => {
-    if (selectedBuildingId && selectedAccessGroups.length > 0) {
+    if (selectedBuildingId && selectedAccessGroup) {
       try {
+        const buildingType = isKitchen ? 'kitchen' : 'other';
+  
         await buildingService.addAccessGroup(
           selectedBuildingId,
-          selectedAccessGroups
+          [selectedAccessGroup],
+          buildingType
         );
+  
         setShowModal(false);
         setSelectedBuildingId("");
-        setSelectedAccessGroups([]);
-        const updatedBuildings =
-          await buildingService.getBuildingsWithAccessGroups();
+        setSelectedAccessGroup(null);
+        setIsKitchen(false);
+  
+        const updatedBuildings = await buildingService.getBuildingsWithAccessGroups();
         setData(updatedBuildings);
       } catch (error) {
-        console.error("Error adding access groups to building:", error);
+        console.error("Error adding access group to building:", error);
       }
+    } else {
+      console.error("Please select both a building and an access group.");
     }
   };
-
 
   const handleDeleteAccessGroup = async () => {
     try {
@@ -103,8 +110,7 @@ const Device = () => {
         selectedItem.building_id,
         selectedItem.access_group_id
       );
-      const updatedBuildings =
-        await buildingService.getBuildingsWithAccessGroups();
+      const updatedBuildings = await buildingService.getBuildingsWithAccessGroups();
       setData(updatedBuildings);
     } catch (error) {
       console.error("Error removing access group from building:", error);
@@ -113,6 +119,11 @@ const Device = () => {
 
   const handleRowClick = (item) => {
     setSelectedItem(item);
+  };
+
+  const handleAccessGroupChange = (e) => {
+    const selectedGroup = accessGroups.find(group => group.access_group_id === e.target.value);
+    setSelectedAccessGroup(selectedGroup);
   };
 
   const exportToExcel = () => {
@@ -128,7 +139,7 @@ const Device = () => {
   };
 
 
-  console.log(accessGroups);
+  console.log(selectedAccessGroup);
   
 
   return (
@@ -146,19 +157,18 @@ const Device = () => {
               <img src={NewIcon} alt="New Icon" />
               ახალი
             </button>
-            {/* <button
-              className="bg-[#1976D2] text-white px-4 py-4 rounded-md flex items-center gap-2"
-              onClick={handleEditClick}
-              disabled={!selectedItem} // Disable button if no item is selected
+            <button
+              onClick={handleDeleteAccessGroup}
+              className="bg-[#D9534F] text-white px-4 py-4 rounded-md flex items-center gap-2"
+              disabled={!selectedItem}
             >
-              <img src={EditIcon} alt="Edit Icon" />
-              შეცვლა
-            </button> */}
-            <button onClick={handleDeleteAccessGroup} className="bg-[#D9534F] text-white px-4 py-4 rounded-md flex items-center gap-2">
               <img src={DeleteIcon} alt="Delete Icon" />
               წაშლა
             </button>
-            <button onClick={exportToExcel} className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative">
+            <button
+              onClick={exportToExcel}
+              className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative"
+            >
               ჩამოტვირთვა
               <img src={ArrowDownIcon} className="ml-3" alt="Arrow Down Icon" />
               <span className="absolute inset-0 border border-white border-dashed rounded"></span>
@@ -173,10 +183,9 @@ const Device = () => {
             </div>
             <div className="h-100 min-w-max">
               {data.map((item, idx) => (
-                
                 <div
                   key={idx}
-                  className={`grid grid-cols-2 gap-2 py-2 px-4 border-b min-w-max ${item?.building_id === selectedItem?.building_id && item?.access_group_id == selectedItem.access_group_id ? 'bg-blue-300' : 'transparent'}`}
+                  className={`grid grid-cols-2 gap-2 py-2 px-4 border-b min-w-max ${item?.building_id === selectedItem?.building_id && item?.access_group_id === selectedItem?.access_group_id ? 'bg-blue-300' : 'transparent'}`}
                   onClick={() => handleRowClick(item)}
                 >
                   <div>{item.building_name}</div>
@@ -192,14 +201,10 @@ const Device = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-8 rounded-lg shadow-lg">
             <h2 className="text-lg font-medium mb-4">
-              {selectedBuildingId ? "რედაქტირება" : "დამატება"} შენობების
-              განაწილება
+              {selectedBuildingId ? "რედაქტირება" : "დამატება"} შენობების განაწილება
             </h2>
             <div className="mb-4">
-              <label
-                htmlFor="building_id"
-                className="block text-sm font-medium text-gray-700"
-              >
+              <label htmlFor="building_id" className="block text-sm font-medium text-gray-700">
                 შენობა:
               </label>
               <select
@@ -210,42 +215,42 @@ const Device = () => {
                 className="mt-1 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
               >
                 <option value="">შენობა</option>
-                {buildings &&
-                  buildings.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.name}
-                    </option>
-                  ))}
+                {buildings && buildings.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="mb-4">
-              <label
-                htmlFor="access_groups"
-                className="block text-sm font-medium text-gray-700"
-              >
-                ხელმისაწვდომი ჯგუფები:
+              <label htmlFor="access_group" className="block text-sm font-medium text-gray-700">
+                ხელმისაწვდომი ჯგუფი:
               </label>
               <select
-                id="access_groups"
-                name="access_groups"
-                value={selectedAccessGroups}
-                onChange={(e) =>
-                  setSelectedAccessGroups(
-                    Array.from(
-                      e.target.selectedOptions,
-                      (option) => option.value
-                    )
-                  )
-                }
+                id="access_group"
+                name="access_group"
+                value={selectedAccessGroup ? selectedAccessGroup.access_group_id : ""}
+                onChange={handleAccessGroupChange}
                 className="mt-1 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
               >
-                <option>აირჩიე მოწყობილობა</option>
+                <option value="">აირჩიე მოწყობილობა</option>
                 {accessGroups.map((group) => (
                   <option key={group.access_group_id} value={group.access_group_id}>
                     {group.device_name}
                   </option>
                 ))}
               </select>
+            </div>
+            <div className="mb-4">
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={isKitchen}
+                  onChange={(e) => setIsKitchen(e.target.checked)}
+                  className="mr-2"
+                />
+                Is Kitchen
+              </label>
             </div>
             <div className="flex justify-end">
               <button
@@ -269,4 +274,3 @@ const Device = () => {
 };
 
 export default Device;
-
