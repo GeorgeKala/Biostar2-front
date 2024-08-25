@@ -66,7 +66,7 @@ const Device = () => {
       setShowModal(true);
       setSelectedBuildingId(selectedItem.building_id);
       setSelectedAccessGroup(selectedItem.access_group);
-      setIsKitchen(selectedItem.type === 'kitchen'); // Set kitchen state
+      setIsKitchen(selectedItem.type === 'kitchen'); 
     }
   };
 
@@ -81,21 +81,49 @@ const Device = () => {
   const handleAddAccessGroup = async () => {
     if (selectedBuildingId && selectedAccessGroup) {
       try {
-        const buildingType = isKitchen ? 'kitchen' : 'other';
-  
+        const buildingType = isKitchen ? "kitchen" : null;
+        const parsedBuildingId = parseInt(selectedBuildingId, 10);
+
         await buildingService.addAccessGroup(
-          selectedBuildingId,
+          parsedBuildingId,
           [selectedAccessGroup],
           buildingType
         );
-  
+
         setShowModal(false);
         setSelectedBuildingId("");
         setSelectedAccessGroup(null);
         setIsKitchen(false);
-  
-        const updatedBuildings = await buildingService.getBuildingsWithAccessGroups();
-        setData(updatedBuildings);
+
+       setData((prevData) =>
+         prevData
+           .map((building) => {
+             if (building.building_id === parsedBuildingId) {
+               const updatedAccessGroups = [
+                 ...(Array.isArray(building.access_groups)
+                   ? building.access_groups
+                   : []),
+                 {
+                   access_group_id: selectedAccessGroup.access_group_id,
+                   access_group_name: selectedAccessGroup.device_name,
+                   device_name: selectedAccessGroup.device_name,
+                   building_id: parsedBuildingId,
+                   building_name: building.building_name,
+                 },
+               ];
+
+               return updatedAccessGroups.map((group) => ({
+                 building_id: building.building_id,
+                 building_name: building.building_name,
+                 access_group_id: group.access_group_id,
+                 access_group_name: group.access_group_name,
+                 device_name: group.device_name,
+               }));
+             }
+             return building;
+           })
+           .flat()
+       );
       } catch (error) {
         console.error("Error adding access group to building:", error);
       }
@@ -104,16 +132,57 @@ const Device = () => {
     }
   };
 
+
+
+
   const handleDeleteAccessGroup = async () => {
-    try {
-      await buildingService.removeAccessGroup(
-        selectedItem.building_id,
-        selectedItem.access_group_id
-      );
-      const updatedBuildings = await buildingService.getBuildingsWithAccessGroups();
-      setData(updatedBuildings);
-    } catch (error) {
-      console.error("Error removing access group from building:", error);
+    if (selectedItem) {
+      try {
+        const parsedBuildingId = parseInt(selectedItem.building_id, 10);
+
+        await buildingService.removeAccessGroup(
+          parsedBuildingId,
+          selectedItem.access_group_id
+        );
+
+        setData((prevData) =>
+          prevData
+            .map((building) => {
+              if (building.building_id === parsedBuildingId) {
+                const updatedAccessGroups = (
+                  building.access_groups || []
+                ).filter(
+                  (group) =>
+                    group.access_group_id !== selectedItem.access_group_id
+                );
+
+                if (updatedAccessGroups.length > 0) {
+                  return updatedAccessGroups.map((group) => ({
+                    building_id: building.building_id,
+                    building_name: building.building_name,
+                    access_group_id: group.access_group_id,
+                    access_group_name: group.access_group_name,
+                    device_name: group.device_name,
+                  }));
+                } else {
+                  return {
+                    building_id: building.building_id,
+                    building_name: building.building_name,
+                    access_group_id: null,
+                    access_group_name: null,
+                    device_name: null,
+                  };
+                }
+              }
+              return building;
+            })
+            .flat()
+        );
+
+        setSelectedItem(null);
+      } catch (error) {
+        console.error("Error removing access group from building:", error);
+      }
     }
   };
 
@@ -139,7 +208,7 @@ const Device = () => {
   };
 
 
-  console.log(selectedAccessGroup);
+  console.log(data);
   
 
   return (
@@ -274,3 +343,4 @@ const Device = () => {
 };
 
 export default Device;
+
