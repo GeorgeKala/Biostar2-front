@@ -359,7 +359,7 @@ const Device = () => {
                     onChange={(e) => setIsKitchen(e.target.checked)}
                     className="mr-2"
                   />
-                  Is Kitchen
+                  სამზარეულოს აპარტი
                 </label>
               </div>
               <div className="flex justify-end">
