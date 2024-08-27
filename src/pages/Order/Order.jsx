@@ -3,6 +3,7 @@ import AuthenticatedLayout from "../../Layouts/AuthenticatedLayout";
 import ArrowDownIcon from "../../assets/arrow-down-2.png";
 import GeneralInputGroup from "../../components/GeneralInputGroup";
 import SearchIcon from "../../assets/search.png";
+import orderService from "../../services/order";
 import dayTypeService from "../../services/dayType";
 import EmployeeModal from "../../components/employee/EmployeeModal";
 import reportService from "../../services/report";
@@ -32,8 +33,8 @@ const Order = () => {
     department_id: user?.user_type?.has_full_access ? "" : user?.department?.id,
   });
   const [data, setData] = useState([]);
-  const [showSuccessPopup, setShowSuccessPopup] = useState(false); // State for showing the success modal
-  const [successMessage, setSuccessMessage] = useState(""); // Success message state
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false); 
+  const [successMessage, setSuccessMessage] = useState(""); 
   const columns = [
     { label: "თარიღი", key: "date" },
     { label: "თანამშრომელი", key: "employee" },
@@ -232,27 +233,6 @@ const Order = () => {
       return () => clearTimeout(timer);
     }
   }, [showSuccessPopup]);
-
-
-  const tableHeaders = [
-    { label: "თარიღი", key: "date", extractValue: (order) => order.date },
-    {
-      label: "თანამშრომელი",
-      key: "employee",
-      extractValue: (order) => order.employee,
-    },
-    {
-      label: "დეპარტამენტი",
-      key: "department",
-      extractValue: (order) => order.department,
-    },
-    {
-      label: "ბრძანების ტიპი",
-      key: "violation_type",
-      extractValue: (order) => order.violation_type,
-    },
-  ];
-
 
   return (
     <AuthenticatedLayout>
@@ -508,6 +488,3 @@ const Order = () => {
 };
 
 export default Order;
-
-
-
