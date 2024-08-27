@@ -3,7 +3,6 @@ import AuthenticatedLayout from "../../Layouts/AuthenticatedLayout";
 import ArrowDownIcon from "../../assets/arrow-down-2.png";
 import GeneralInputGroup from "../../components/GeneralInputGroup";
 import SearchIcon from "../../assets/search.png";
-import orderService from "../../services/order";
 import dayTypeService from "../../services/dayType";
 import EmployeeModal from "../../components/employee/EmployeeModal";
 import reportService from "../../services/report";
@@ -233,6 +232,27 @@ const Order = () => {
       return () => clearTimeout(timer);
     }
   }, [showSuccessPopup]);
+
+
+  const tableHeaders = [
+    { label: "თარიღი", key: "date", extractValue: (order) => order.date },
+    {
+      label: "თანამშრომელი",
+      key: "employee",
+      extractValue: (order) => order.employee,
+    },
+    {
+      label: "დეპარტამენტი",
+      key: "department",
+      extractValue: (order) => order.department,
+    },
+    {
+      label: "ბრძანების ტიპი",
+      key: "violation_type",
+      extractValue: (order) => order.violation_type,
+    },
+  ];
+
 
   return (
     <AuthenticatedLayout>
@@ -488,3 +508,6 @@ const Order = () => {
 };
 
 export default Order;
+
+
+
