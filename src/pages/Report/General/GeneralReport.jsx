@@ -165,39 +165,6 @@ const GeneralReport = () => {
     });
   };
 
-  // const handleModalSave = async () => {
-  //   try {
-  //     const data = {
-  //       employee_id: editData.employee_id,
-  //       date: editData.date,
-  //       forgive_type_id: editData.forgive_type_id,
-  //       comment: editData.comment,
-  //       final_penalized_time: editData.final_penalized_time,
-  //       comment_datetime: editData.comment_datetime,
-  //     };
-  //     const response = await reportService.updateOrCreateDayDetail(data);
-
-  //     setReports((prevReports) =>
-  //       prevReports.map((report) =>
-  //         report.user_id === editData.employee_id &&
-  //         report.date === editData.date
-  //           ? {
-  //               ...report,
-  //               forgive_type_id: editData.forgive_type_id,
-  //               comment: response.data.comment,
-  //               final_penalized_time: editData.final_penalized_time,
-  //               comment_datetime: editData.comment_datetime,
-  //             }
-  //           : report
-  //       )
-  //     );
-  //     handleModalClose();
-  //   } catch (error) {
-  //     console.error("Error saving data:", error);
-  //   }
-  // }; 
-
-
   const handleModalSave = async () => {
     try {
       const data = {

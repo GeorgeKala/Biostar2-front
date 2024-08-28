@@ -43,10 +43,10 @@ const Sidebar = () => {
   return (
     <div className="bg-[#1976D2] w-[18%] flex flex-col gap-8">
       <div className="flex flex-col items-center w-full">
-        <img src={GorgiaLogo} className="w-[155px]" alt="Gorgia Logo" />
-        <div className="flex justify-center gap-2">
-          <img src={BiostarIcon} alt="Biostar Icon" />
-          <img src={BiostarLogo} className="w-[90px]" alt="Biostar Logo" />
+        <img src={GorgiaLogo} className="w-[155px] h-[65px]" alt="Gorgia Logo" />
+        <div className="flex justify-center gap-2 mt-4">
+          <img src={BiostarIcon} className="w-[18px] h-[21.37px]" alt="Biostar Icon" />
+          <img src={BiostarLogo} className="w-[100px]" alt="Biostar Logo" />
         </div>
       </div>
       <div className="flex flex-col h-full gap-6 px-4">

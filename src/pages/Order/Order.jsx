@@ -14,6 +14,7 @@ import NestedDropdownModal from "../../components/NestedDropdownModal";
 import DepartmentInput from "../../components/DepartmentInput";
 import EmployeeInput from "../../components/employee/EmployeeInput";
 import { fetchEmployeeOrders } from "../../redux/orderSlice";
+import SuccessPopup from "../../components/SuccessPopup";
 
 const Order = () => {
   const user = useSelector((state) => state.user.user);
@@ -21,7 +22,9 @@ const Order = () => {
   const { orders } = useSelector((state) => state.orders);
   const [EmployeeModalOpen, setEmployeeModalOpen] = useState(false);
   const [currentEmployeeInput, setCurrentEmployeeInput] = useState("");
-  const { departments, nestedDepartments } = useSelector((state) => state.departments);
+  const { departments, nestedDepartments } = useSelector(
+    (state) => state.departments
+  );
   const dispatch = useDispatch();
   const [filters, setFilters] = useState({
     start_date: "",
@@ -30,6 +33,8 @@ const Order = () => {
     department_id: user?.user_type?.has_full_access ? "" : user?.department?.id,
   });
   const [data, setData] = useState([]);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false); 
+  const [successMessage, setSuccessMessage] = useState(""); 
   const columns = [
     { label: "თარიღი", key: "date" },
     { label: "თანამშრომელი", key: "employee" },
@@ -44,9 +49,8 @@ const Order = () => {
     day_type_id: "",
   });
   const [dayTypes, setDayTypes] = useState([]);
-  const [modalMode, setModalMode] = useState("create"); 
+  const [modalMode, setModalMode] = useState("create");
   const [openNestedDropdown, setOpenNestedDropdown] = useState(false);
-
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -65,7 +69,7 @@ const Order = () => {
     if (filters.employee_id) payload.employee_id = filters.employee_id;
 
     try {
-      dispatch(fetchEmployeeOrders(payload))
+      dispatch(fetchEmployeeOrders(payload));
     } catch (error) {
       console.error("Error fetching orders:", error);
     }
@@ -82,8 +86,11 @@ const Order = () => {
   const handleSaveOrder = async (e) => {
     e.preventDefault();
     try {
-      const response = await reportService.updateDayTypeForDateRange(formData);
-      window.location.reload();
+      await reportService.updateDayTypeForDateRange(formData);
+      dispatch(fetchEmployeeOrders(filters)); 
+      setShowSuccessPopup(true); 
+      setSuccessMessage("ბრძანება წარმატებით დაემატა"); 
+      closeModal();
     } catch (error) {
       console.error("Error saving order:", error);
     }
@@ -92,8 +99,11 @@ const Order = () => {
   const handleDeleteOrder = async (e) => {
     e.preventDefault();
     try {
-      const response = await reportService.deleteDayTypeForDateRange(formData);
-      window.location.reload();
+      await reportService.deleteDayTypeForDateRange(formData);
+      dispatch(fetchEmployeeOrders(filters));
+      setShowSuccessPopup(true); 
+      setSuccessMessage("ბრძანება წარმატებით წაიშალა");
+      closeModal();
     } catch (error) {
       console.error("Error deleting order:", error);
     }
@@ -148,7 +158,6 @@ const Order = () => {
     closeEmployeeModal();
   };
 
-
   const openModalForCreate = () => {
     setModalMode("create");
     setOpenModal(true);
@@ -176,7 +185,6 @@ const Order = () => {
     XLSX.writeFile(workbook, "Orders.xlsx");
   };
 
-
   const handleDepartmentSelect = (departmentId, departmentName) => {
     setFilters((prevData) => ({
       ...prevData,
@@ -192,7 +200,6 @@ const Order = () => {
     }));
   };
 
-
   const filteredNestedDepartments = user?.user_type?.has_full_access
     ? nestedDepartments
     : nestedDepartments.filter(
@@ -201,30 +208,31 @@ const Order = () => {
           dept.parent_id === user?.department?.id
       );
 
-  
-
   const handleClearFilterData = () => {
-    setFilters((prevData) => (
-      {
-        ...prevData,
-        employee:"",
-        employee_id:"",
-      }
-    ));
+    setFilters((prevData) => ({
+      ...prevData,
+      employee: "",
+      employee_id: "",
+    }));
   };
-
 
   const handleClearFormData = () => {
-    setFormData((prevData) => (
-      {
-        ...prevData,
-        employee:"",
-        employee_id:"",
-      }
-    ));
+    setFormData((prevData) => ({
+      ...prevData,
+      employee: "",
+      employee_id: "",
+    }));
   };
-      
 
+  useEffect(() => {
+    if (showSuccessPopup) {
+      const timer = setTimeout(() => {
+        setShowSuccessPopup(false); 
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [showSuccessPopup]);
 
   return (
     <AuthenticatedLayout>
@@ -255,54 +263,6 @@ const Order = () => {
             value={filters.end_date}
             onChange={handleInputChange}
           />
-          {/* <div onClick={() => openEmployeeModal("filter")} className="w-full">
-            <GeneralInputGroup
-              name="employee"
-              placeholder="თანამშრომელი"
-              type="text"
-              value={filters.employee}
-              onChange={handleInputChange}
-            />
-          </div> */}
-          {/* <div className="w-full flex flex-col gap-2 relative">
-            <div className="flex">
-              <input
-                className="bg-white border border-[#105D8D] outline-none rounded-l py-3 px-4 w-full pr-10"
-                placeholder="თანამშრომელი"
-                value={filters.employee}
-                onChange={handleInputChange}
-                readOnly
-              />
-              {filters.employee && (
-                <button
-                  type="button"
-                  onClick={() => handleClear("employee")}
-                  className="absolute right-12 top-[50%] transform -translate-y-1/2 mr-4"
-                >
-                  <svg
-                    className="w-6 h-6"
-                    fill="none"
-                    stroke="black"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M6 18L18 6M6 6l12 12"
-                    ></path>
-                  </svg>
-                </button>
-              )}
-              <button
-                onClick={() => openEmployeeModal("filter")}
-                className="bg-[#105D8D] px-4 rounded-r"
-              >
-                <img className="w-[20px]" src={SearchIcon} alt="" />
-              </button>
-            </div>
-          </div> */}
           <EmployeeInput
             value={filters.employee}
             onClear={() => handleClearFilterData()}
@@ -443,15 +403,6 @@ const Order = () => {
                 >
                   თანამშრომელი:
                 </label>
-                {/* <input
-                  type="text"
-                  name="employee"
-                  className="mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                  value={formData.employee}
-                  onChange={handleFormInputChange}
-                  required
-                  onClick={() => openEmployeeModal("form")}
-                /> */}
                 <EmployeeInput
                   value={formData.employee}
                   onClear={handleClearFormData}
@@ -525,6 +476,13 @@ const Order = () => {
         onClose={closeEmployeeModal}
         onSelectEmployee={handleEmployeeSelect}
       />
+      {showSuccessPopup && (
+        <SuccessPopup
+          title="Success"
+          message={successMessage}
+          onClose={() => setShowSuccessPopup(false)}
+        />
+      )}
     </AuthenticatedLayout>
   );
 };

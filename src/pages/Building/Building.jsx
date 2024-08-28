@@ -176,10 +176,10 @@ const Building = () => {
                 </div>
                 <div className="flex space-x-2">
                   <button onClick={() => openUpdateModal(item)}>
-                    <img src={CreateIcon} alt="Edit Icon" className="w-4 h-4" />
+                    <img src={CreateIcon} alt="Edit Icon" className="w-4 " />
                   </button>
                   <button onClick={() => handleDelete(item.id)}>
-                    <img src={DeleteIcon} alt="Delete Icon" className="w-4 h-4" />
+                    <img src={DeleteIcon} alt="Delete Icon" className="w-4 " />
                   </button>
                 </div>
               </div>

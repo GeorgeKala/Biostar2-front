@@ -638,10 +638,10 @@ const CommentTable = () => {
             onSearchClick={() => setEmployeeModalOpen(true)}
           />
           <button
-            className="bg-[#1AB7C1] rounded-lg px-8 py-4"
+            className="bg-[#1AB7C1] rounded-lg px-8 py-6"
             onClick={handleSubmit}
           >
-            <img src={SearchIcon} className="w-[50px]" alt="Search Icon" />
+            <img src={SearchIcon}   alt="Search Icon" />
           </button>
         </div>
 

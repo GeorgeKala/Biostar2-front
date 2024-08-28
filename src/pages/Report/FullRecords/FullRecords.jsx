@@ -232,9 +232,6 @@ const FullRecords = () => {
           onSort={handleSort}
           onFilterClick={handleOpenFilterModal}
           onFilterChange={handleInputChange}
-          rowClassName={(record) =>
-            selectedRecord?.id === record.id ? "bg-blue-200" : ""
-          }
           onRowClick={(record) => setSelectedRecord(record)}
           filterableFields={[
             "employee_fullname",

@@ -8,6 +8,7 @@ import EmployeeInput from '../../../components/employee/EmployeeInput';
 import NestedDropdownModal from '../../../components/NestedDropdownModal';
 import EmployeeModal from '../../../components/employee/EmployeeModal';
 import SearchIcon from '../../../assets/search.png';
+import * as XLSX from 'xlsx';
 
 const KitchenReport = () => {
   const [reportData, setReportData] = useState(null);
@@ -63,6 +64,96 @@ const KitchenReport = () => {
     setEmployeeModalOpen(false);
   }, []);
 
+  const exportToExcel = () => {
+    if (!reportData) return;
+
+    const dataToExport = [];
+    
+    // Create headers
+    const headers = ["დეპარტამენტი", "თანამშრომელი", ...reportData.report_periods.flatMap((month, index) => [...reportData.dates_grouped_by_month[index], "Total"]), "საბოლოო ჯამი"];
+    dataToExport.push(headers);
+
+    Object.keys(reportData.employee_data).forEach((month) => {
+      Object.keys(reportData.employee_data[month]).forEach((department) => {
+        Object.keys(reportData.employee_data[month][department]).forEach((employee, index) => {
+          const row = [];
+          if (index === 0) {
+            row.push(department); 
+          } else {
+            row.push(""); 
+          }
+          row.push(employee);
+          
+          reportData.dates_grouped_by_month.forEach((dates, monthIndex) => {
+            dates.forEach((date) => {
+              row.push(reportData.employee_data[month][department][employee][date] || 0);
+            });
+            row.push(reportData.employee_data[month][department][employee]["Month Total"]);
+          });
+
+          row.push(reportData.employee_data[month][department][employee]["Grand Total"] || 0);
+
+          dataToExport.push(row);
+        });
+
+        const deptTotalRow = [`${department} ჯამური`, "", ...reportData.dates_grouped_by_month.flatMap((dates, monthIndex) => [
+          ...dates.map((date) => reportData.department_totals[month][department][date] || 0),
+          reportData.department_totals[month][department]["Month Total"]
+        ]), reportData.yearly_totals[department]["Year Total"] || 0];
+        dataToExport.push(deptTotalRow);
+      });
+    });
+
+    const worksheet = XLSX.utils.aoa_to_sheet(dataToExport);
+
+    // Apply merged cells for department headers
+    const mergeCells = [];
+    let rowIndex = 1;
+    for (let i = 0; i < dataToExport.length; i++) {
+      if (dataToExport[i][0] !== "") {
+        mergeCells.push({ s: { r: rowIndex, c: 0 }, e: { r: rowIndex, c: 1 } });
+        rowIndex++;
+      } else {
+        rowIndex++;
+      }
+    }
+    worksheet['!merges'] = mergeCells;
+
+    // Styling for header
+    const headerRange = XLSX.utils.decode_range(worksheet['!ref']);
+    for (let C = headerRange.s.c; C <= headerRange.e.c; C++) {
+      const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C });
+      if (!worksheet[cellAddress]) continue;
+      worksheet[cellAddress].s = {
+        font: { bold: true, color: { rgb: "FFFFFF" } },
+        fill: { fgColor: { rgb: "1976D2" } },
+        alignment: { horizontal: "center" },
+      };
+    }
+
+    // Styling for data cells
+    for (let R = 1; R <= headerRange.e.r; R++) {
+      for (let C = 0; C <= headerRange.e.c; C++) {
+        const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+        if (!worksheet[cellAddress]) continue;
+        worksheet[cellAddress].s = {
+          border: {
+            top: { style: "thin", color: { rgb: "000000" } },
+            bottom: { style: "thin", color: { rgb: "000000" } },
+            left: { style: "thin", color: { rgb: "000000" } },
+            right: { style: "thin", color: { rgb: "000000" } },
+          },
+          alignment: { horizontal: "center", vertical: "center" },
+        };
+      }
+    }
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Kitchen Report");
+
+    XLSX.writeFile(workbook, "KitchenReport.xlsx");
+  };
+
   const reportPeriods = reportData?.report_periods || [];
   const datesGroupedByMonth = reportData?.dates_grouped_by_month || [];
   const departmentTotals = reportData?.department_totals || {};
@@ -72,7 +163,18 @@ const KitchenReport = () => {
   return (
     <AuthenticatedLayout>
       <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold mb-4">სამზარეულოს რეპორტი</h1>
+        <div className="flex justify-between w-full items-center mb-8">
+          <h1 className="text-[#1976D2] font-medium text-[23px]">
+            სამზარეულოს რეპორტი
+          </h1>
+          <button
+            onClick={exportToExcel}
+            className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative"
+          >
+            ჩამოტვირთვა
+            <span className="absolute inset-0 border border-white border-dashed rounded"></span>
+          </button>
+        </div>
 
         <div className="flex items-center gap-4 mb-8">
           <GeneralInputGroup

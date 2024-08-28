@@ -119,12 +119,13 @@ const buildingService = {
     }
   },
 
-  addAccessGroup: async (buildingId, accessGroups) => {
+  addAccessGroup: async (buildingId, accessGroups, type) => {
     try {
       const response = await axiosInstance.put(
         `/buildings/${buildingId}/access-groups`,
         {
-          access_group: accessGroups.map((group) => parseInt(group, 10)),
+          access_group: accessGroups,
+          type: type,  
         }
       );
       return response.data;

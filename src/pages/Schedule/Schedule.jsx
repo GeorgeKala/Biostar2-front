@@ -1,142 +1,203 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import AuthenticatedLayout from "../../Layouts/AuthenticatedLayout";
 import NewIcon from "../../assets/new.png";
 import ArrowDownIcon from "../../assets/arrow-down-2.png";
 import CreateIcon from "../../assets/create.png";
 import DeleteIcon from "../../assets/delete-2.png";
-import {
-  fetchSchedules,
-  createSchedule,
-  updateSchedule,
-  deleteSchedule,
-} from "../../redux/scheduleSlice";
+import EditIcon from "../../assets/edit.png";
+import { fetchSchedules, createSchedule, updateSchedule, deleteSchedule } from "../../redux/scheduleSlice";
 import * as XLSX from "xlsx";
+import { useFilter } from "../../hooks/useFilter";
+import FilterModal from "../../components/FilterModal";
+import Table from "../../components/Table";
+import ScheduleForm from "../../components/schedule/ScheduleForm";
 
 const Schedule = () => {
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.user.user);
-  const scheduleItems = useSelector((state) => state.schedules.items);
-  const scheduleStatus = useSelector((state) => state.schedules.status);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editItemId, setEditItemId] = useState(null);
-
+  const schedules = useSelector((state) => state.schedules.items);
+  const [filteredSchedules, setFilteredSchedules] = useState([]);
+  const [selectedScheduleId, setSelectedScheduleId] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState("create");
   const [formData, setFormData] = useState({
-    name: '',
-    start_date: '',
-    end_date: '',
-    day_start: '',
-    day_end: '',
-    repetition_unit: '',
-    interval: '',
-    comment: ''
+    name: "",
+    start_date: "",
+    end_date: "",
+    day_start: "",
+    day_end: "",
+    repetition_unit: "",
+    interval: "",
+    comment: ""
   });
 
-  const [filters, setFilters] = useState({
-    day_start: '',
-    day_end: ''
+  const { filters, handleInputChange, applyModalFilters, clearFilters } = useFilter({
+    name: { text: "", selected: [] },
+    start_date: { text: "", selected: [] },
+    end_date: { text: "", selected: [] }
   });
 
-  // Validation errors state
-  const [errors, setErrors] = useState({});
+  const [sortConfig, setSortConfig] = useState({
+    key: "",
+    direction: "ascending"
+  });
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [filterableData, setFilterableData] = useState([]);
+  const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
+  const [currentFilterField, setCurrentFilterField] = useState("");
 
   useEffect(() => {
-    if (scheduleStatus === "idle") {
-      dispatch(fetchSchedules());
-    }
-  }, [scheduleStatus, dispatch]);
+    dispatch(fetchSchedules());
+  }, [dispatch]);
 
-  const openModal = (id) => {
-    setEditItemId(id);
-    setModalOpen(true);
-    const editItem = scheduleItems.find(item => item.id === id);
-    if (editItem) {
-      setFormData({
-        name: editItem.name,
-        start_date: editItem.start_date,
-        end_date: editItem.end_date,
-        day_start: editItem.day_start,
-        day_end: editItem.day_end,
-        repetition_unit: editItem.repetition_unit,
-        interval: editItem.interval,
-        comment: editItem.comment
+  useEffect(() => {
+    setFilteredSchedules(schedules);
+  }, [schedules]);
+
+  useEffect(() => {
+    applyFilters();
+  }, [filters, sortConfig]);
+
+  const applyFilters = () => {
+    const filtered = schedules.filter((schedule) => {
+      const matches = (fieldValue, filter) => {
+        const textFilter = filter.text.toLowerCase();
+        const selectedFilters = filter.selected.map((f) => f.toLowerCase());
+
+        const matchesText =
+          !textFilter || (fieldValue && fieldValue.toLowerCase().includes(textFilter));
+        const matchesSelected =
+          selectedFilters.length === 0 ||
+          selectedFilters.some(
+            (selected) => fieldValue && fieldValue.toLowerCase().includes(selected)
+          );
+
+        return matchesText && matchesSelected;
+      };
+
+      return (
+        matches(schedule.name, filters.name) &&
+        matches(schedule.start_date, filters.start_date) &&
+        matches(schedule.end_date, filters.end_date)
+      );
+    });
+
+    if (sortConfig.key) {
+      filtered.sort((a, b) => {
+        const aValue = sortConfig.key.split(".").reduce((o, i) => (o ? o[i] : ""), a);
+        const bValue = sortConfig.key.split(".").reduce((o, i) => (o ? o[i] : ""), b);
+        if (aValue < bValue) {
+          return sortConfig.direction === "ascending" ? -1 : 1;
+        }
+        if (aValue > bValue) {
+          return sortConfig.direction === "ascending" ? 1 : -1;
+        }
+        return 0;
       });
     }
+
+    setFilteredSchedules(filtered);
   };
 
-  const closeModal = () => {
-    setModalOpen(false);
-    setEditItemId(null);
+  const handleSort = (key) => {
+    let direction = "ascending";
+    if (sortConfig.key === key && sortConfig.direction === "ascending") {
+      direction = "descending";
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const handleOpenFilterModal = (data, fieldName, rect) => {
+    setFilterableData(data);
+    setIsFilterModalOpen(true);
+    setModalPosition({ top: rect.bottom, left: rect.left - 240 });
+    setCurrentFilterField(fieldName);
+  };
+
+  const openAddModal = () => {
+    setIsModalOpen(true);
+    setModalMode("create");
     setFormData({
-      name: '',
-      start_date: '',
-      end_date: '',
-      day_start: '',
-      day_end: '',
-      repetition_unit: '',
-      interval: '',
-      comment: ''
-    });
-    setErrors({});
-  };
-
-  const handleSaveSchedule = async () => {
-    const validationErrors = validateForm(formData);
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-
-    if (editItemId) {
-      dispatch(
-        updateSchedule({ id: editItemId, scheduleData: formData })
-      );
-    } else {
-      dispatch(createSchedule(formData));
-    }
-    closeModal();
-  };
-
-  const handleDeleteSchedule = (id) => {
-    dispatch(deleteSchedule(id));
-  };
-
-  const validateForm = (data) => {
-    const errors = {};
-    if (!data.name.trim()) {
-      errors.name = "Name is required";
-    } else if (scheduleItems.some(item => item.name === data.name && item.id !== editItemId)) {
-      errors.name = "Name must be unique";
-    }
-
-    return errors;
-  };
-
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters({
-      ...filters,
-      [name]: value
+      name: "",
+      start_date: "",
+      end_date: "",
+      day_start: "",
+      day_end: "",
+      repetition_unit: "",
+      interval: "",
+      comment: ""
     });
   };
 
-  const filteredScheduleItems = scheduleItems.filter(item => {
-    const startTimeFilter = filters.day_start ? new Date(`1970-01-01T${item.day_start}`) >= new Date(`1970-01-01T${filters.day_start}`) : true;
-    const endTimeFilter = filters.day_end ? new Date(`1970-01-01T${item.day_end}`) <= new Date(`1970-01-01T${filters.day_end}`) : true;
-    return startTimeFilter && endTimeFilter;
-  });
+  const openUpdateModal = (schedule) => {
+    setIsModalOpen(true);
+    setModalMode("update");
+    setSelectedScheduleId(schedule.id);
+    setFormData({
+      name: schedule.name,
+      start_date: schedule.start_date,
+      end_date: schedule.end_date,
+      day_start: schedule.day_start,
+      day_end: schedule.day_end,
+      repetition_unit: schedule.repetition_unit,
+      interval: schedule.interval,
+      comment: schedule.comment
+    });
+  };
+
+  const closeAddModal = () => {
+    setIsModalOpen(false);
+    setModalMode("create");
+    setSelectedScheduleId(null);
+    setFormData({
+      name: "",
+      start_date: "",
+      end_date: "",
+      day_start: "",
+      day_end: "",
+      repetition_unit: "",
+      interval: "",
+      comment: ""
+    });
+  };
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+
+    try {
+      if (modalMode === "create") {
+        dispatch(createSchedule(formData));
+        closeAddModal();
+      } else if (modalMode === "update" && selectedScheduleId) {
+        dispatch(updateSchedule({ id: selectedScheduleId, scheduleData: formData }));
+        closeAddModal();
+      }
+    } catch (error) {
+      alert("Failed to save schedule: " + error.message);
+    }
+  };
+
+  const handleDelete = async (scheduleId) => {
+    if (window.confirm("Are you sure you want to delete this schedule?")) {
+      dispatch(deleteSchedule(scheduleId));
+    }
+  };
+
+  const handleRowClick = (scheduleId) => {
+    setSelectedScheduleId(scheduleId === selectedScheduleId ? null : scheduleId);
+  };
 
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(
-      scheduleItems.map((item) => ({
-        "სახელი": item.name,
-        "დაწყების თარიღი": item.start_date,
-        "დასრულების თარიღი": item.end_date,
-        "დაწყების დრო": item.day_start,
-        "დამთავრების დრო": item.day_end,
-        "გამეორების ერთეული": item.repetition_unit,
-        "ინტერვალი": item.interval,
-        "კომენტარი": item.comment,
+      filteredSchedules.map((schedule) => ({
+        "სახელი": schedule.name,
+        "დაწყების თარიღი": schedule.start_date,
+        "დასრულების თარიღი": schedule.end_date,
+        "დაწყების დრო": schedule.day_start,
+        "დამთავრების დრო": schedule.day_end,
+        "გამეორების ერთეული": schedule.repetition_unit,
+        "ინტერვალი": schedule.interval,
+        "კომენტარი": schedule.comment
       }))
     );
     const workbook = XLSX.utils.book_new();
@@ -144,369 +205,120 @@ const Schedule = () => {
     XLSX.writeFile(workbook, "Schedules.xlsx");
   };
 
+  const tableHeaders = [
+    {
+      label: "სახელი",
+      key: "name",
+      extractValue: (schedule) => schedule.name
+    },
+    {
+      label: "დაწყების თარიღი",
+      key: "start_date",
+      extractValue: (schedule) => schedule.start_date
+    },
+    {
+      label: "დასრულების თარიღი",
+      key: "end_date",
+      extractValue: (schedule) => schedule.end_date
+    },
+    {
+      label: "დაწყების დრო",
+      key: "day_start",
+      extractValue: (schedule) => schedule.day_start
+    },
+    {
+      label: "დამთავრების დრო",
+      key: "day_end",
+      extractValue: (schedule) => schedule.day_end
+    },
+    {
+      label: "გამეორების ერთეული",
+      key: "repetition_unit",
+      extractValue: (schedule) => schedule.repetition_unit
+    },
+    {
+      label: "ინტერვალი",
+      key: "interval",
+      extractValue: (schedule) => schedule.interval
+    },
+    {
+      label: "კომენტარი",
+      key: "comment",
+      extractValue: (schedule) => schedule.comment
+    }
+  ];
+
   return (
     <AuthenticatedLayout>
       <div className="w-full px-20 py-4 flex flex-col gap-8">
-        <div className="flex justify-between w-full">
+        <div className="flex justify-between items-center w-full">
           <h1 className="text-[#1976D2] font-medium text-[23px]">განრიგები</h1>
-          {user.user_type.name == "ადმინისტრატორი" && (
-            <div className="flex items-center gap-8">
-              <button
-                className="bg-[#FBD15B]  text-[#1976D2] px-4 py-4 rounded-md flex items-center gap-2"
-                onClick={() => setModalOpen(true)}
-              >
-                + დაამატე ახალი განრიგი
-              </button>
-              <button
-                onClick={exportToExcel}
-                className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative"
-              >
-                ჩამოტვირთვა
-                <img
-                  src={ArrowDownIcon}
-                  className="ml-3"
-                  alt="Arrow Down Icon"
-                />
-                <span className="absolute inset-0 border border-white border-dashed rounded"></span>
-              </button>
-            </div>
-          )}
-        </div>
-        <div className="flex justify-between gap-4 mb-4"></div>
-        <div className="overflow-x-auto">
-          <table className=" w-full divide-y divide-gray-200 table-fixed">
-            <thead className="bg-blue-500 text-white">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider truncate w-1/9">
-                  განრიგის სახელი
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider truncate w-1/9">
-                  დაწყების თარიღი
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider truncate w-1/9">
-                  დასრულების თარიღი
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider truncate w-1/9">
-                  დაწყების დრო
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider truncate w-1/9">
-                  დამთავრების დრო
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider truncate w-1/9">
-                  გამეორების ერთეული
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider truncate w-1/9">
-                  ინტერვალი
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider truncate w-1/9">
-                  კომენტარი
-                </th>
-                {user.user_type.name == "ადმინისტრატორი" && (
-                  <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider truncate w-1/9">
-                    განახლება/წაშლა
-                  </th>
-                )}
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredScheduleItems.map((item) => (
-                <tr key={item.id} className="cursor-pointer">
-                  <td className="px-6 py-4 truncate w-1/9">
-                    <input
-                      type="text"
-                      value={item.name}
-                      className="w-full bg-transparent outline-none"
-                      readOnly
-                    />
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap w-1/9 truncate">
-                    {item.start_date}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap w-1/9 truncate">
-                    {item.end_date}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap w-1/9 truncate">
-                    {item.day_start}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap w-1/9 truncate">
-                    {item.day_end}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap w-1/9 truncate">
-                    {item.repetition_unit}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap w-1/9 truncate">
-                    {item.interval}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap w-1/9 truncate">
-                    {item.comment}
-                  </td>
-                  {user.user_type.name == "ადმინისტრატორი" && (
-                    <td className="px-6 py-4 flex justify-center gap-3 whitespace-nowrap text-center text-sm font-medium w-1/9">
-                      <button
-                        onClick={() => openModal(item.id)}
-                        className="text-blue-600 hover:text-blue-900 focus:outline-none"
-                      >
-                        <img src={CreateIcon} alt="Edit" className="w-5 h-5" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteSchedule(item.id)}
-                        className="text-red-600 hover:text-red-900 focus:outline-none"
-                      >
-                        <img
-                          src={DeleteIcon}
-                          alt="Delete"
-                          className="w-5 h-5"
-                        />
-                      </button>
-                    </td>
-                  )}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-      {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
-          <div className="bg-white rounded-lg max-w-md w-full ">
-            <div className="flex justify-between items-center p-3 bg-blue-500 text-white rounded-t-lg">
-              <h2 className="text-lg font-semibold">
-                {editItemId ? "შეცვალე განრიგი" : "დაამატე ახალი განრიგი"}
-              </h2>
-              <button
-                onClick={closeModal}
-                className="hover:text-gray-200 focus:outline-none"
-              >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  ></path>
-                </svg>
-              </button>
-            </div>
-            <form onSubmit={handleSaveSchedule} className="p-3">
-              <div className="mb-4">
-                <label
-                  htmlFor="name"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  სახელი:
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  className={`mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 ${
-                    errors.name && "border-red-500"
-                  }`}
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  required
-                />
-                {errors.name && (
-                  <p className="text-red-500 text-sm mt-1">{errors.name}</p>
-                )}
-              </div>
-              <div className="mb-4">
-                <label
-                  htmlFor="start_date"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  დაწყების თარიღი:
-                </label>
-                <input
-                  type="date"
-                  id="start_date"
-                  name="start_date"
-                  className={`mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 ${
-                    errors.start_date && "border-red-500"
-                  }`}
-                  value={formData.start_date}
-                  onChange={(e) =>
-                    setFormData({ ...formData, start_date: e.target.value })
-                  }
-                />
-                {errors.start_date && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.start_date}
-                  </p>
-                )}
-              </div>
-              <div className="mb-4">
-                <label
-                  htmlFor="end_date"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  დამთავრების თარიღი:
-                </label>
-                <input
-                  type="date"
-                  id="end_date"
-                  name="end_date"
-                  className={`mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 ${
-                    errors.end_date && "border-red-500"
-                  }`}
-                  value={formData.end_date}
-                  onChange={(e) =>
-                    setFormData({ ...formData, end_date: e.target.value })
-                  }
-                />
-                {errors.end_date && (
-                  <p className="text-red-500 text-sm mt-1">{errors.end_date}</p>
-                )}
-              </div>
-              <div className="mb-4">
-                <label
-                  htmlFor="day_start"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  დაწყების დრო:
-                </label>
-                <input
-                  type="time"
-                  id="day_start"
-                  name="day_start"
-                  className={`mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 ${
-                    errors.day_start && "border-red-500"
-                  }`}
-                  value={formData.day_start}
-                  onChange={(e) =>
-                    setFormData({ ...formData, day_start: e.target.value })
-                  }
-                />
-                {errors.day_start && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.day_start}
-                  </p>
-                )}
-              </div>
-              <div className="mb-4">
-                <label
-                  htmlFor="day_end"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  დამთავრების დრო:
-                </label>
-                <input
-                  type="time"
-                  id="day_end"
-                  name="day_end"
-                  className={`mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 ${
-                    errors.day_end && "border-red-500"
-                  }`}
-                  value={formData.day_end}
-                  onChange={(e) =>
-                    setFormData({ ...formData, day_end: e.target.value })
-                  }
-                />
-                {errors.day_end && (
-                  <p className="text-red-500 text-sm mt-1">{errors.day_end}</p>
-                )}
-              </div>
-              <div className="mb-4">
-                <label
-                  htmlFor="repetition_unit"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  გამეორების ერთეული:
-                </label>
-                <input
-                  type="number"
-                  id="repetition_unit"
-                  name="repetition_unit"
-                  className={`mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 ${
-                    errors.repetition_unit && "border-red-500"
-                  }`}
-                  value={formData.repetition_unit}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      repetition_unit: e.target.value,
-                    })
-                  }
-                />
-                {errors.repetition_unit && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.repetition_unit}
-                  </p>
-                )}
-              </div>
-              <div className="mb-4">
-                <label
-                  htmlFor="interval"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  ინტერვალი:
-                </label>
-                <input
-                  type="number"
-                  id="interval"
-                  name="interval"
-                  className={`mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 ${
-                    errors.interval && "border-red-500"
-                  }`}
-                  value={formData.interval}
-                  onChange={(e) =>
-                    setFormData({ ...formData, interval: e.target.value })
-                  }
-                />
-                {errors.interval && (
-                  <p className="text-red-500 text-sm mt-1">{errors.interval}</p>
-                )}
-              </div>
-              <div className="mb-4">
-                <label
-                  htmlFor="comment"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  კომენტარი:
-                </label>
-                <input
-                  type="text"
-                  id="comment"
-                  name="comment"
-                  className={`mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 ${
-                    errors.comment && "border-red-500"
-                  }`}
-                  value={formData.comment}
-                  onChange={(e) =>
-                    setFormData({ ...formData, comment: e.target.value })
-                  }
-                />
-                {errors.comment && (
-                  <p className="text-red-500 text-sm mt-1">{errors.comment}</p>
-                )}
-              </div>
-              <div className="flex justify-end mt-4">
-                <button
-                  type="submit"
-                  className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md mr-2"
-                >
-                  Save
-                </button>
-                <button
-                  type="button"
-                  onClick={closeModal}
-                  className="bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-4 rounded-md"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
+          <div className="flex items-center gap-8">
+            <button
+              className="bg-[#1976D2] text-white px-4 py-4 rounded-md flex items-center gap-2"
+              onClick={openAddModal}
+            >
+              <img src={NewIcon} alt="New" />
+              ახალი
+            </button>
+            <button
+              onClick={() => openUpdateModal(schedules.find((schedule) => schedule.id === selectedScheduleId))}
+              className="bg-[#1976D2] text-white px-4 py-4 rounded-md flex items-center gap-2"
+            >
+              <img src={EditIcon} alt="Edit" />
+              შეცვლა
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete(selectedScheduleId);
+              }}
+              className="bg-[#D9534F] text-white px-4 py-4 rounded-md flex items-center gap-2"
+            >
+              <img src={DeleteIcon} alt="Delete" />
+              წაშლა
+            </button>
+            <button
+              onClick={exportToExcel}
+              className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative"
+            >
+              ჩამოტვირთვა
+              <img src={ArrowDownIcon} className="ml-3" alt="Arrow Down Icon" />
+              <span className="absolute inset-0 border border-white border-dashed rounded"></span>
+            </button>
           </div>
         </div>
+        <Table
+          data={filteredSchedules}
+          headers={tableHeaders}
+          filters={filters}
+          sortConfig={sortConfig}
+          onSort={handleSort}
+          onFilterClick={handleOpenFilterModal}
+          onFilterChange={handleInputChange}
+          rowClassName={(schedule) => (schedule.id === selectedScheduleId ? "bg-blue-200" : "")}
+          onRowClick={(schedule) => handleRowClick(schedule.id)}
+          filterableFields={["name", "start_date", "end_date", "day_start", "day_end", "repetition_unit", "interval", "comment"]}
+        />
+      </div>
+
+      {isModalOpen && (
+        <ScheduleForm
+          formData={formData}
+          handleChange={(e) => setFormData({ ...formData, [e.target.name]: e.target.value })}
+          handleSave={handleSave}
+          closeModal={closeAddModal}
+          modalMode={modalMode}
+        />
       )}
+
+      <FilterModal
+        isOpen={isFilterModalOpen}
+        onClose={() => setIsFilterModalOpen(false)}
+        filterableData={filterableData}
+        onApply={(selectedFilters) => applyModalFilters(currentFilterField, selectedFilters)}
+        position={modalPosition}
+      />
     </AuthenticatedLayout>
   );
 };

@@ -35,7 +35,11 @@ const UserForm = ({
             </svg>
           </button>
         </div>
-        <form onSubmit={handleSave} className="p-3">
+        {/* Explicitly prevent form submission when interacting with inputs */}
+        <form
+          className="p-3"
+          onSubmit={(e) => e.preventDefault()}
+        >
           <div className="mb-4">
             <label htmlFor="name" className="block text-sm font-medium text-gray-700">
               სახელი:
@@ -108,7 +112,11 @@ const UserForm = ({
             />
           </div>
           <div className="flex justify-end mt-4">
-            <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md mr-2">
+            <button
+              type="button"
+              onClick={handleSave}
+              className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md mr-2"
+            >
               Save
             </button>
             <button

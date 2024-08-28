@@ -460,10 +460,10 @@ const EmployeeCreate = () => {
               onChange={handleInput}
             />
           </div>
-          <div className="flex justify-end gap-4 mt-10">
+          <div className="flex justify-end  gap-4 mt-10">
             <button
               onClick={handleSubmit}
-              className="bg-[#FBD15B] text-white px-4 py-2 rounded-md flex items-center gap-2"
+              className="bg-[#FBD15B] text-white fixed bottom-0 right-20 px-4 py-2 rounded-md flex items-center gap-2"
             >
               <img src={SaveIcon} alt="Save" />
               შენახვა
