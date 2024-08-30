@@ -4,7 +4,7 @@ import AuthenticatedLayout from "../../Layouts/AuthenticatedLayout";
 import NewIcon from "../../assets/new.png";
 import ArrowDownIcon from "../../assets/arrow-down-2.png";
 import CreateIcon from "../../assets/create.png";
-import DeleteIcon from "../../assets/delete-2.png";
+import DeleteIcon from "../../assets/delete.png";
 import EditIcon from "../../assets/edit.png";
 import { fetchUsers } from "../../redux/userDataSlice";
 import { fetchUserTypes } from "../../redux/userTypeSlice";

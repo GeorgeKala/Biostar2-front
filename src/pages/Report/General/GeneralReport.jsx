@@ -286,18 +286,20 @@ const GeneralReport = () => {
 
   const getRowClassName = (item) => {
     if (
-      item.final_penalized_time > 0 &&
+      item.final_penalized_time > 0  &&
       !item.day_type_id &&
       !item.forgive_type
-    || item.day_type == "გაცდენა" && !item.day_type_id && !item.forgive_type
+    || item.day_type == "გაცდენა" && !item.day_type_id && !item.forgive_type 
     ) {
       return "bg-yellow-300";
     } else if (
-      item.final_penalized_time > 0 &&
+      item.final_penalized_time > 0  &&
       item.forgive_type.forgive == 0 &&
       !item.day_type_id
-
       || item.day_type == "გაცდენა" && item.forgive_type.forgive == 0 && !item.day_type_id
+      || item.final_penalized_time == null  &&
+      item.forgive_type.forgive == 0 &&
+      !item.day_type_id
 
     ) {
       return "bg-red-300";
@@ -306,6 +308,9 @@ const GeneralReport = () => {
       item.forgive_type.forgive == 1 &&
       !item.day_type_id
       || item.day_type == "გაცდენა" && item.forgive_type.forgive == 1 && !item.day_type_id
+      || item.final_penalized_time == null &&
+      item.forgive_type.forgive == 1 &&
+      !item.day_type_id
     ) {
       return "bg-green-300";
     } else {
@@ -485,7 +490,8 @@ const GeneralReport = () => {
                   ))}
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200 text-xs">
+              <tbody className="bg-white divide-y divide-gray-200 text-xs max-h-[100vh] overflow-y-auto">
+
                 {filteredReports &&
                   filteredReports.map((item, index) => (
                     <tr

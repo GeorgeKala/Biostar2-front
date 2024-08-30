@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import FilterIcon from "../assets/filter-icon.png";
 
 const Table = ({
@@ -16,15 +16,17 @@ const Table = ({
 }) => {
   const [columnWidths, setColumnWidths] = useState(
     headers.reduce((acc, header) => {
-      acc[header.key] = 50; 
+      acc[header.key] = 50;
       return acc;
     }, {})
   );
 
-  const handleResize = (newWidth, key) => {
+  const tableRef = useRef(null);
+
+  const handleResizeColumn = (newWidth, key) => {
     setColumnWidths((prevWidths) => ({
       ...prevWidths,
-      [key]: newWidth > 10 ? newWidth : 10, 
+      [key]: newWidth > 10 ? newWidth : 10,
     }));
   };
 
@@ -37,7 +39,7 @@ const Table = ({
 
     const handleMouseMove = (moveEvent) => {
       const newWidth = initialWidth + (moveEvent.clientX - startX);
-      handleResize(newWidth, sortKey);
+      handleResizeColumn(newWidth, sortKey);
     };
 
     const handleMouseUp = () => {
@@ -75,132 +77,138 @@ const Table = ({
       <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
     </svg>
   );
-  
 
   return (
     <div className="container mx-auto mt-10 overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200 border-collapse">
-        <thead className="bg-[#1976D2] text-white text-xs">
-          <tr>
-            <th className="w-[30px]"></th>
-            {headers &&
-              headers.map((header) => (
-                <th
-                  key={header.key}
-                  className="border font-normal border-gray-200 text-left px-2 customized-th-tr cursor-pointer relative group"
-                  style={{
-                    maxWidth: `${columnWidths[header.key]}px`, 
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                  }}
-                  onClick={() => onSort(header.key)}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="truncate flex-grow">{header.label}</span>
-                    <span className="flex items-center gap-1">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const rect = e.currentTarget.getBoundingClientRect();
-                          onFilterClick(
-                            data
-                              .map((item) => header.extractValue(item))
-                              .filter(Boolean),
-                            header.key,
-                            rect
-                          );
-                        }}
-                        className="filter-icon opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                      >
-                        <img
-                          src={FilterIcon}
-                          alt="Filter"
-                          className="w-3 h-3"
-                        />
-                      </button>
-                      {sortConfig.key === header.key && (
-                        <span>
-                          {sortConfig.direction === "ascending" ? (
-                            <ArrowUpIcon />
-                          ) : (
-                            <ArrowDownIcon />
-                          )}
-                        </span>
-                      )}
-                    </span>
-                  </div>
-                  <div
-                    onMouseDown={(e) => handleMouseDown(e, header.key)}
-                    className="absolute top-0 right-0 h-full w-2 cursor-col-resize bg-transparent"
-                  />
-                </th>
-              ))}
-          </tr>
-          <tr>
-            <th className="w-[30px]">
-              <img
-                className="w-[20px] m-auto"
-                src={FilterIcon}
-                alt="Filter Icon"
-              />
-            </th>
-            {filterableFields &&
-              filterableFields.map((filterKey) => (
-                <th
-                  key={filterKey}
-                  className="border border-gray-200 customized-th-tr"
-                  style={{
-                    maxWidth: `${columnWidths.filterKey}px`,
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                  }}
-                >
-                  <input
-                    type="text"
-                    name={filterKey}
-                    value={filters[filterKey]?.text || ""}
-                    onChange={onFilterChange}
-                    className="font-normal px-2 py-1 w-full outline-none border-none bg-transparent"
-                    autoComplete="off"
-                  />
-                </th>
-              ))}
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200 text-xs">
-          {data &&
-            data.map((item, index) => (
-              <tr
-                key={index}
-                className={`px-2 py-1 border border-gray-200 w-20 ${rowClassName(
-                  item
-                )}`}
-                onClick={() => onRowClick(item)}
-                onContextMenu={(e) => onContext(e)}
-              >
-                <td className="w-[30px]"></td>
-                {headers.map((header) => (
-                  <td
+      {/* Outer container with max height set to viewport height */}
+      <div
+        className="min-w-max max-h-[100vh] overflow-y-auto"
+        ref={tableRef}
+        style={{ maxHeight: "calc(100vh - 300px)" }} // Adjust 200px according to the space needed for other elements
+      >
+        <table className="min-w-full divide-y divide-gray-200 border-collapse">
+          <thead className="bg-[#1976D2] text-white text-xs sticky top-0 z-10">
+            <tr>
+              <th className="w-[30px]"></th>
+              {headers &&
+                headers.map((header) => (
+                  <th
                     key={header.key}
-                    className="px-2 py-1 border border-gray-200 customized-th-tr"
+                    className="border font-normal border-gray-200 text-left px-2 customized-th-tr cursor-pointer relative group"
                     style={{
                       maxWidth: `${columnWidths[header.key]}px`,
                       whiteSpace: "nowrap",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
                     }}
+                    onClick={() => onSort(header.key)}
                   >
-                    {header.extractValue
-                      ? header.extractValue(item)
-                      : item[header.key]}
-                  </td>
+                    <div className="flex items-center justify-between">
+                      <span className="truncate flex-grow">{header.label}</span>
+                      <span className="flex items-center gap-1">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const rect = e.currentTarget.getBoundingClientRect();
+                            onFilterClick(
+                              data
+                                .map((item) => header.extractValue(item))
+                                .filter(Boolean),
+                              header.key,
+                              rect
+                            );
+                          }}
+                          className="filter-icon opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                        >
+                          <img
+                            src={FilterIcon}
+                            alt="Filter"
+                            className="w-3 h-3"
+                          />
+                        </button>
+                        {sortConfig.key === header.key && (
+                          <span>
+                            {sortConfig.direction === "ascending" ? (
+                              <ArrowUpIcon />
+                            ) : (
+                              <ArrowDownIcon />
+                            )}
+                          </span>
+                        )}
+                      </span>
+                    </div>
+                    <div
+                      onMouseDown={(e) => handleMouseDown(e, header.key)}
+                      className="absolute top-0 right-0 h-full w-2 cursor-col-resize bg-transparent"
+                    />
+                  </th>
                 ))}
-              </tr>
-            ))}
-        </tbody>
-      </table>
+            </tr>
+            <tr>
+              <th className="w-[30px]">
+                <img
+                  className="w-[20px] m-auto"
+                  src={FilterIcon}
+                  alt="Filter Icon"
+                />
+              </th>
+              {filterableFields &&
+                filterableFields.map((filterKey) => (
+                  <th
+                    key={filterKey}
+                    className="border border-gray-200 customized-th-tr"
+                    style={{
+                      maxWidth: `${columnWidths.filterKey}px`,
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    <input
+                      type="text"
+                      name={filterKey}
+                      value={filters[filterKey]?.text || ""}
+                      onChange={onFilterChange}
+                      className="font-normal px-2 py-1 w-full outline-none border-none bg-transparent"
+                      autoComplete="off"
+                    />
+                  </th>
+                ))}
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200 text-xs">
+            {data &&
+              data.map((item, index) => (
+                <tr
+                  key={index}
+                  className={`px-2 py-1 border border-gray-200 w-20 ${rowClassName(
+                    item
+                  )}`}
+                  onClick={() => onRowClick(item)}
+                  onContextMenu={(e) => onContext(e)}
+                >
+                  <td className="w-[30px]"></td>
+                  {headers.map((header) => (
+                    <td
+                      key={header.key}
+                      className="px-2 py-1 border border-gray-200 customized-th-tr"
+                      style={{
+                        maxWidth: `${columnWidths[header.key]}px`,
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {header.extractValue
+                        ? header.extractValue(item)
+                        : item[header.key]}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

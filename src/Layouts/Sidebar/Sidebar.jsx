@@ -374,10 +374,10 @@ const Sidebar = () => {
           )}
         </div>
       </div>
-      <div className="flex gap-2 items-center justify-center">
+      <div className="flex gap-2 items-center justify-center pb-2">
         <button onClick={handleLogout} className="text-white flex gap-2">
           <img src={LogoutIcon} alt="Logout Icon" />
-          Logout
+          გამოსვლა
         </button>
       </div>
     </div>

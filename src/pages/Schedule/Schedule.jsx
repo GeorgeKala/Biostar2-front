@@ -3,8 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import AuthenticatedLayout from "../../Layouts/AuthenticatedLayout";
 import NewIcon from "../../assets/new.png";
 import ArrowDownIcon from "../../assets/arrow-down-2.png";
-import CreateIcon from "../../assets/create.png";
-import DeleteIcon from "../../assets/delete-2.png";
+import DeleteIcon from "../../assets/delete.png";
 import EditIcon from "../../assets/edit.png";
 import { fetchSchedules, createSchedule, updateSchedule, deleteSchedule } from "../../redux/scheduleSlice";
 import * as XLSX from "xlsx";
@@ -275,7 +274,7 @@ const Schedule = () => {
               }}
               className="bg-[#D9534F] text-white px-4 py-4 rounded-md flex items-center gap-2"
             >
-              <img src={DeleteIcon} alt="Delete" />
+              <img  src={DeleteIcon} alt="Delete" />
               წაშლა
             </button>
             <button
