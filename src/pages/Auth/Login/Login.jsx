@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import GorgiaLogo from '../../../assets/gorgia-jobs-cover.png';
 import BiostarLogo from '../../../assets/Biostar.png';
-import { fetchUser, login } from '../../../services/auth';
+import { login } from '../../../services/auth';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { fetchGroups } from '../../../redux/groupSlice';
 import { fetchSchedules } from '../../../redux/scheduleSlice';
 import { fetchAsyncUser } from '../../../redux/userDataSlice';
 import { fetchDepartments, fetchNestedDepartments } from '../../../redux/departmentsSlice';
-
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -21,21 +20,24 @@ const Login = () => {
         try {
             const response = await login(email, password);
         
-            if(response.status == 200){
+            if(response.status === 200){
                 await dispatch(fetchAsyncUser());
-                 dispatch(fetchGroups());
-                 dispatch(fetchDepartments());
-                 dispatch(fetchSchedules());
-                 dispatch(fetchNestedDepartments());
-                 
-                navigate('/reports/general')
+                dispatch(fetchGroups());
+                dispatch(fetchDepartments());
+                dispatch(fetchSchedules());
+                dispatch(fetchNestedDepartments());
+                navigate('/reports/general');
             }
         } catch (error) {
             setError(error.message || 'An error occurred during login.');
         }
     };
 
-
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            handleLogin();
+        }
+    };
 
     return (
         <div className="bg-[#1976D2] w-full h-[100vh] flex flex-col justify-between items-center py-[100px]">
@@ -49,6 +51,7 @@ const Login = () => {
                     placeholder="მომხმარებლის სახელი"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    onKeyDown={handleKeyDown}
                     className="bg-transparent text-white outline-none border-b border-white w-full py-2 placeholder-white"
                 />
                 <input
@@ -56,12 +59,13 @@ const Login = () => {
                     placeholder="პაროლი"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    onKeyDown={handleKeyDown}
                     className="bg-transparent text-white outline-none border-b border-white w-full py-2 placeholder-white"
                 />
                 {error && <p className="text-red-500">არასწორი პაროლი ან ემაილი</p>}
                 <button
                     className="text-[17px] bg-[#FBD15B] text-[#1976D2] w-full rounded-md py-4 font-bold"
-                    onClick={() => handleLogin()}
+                    onClick={handleLogin}
                 >
                     შესვლა
                 </button>

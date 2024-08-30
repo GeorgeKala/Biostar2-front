@@ -7,62 +7,79 @@ import employeeService from "../services/employee";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchHolidays, selectHolidays } from "../redux/holidaySlice";
 import deviceService from "../services/device";
-
+import SuccessPopup from "./SuccessPopup";
+import NestedDropdownModal from "./NestedDropdownModal";
+import SearchIcon from "../assets/search.png";
+import CardScanModal from "./CardScanModal";
 
 const EmployeeEditModal = ({ employee, isOpen, onClose }) => {
-  const [departments, setDepartments] = useState([]);
+  const { departments, nestedDepartments } = useSelector((state) => state.departments);
   const user = useSelector((state) => state.user.user);
-  const [groups, setGroups] = useState([]);
-  const [schedules, setSchedules] = useState([]);
+  const groups = useSelector((state) => state.groups.items);
+  const schedules = useSelector((state) => state.schedules.items);
+
   const [formData, setFormData] = useState({
-    fullname: employee.fullname,
-    personal_id: employee.personal_id,
-    phone_number: employee.phone_number,
-    department_id: employee.department.id,
-    department_id: user?.user_type?.has_full_access ? "" : user?.department?.id,
-    start_datetime: employee.start_datetime,
-    expiry_datetime: employee.expiry_datetime,
-    position: employee.position,
-    group_id: employee.group.id,
-    schedule_id: employee.schedule.id,
-    honorable_minutes_per_day: employee.honorable_minutes_per_day,
-    device_id: employee?.device?.id,
-    card_number: employee.card_number,
-    checksum: employee.checksum,
+    fullname: employee.fullname || "",
+    personal_id: employee.personal_id || "",
+    phone_number: employee.phone_number || "",
+    department_id: user?.user_type?.has_full_access ? employee.department.id : user?.department?.id || "",
+    start_datetime: employee.start_datetime || "",
+    expiry_datetime: employee.expiry_datetime || "",
+    position: employee.position || "",
+    group_id: employee.group.id || "",
+    schedule_id: employee.schedule.id || "",
+    honorable_minutes_per_day: employee.honorable_minutes_per_day || "",
+    device_id: employee?.device?.id || "",
+    card_number: employee.card_number || "",
+    checksum: employee.checksum || "",
     session_id: sessionStorage.getItem('sessionToken'),
-    holidays: employee.holidays.map(holiday => holiday.id)
+    holidays: employee.holidays.map(holiday => holiday.id) || []
   });
 
   const [errors, setErrors] = useState({});
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const dispatch = useDispatch();
   const holidays = useSelector(selectHolidays);
-  const [selectedOptions, setSelectedOptions] = useState([]);
+  const [isOpenDropdown, setIsOpenDropdown] = useState(false);
   const [devices, setDevices] = useState([]);
-  const [selectedDevice, setSelectedDevice] = useState("")
-  const [isOpenSelected, setIsOpenSelected] = useState(false);
+  const [selectedDevice, setSelectedDevice] = useState("");
+  const [openNestedDropdown, setOpenNestedDropdown] = useState(false);
+  const [isCardScanModalOpen, setIsCardScanModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     dispatch(fetchHolidays());
   }, [dispatch]);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchDevices = async () => {
       try {
-        const [departmentsData, groupsData, schedulesData] = await Promise.all([
-          departmentService.getAllDepartments(),
-          groupService.getAllGroups(),
-          scheduleService.getAllSchedules(),
-        ]);
-        setDepartments(departmentsData);
-        setGroups(groupsData);
-        setSchedules(schedulesData);
+        const devices = await deviceService.fetchDevices();
+        setDevices(devices);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching devices:", error);
       }
     };
-    fetchData();
+    fetchDevices();
   }, []);
+
+  const toggleDropdown = () => {
+    setIsOpenDropdown(!isOpenDropdown);
+  };
+
+  const handleOptionToggle = (optionId) => {
+    if (formData.holidays.includes(optionId)) {
+      setFormData((prevData) => ({
+        ...prevData,
+        holidays: prevData.holidays.filter((item) => item !== optionId),
+      }));
+    } else {
+      setFormData((prevData) => ({
+        ...prevData,
+        holidays: [...prevData.holidays, optionId],
+      }));
+    }
+  };
 
   const handleInput = (e) => {
     const { name, value } = e.target;
@@ -99,28 +116,28 @@ const EmployeeEditModal = ({ employee, isOpen, onClose }) => {
 
   const handleSubmit = async () => {
     const newErrors = {};
-  
+
     Object.keys(formData).forEach((field) => {
-      // Skip validation for device_id
-      if (field === "device_id") return;
-  
       validateField(field, formData[field]);
       if (
         !formData[field] &&
         field !== "expiry_datetime" &&
-        field !== "device"
+        field !== "checksum" &&
+        field !== "honorable_minutes_per_day"
       ) {
         newErrors[field] = `${georgianLabels[field]} მითითება აუცილებელია`;
       }
     });
-  
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
-  
+
+    setIsLoading(true);
     try {
       await employeeService.updateEmployee(employee.id, formData);
+      setShowSuccessPopup(true);
     } catch (error) {
       if (error.response && error.response.data.errors) {
         const apiErrors = error.response.data.errors;
@@ -135,6 +152,8 @@ const EmployeeEditModal = ({ employee, isOpen, onClose }) => {
       } else {
         console.error("Error updating employee:", error);
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -154,104 +173,72 @@ const EmployeeEditModal = ({ employee, isOpen, onClose }) => {
     checksum: "საკონტროლო ჯამი",
   };
 
-console.log(errors);
-  useEffect(() => {
-    const fetchDevices = async () => {
-      const devices = await deviceService.fetchDevices()
-      setDevices(devices)
-    }
-
-    fetchDevices()
-  },[])
-
-
   const handleDeviceSelect = (e) => {
     const deviceId = e.target.value;
-    setSelectedDevice(deviceId); 
-    const updatedFormData = {
+    setSelectedDevice(deviceId);
+    setFormData({
       ...formData,
-      device_id: deviceId
-    };
-
-    setFormData(updatedFormData)
+      device_id: deviceId,
+    });
   };
 
   const handleScanCard = async () => {
-    const scanResult = await deviceService.scanCard(selectedDevice);
-
-    const updatedFormData = {
-      ...formData,
-      card_number: scanResult.Card.card_id,
-      display_card_id: scanResult.Card.display_card_id
-    };
-
-    setFormData(updatedFormData);
-    
-  }
-
-
-  const toggleDropdown = () => {
-    setIsOpenSelected(!isOpenSelected);
-  };
-
-  const handleOptionToggle = (optionId) => {
-    if (formData.holidays.includes(optionId)) {
-      setFormData(prevData => ({
-        ...prevData,
-        holidays: prevData.holidays.filter(item => item !== optionId)
-      }));
-    } else {
-      setFormData(prevData => ({
-        ...prevData,
-        holidays: [...prevData.holidays, optionId]
-      }));
+    setIsCardScanModalOpen(true);
+    try {
+      const scanResult = await deviceService.scanCard(selectedDevice);
+      setFormData({
+        ...formData,
+        card_number: scanResult.Card.card_id,
+        display_card_id: scanResult.Card.display_card_id,
+      });
+      setIsCardScanModalOpen(false);
+    } catch (error) {
+      console.error("Error scanning card:", error);
     }
   };
 
-
-  const renderSelectedHolidays = () => {
+  const renderHolidays = () => {
     return (
-      <div className="flex flex-wrap gap-2">
-        {holidays.length > 0 ? (
+      <div>
+        {holidays &&
           holidays.map((holiday) => (
-            <div key={holiday.id} className="flex items-center gap-2">
+            <div key={holiday.id}>
               <input
                 type="checkbox"
-                id={`holiday-${holiday.id}`}
+                id={holiday.id}
                 checked={formData.holidays.includes(holiday.id)}
                 onChange={() => handleOptionToggle(holiday.id)}
               />
-              <label htmlFor={`holiday-${holiday.id}`}>{holiday.name}</label>
+              <label htmlFor={holiday.id}>{holiday.name}</label>
             </div>
-          ))
-        ) : (
-          <p>No holidays available</p>
-        )}
+          ))}
       </div>
     );
   };
 
+  const handleDepartmentSelect = (departmentId, departmentName) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      department_id: departmentId,
+    }));
+    setOpenNestedDropdown(false);
+  };
+
+  const handleClearDepartment = () => {
+    setFormData((prevData) => ({
+      ...prevData,
+      department_id: "",
+    }));
+  };
+
   return (
-    <div
-      className={`fixed inset-0 bg-black bg-opacity-50 z-50 ${
-        isOpen ? "block" : "hidden"
-      }`}
-    >
+    <div className={`fixed inset-0 bg-black bg-opacity-50 z-50 ${isOpen ? "block" : "hidden"}`}>
       <div className="bg-white w-1/2 p-4 rounded-md absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-[#1976D2] font-medium text-[23px]">
-            თანამშრომლის ცვლილება
-          </h2>
+          <h2 className="text-[#1976D2] font-medium text-[23px]">თანამშრომლის ცვლილება</h2>
           <button onClick={onClose}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              className="w-6 h-6"
-            >
-              <path
-                fill="currentColor"
-                d="M18.364 5.636a.999.999 0 0 0-1.414 0L12 10.586 7.05 5.636a.999.999 0 1 0-1.414 1.414L10.586 12l-4.95 4.95a.999.999 0 1 0 1.414 1.414L12 13.414l4.95 4.95a.999.999 0 1 0 1.414-1.414L13.414 12l4.95-4.95c.39-.39.39-1.023 0-1.414z"
-              />
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-6 h-6">
+              <path fill="currentColor" d="M18.364 5.636a.999.999 0 0 0-1.414 0L12 10.586 7.05 5.636a.999.999 0 1 0-1.414 1.414L10.586 12l-4.95 4.95a.999.999 0 1 0 1.414 1.414L12 13.414l4.95 4.95a.999.999 0 1 0 1.414-1.414L13.414 12l4.95-4.95c.39-.39.39-1.023 0-1.414z"/>
             </svg>
           </button>
         </div>
@@ -280,27 +267,30 @@ console.log(errors);
               onChange={handleInput}
               error={errors.phone_number}
             />
-            <div className="w-full flex flex-col gap-2">
+            <div className="w-full flex flex-col gap-2 relative">
               <label className="text-[#105D8D] font-medium">დეპარტამენტი</label>
-              <select
-                id="department_id"
-                name="department_id"
-                value={formData.department_id}
-                onChange={handleInput}
-                disabled={!user?.user_type?.has_full_access}
-                className="bg-white border border-[#105D8D] outline-none rounded-xl py-3 px-4 w-full"
-              >
-                <option value="">აირჩიეთ დეპარტამენტი</option>
-                {departments &&
-                  departments.map((department) => (
-                    <option key={department.id} value={department.id}>
-                      {department.name}
-                    </option>
-                  ))}
-              </select>
-              {errors.department_id && (
-                <p className="text-red-500 text-sm">{errors.department_id}</p>
-              )}
+              <div className="flex">
+                <input 
+                  className="bg-white border border-[#105D8D] outline-none rounded-l-2xl py-3 px-4 w-full pr-10"
+                  placeholder="დეპარტამენტი"
+                  value={departments.find((d) => d.id === formData.department_id)?.name || ""}
+                  readOnly
+                />
+                {formData.department_id && (
+                  <button
+                    type="button"
+                    onClick={handleClearDepartment}
+                    className="absolute right-12 top-[70%] transform -translate-y-1/2 mr-4"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="black" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                  </button>
+                )}
+                <button onClick={() => setOpenNestedDropdown(true)} className="bg-[#105D8D] px-4 rounded-r-2xl">
+                  <img className="w-[20px]" src={SearchIcon} alt="" />
+                </button>
+              </div>
             </div>
           </div>
           <div className="flex justify-between gap-8">
@@ -401,8 +391,8 @@ console.log(errors);
                     </option>
                   ))}
               </select>
-              {errors.schedule_id && (
-                <p className="text-red-500 text-sm">{errors.schedule_id}</p>
+              {errors.device_id && (
+                <p className="text-red-500 text-sm">{errors.device_id}</p>
               )}
             </div>
             <div className="w-full flex gap-3 items-center">
@@ -452,21 +442,10 @@ console.log(errors);
                   </svg>
                 </button>
               </div>
-              {isOpenSelected && (
+              {isOpenDropdown && (
                 <div className="w-full rounded-md bg-white shadow-lg">
                   <div className="flex flex-col flex-wrap p-2">
-                    {holidays &&
-                      holidays.map((holiday) => (
-                        <div key={holiday.id}>
-                          <input
-                            type="checkbox"
-                            id={holiday.id}
-                            checked={formData.holidays.includes(holiday.id)}
-                            onChange={() => handleOptionToggle(holiday.id)}
-                          />
-                          <label htmlFor={holiday.id}>{holiday.name}</label>
-                        </div>
-                      ))}
+                    {renderHolidays()}
                   </div>
                 </div>
               )}
@@ -477,10 +456,35 @@ console.log(errors);
           <button
             className="bg-[#1976D2] text-white px-4 py-2 rounded-md shadow-md hover:bg-[#1565C0]"
             onClick={handleSubmit}
+            disabled={isLoading}
           >
-            ცვლილების შენახვა
+            {isLoading ? 'Saving...' : 'ცვლილების შენახვა'}
           </button>
         </div>
+        {showSuccessPopup && (
+          <SuccessPopup
+            title="Success!"
+            message="თანამშრომლის ინფორმაცია წარმატებით განახლდა."
+            onClose={() => {
+              setShowSuccessPopup(false);
+              onClose();
+            }}
+          />
+        )}
+        {openNestedDropdown && (
+          <NestedDropdownModal
+            header="დეპარტამენტები"
+            isOpen={openNestedDropdown}
+            onClose={() => setOpenNestedDropdown(false)}
+            onSelect={handleDepartmentSelect}
+            data={nestedDepartments}
+            link={'/departments'}
+          />
+        )}
+        <CardScanModal
+          isOpen={isCardScanModalOpen}
+          onClose={() => setIsCardScanModalOpen(false)}
+        />
       </div>
     </div>
   );

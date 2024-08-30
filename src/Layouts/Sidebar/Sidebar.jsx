@@ -43,11 +43,15 @@ const Sidebar = () => {
   return (
     <div className="bg-[#1976D2] w-[18%] flex flex-col gap-8">
       <div className="flex flex-col items-center w-full">
-        <img src={GorgiaLogo} className="w-[155px] h-[65px]" alt="Gorgia Logo" />
-        <div className="flex justify-center gap-2 mt-4">
-          <img src={BiostarIcon} className="w-[18px] h-[21.37px]" alt="Biostar Icon" />
-          <img src={BiostarLogo} className="w-[100px]" alt="Biostar Logo" />
-        </div>
+        <Link to='/reports/general' className="cursor-pointer">
+          <img src={GorgiaLogo} className="w-[155px] h-[65px]" alt="Gorgia Logo" />
+        </Link>
+        <Link to='/reports/general' className="cursor-pointer">
+          <div className="flex justify-center gap-2 mt-4">
+            <img  src={BiostarIcon} className="w-[18px] h-[21.37px] " alt="Biostar Icon" />
+            <img src={BiostarLogo} className="w-[100px]" alt="Biostar Logo" />
+          </div>
+        </Link>
       </div>
       <div className="flex flex-col h-full gap-6 px-4">
         <div>
