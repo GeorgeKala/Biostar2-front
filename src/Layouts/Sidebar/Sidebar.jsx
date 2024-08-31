@@ -43,12 +43,20 @@ const Sidebar = () => {
   return (
     <div className="bg-[#1976D2] w-[18%] flex flex-col gap-8">
       <div className="flex flex-col items-center w-full">
-        <Link to='/reports/general' className="cursor-pointer">
-          <img src={GorgiaLogo} className="w-[155px] h-[65px]" alt="Gorgia Logo" />
+        <Link to="/reports/general" className="cursor-pointer">
+          <img
+            src={GorgiaLogo}
+            className="w-[155px] h-[65px]"
+            alt="Gorgia Logo"
+          />
         </Link>
-        <Link to='/reports/general' className="cursor-pointer">
+        <Link to="/reports/general" className="cursor-pointer">
           <div className="flex justify-center gap-2 mt-4">
-            <img  src={BiostarIcon} className="w-[18px] h-[21.37px] " alt="Biostar Icon" />
+            <img
+              src={BiostarIcon}
+              className="w-[18px] h-[21.37px] "
+              alt="Biostar Icon"
+            />
             <img src={BiostarLogo} className="w-[100px]" alt="Biostar Logo" />
           </div>
         </Link>
@@ -339,6 +347,15 @@ const Sidebar = () => {
                   პირდაპირი
                 </Link>
               )}
+              <Link
+                to="/change-password"
+                className={`flex items-center gap-3 text-white text-[14px] ${
+                  location.pathname === "/change-password" ? "font-bold" : ""
+                }`}
+              >
+                <img src={ArrowRight} alt="Arrow Right Icon" />
+                პაროლის შეცვლა
+              </Link>
             </div>
           )}
         </div>
@@ -360,7 +377,6 @@ const Sidebar = () => {
           </div>
           {sections.kitchenReport && (
             <div className="pl-4 flex flex-col gap-4 mt-4">
-              
               <Link
                 to="/reports/kitchen"
                 className={`flex items-center gap-3 text-white text-[14px] ${

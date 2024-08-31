@@ -182,7 +182,7 @@ const CreatedEmployees = () => {
 
 
   const handleDeleteEmployee = (employeeId) => {
-    if (window.confirm("Are you sure you want to delete this employee?")) {
+    if (window.confirm("დარწმუნებული ხართ რომ გსურთ თანამშრომლის წაშლა?")) {
       dispatch(deleteEmployee(employeeId)).then(() => {
         dispatch(fetchEmployees());
         setSelectedEmployee(null); 
@@ -190,11 +190,6 @@ const CreatedEmployees = () => {
     }
   };
 
-
-
-  console.log(filters);
-  
-  
 
   return (
     <AuthenticatedLayout>

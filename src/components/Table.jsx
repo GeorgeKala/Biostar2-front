@@ -11,7 +11,7 @@ const Table = ({
   onFilterChange,
   rowClassName = () => "",
   onRowClick,
-  onRowDoubleClick, // Add the new prop for double-click handling
+  onRowDoubleClick, 
   filterableFields,
   onContext,
 }) => {

@@ -1,13 +1,12 @@
 import axiosInstance from "../Config/axios";
 
-
 export const login = async (username, password) => {
   try {
-    const response = await axiosInstance.post('/login', { username, password });
+    const response = await axiosInstance.post("/login", { username, password });
     const { data } = response;
-    
-    sessionStorage.setItem('token', data.token);
-    sessionStorage.setItem('sessionToken', data['bs-session-id'])
+
+    sessionStorage.setItem("token", data.token);
+    sessionStorage.setItem("sessionToken", data["bs-session-id"]);
     return data;
   } catch (error) {
     throw error.response.data;
@@ -16,40 +15,59 @@ export const login = async (username, password) => {
 
 export const fetchUser = async () => {
   try {
-     console.log("Fetching user...");
-    const response = await axiosInstance.get('/user');
-    return response.data
+    console.log("Fetching user...");
+    const response = await axiosInstance.get("/user");
+    return response.data;
   } catch (error) {
-    console.error('Error fetching user:', error);
+    console.error("Error fetching user:", error);
   }
 };
-  
+
 export const logout = async () => {
   try {
-    await axiosInstance.post('/logout');
-    sessionStorage.removeItem('token');
-    sessionStorage.removeItem('sessionToken');
-    sessionStorage.removeItem('bs_id_token');
+    await axiosInstance.post("/logout");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("sessionToken");
+    sessionStorage.removeItem("bs_id_token");
   } catch (error) {
-    console.error('Logout error:', error);
+    console.error("Logout error:", error);
     throw error.response.data;
   }
 };
 
-
 export const reportLogin = async () => {
-  const sessionToken = sessionStorage.getItem('sessionToken');
+  const sessionToken = sessionStorage.getItem("sessionToken");
 
   try {
-    const response = await axiosInstance.post('/reports/login',{} ,{
-      headers: {
-        'bs-session-id': sessionToken
+    const response = await axiosInstance.post(
+      "/reports/login",
+      {},
+      {
+        headers: {
+          "bs-session-id": sessionToken,
+        },
       }
-    });
-    sessionStorage.setItem('bs_id_token', response.data[0].Value)
-  
-    
+    );
+    sessionStorage.setItem("bs_id_token", response.data[0].Value);
     return data;
+  } catch (error) {
+    throw error.response.data;
+  }
+};
+
+// New method for changing password
+export const changePassword = async (
+  currentPassword,
+  newPassword,
+  newPasswordConfirmation
+) => {
+  try {
+    const response = await axiosInstance.post("/change-password", {
+      current_password: currentPassword,
+      new_password: newPassword,
+      new_password_confirmation: newPasswordConfirmation,
+    });
+    return response.data;
   } catch (error) {
     throw error.response.data;
   }

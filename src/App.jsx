@@ -26,6 +26,7 @@ import { fetchAsyncUser } from "./redux/userDataSlice";
 import ProtectedRoute from "./components/ProtectedRoute";
 import FullRecords from "./pages/Report/FullRecords/FullRecords";
 import KitchenReport from "./pages/Report/KitchenReport/KitchenReport";
+import ChangePassword from "./pages/Auth/ChangePassword/ChangePassword";
 
 const App = () => {
   const [initialLoad, setInitialLoad] = useState(true);
@@ -69,172 +70,175 @@ const App = () => {
 
   return (
     <Router>
-        <Routes>
-          <Route path="/" element={<Login />} />
-          <Route
-            path="/employees/create"
-            element={
-              <ProtectedRoute
-                element={<EmployeeCreate />}
-                requiresFullAccess={false}
-              />
-            }
-          />
-          <Route
-            path="/reports/general"
-            element={
-              <ProtectedRoute
-                element={<GeneralReport />}
-                requiresFullAccess={false}
-              />
-            }
-          />
-          <Route
-            path="/records/full"
-            element={
-              <ProtectedRoute
-                element={<FullRecords />}
-                requiresFullAccess={false}
-              />
-            }
-          />
-          <Route
-            path="/comments/analyze"
-            element={
-              <ProtectedRoute
-                element={<CommentAnalyze />}
-                requiresFullAccess={false}
-              />
-            }
-          />
-          <Route
-            path="/comments/table"
-            element={
-              <ProtectedRoute
-                element={<CommentTable />}
-                requiresFullAccess={false}
-              />
-            }
-          />
-          <Route
-            path="/direct"
-            element={
-              <ProtectedRoute element={<Direct />} requiresFullAccess={false} />
-            }
-          />
-          <Route
-            path="/orders"
-            element={
-              <ProtectedRoute element={<Order />} requiresFullAccess={false} />
-            }
-          />
-          <Route
-            path="/employees"
-            element={
-              <ProtectedRoute
-                element={<CreatedEmployees />}
-                requiresFullAccess={false}
-              />
-            }
-          />
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route
+          path="/change-password"
+          element={
+            <ProtectedRoute
+              element={<ChangePassword />}
+              requiresFullAccess={false}
+            />
+          }
+        />
+        <Route
+          path="/employees/create"
+          element={
+            <ProtectedRoute
+              element={<EmployeeCreate />}
+              requiresFullAccess={false}
+            />
+          }
+        />
+        <Route
+          path="/reports/general"
+          element={
+            <ProtectedRoute
+              element={<GeneralReport />}
+              requiresFullAccess={false}
+            />
+          }
+        />
+        <Route
+          path="/records/full"
+          element={
+            <ProtectedRoute
+              element={<FullRecords />}
+              requiresFullAccess={false}
+            />
+          }
+        />
+        <Route
+          path="/comments/analyze"
+          element={
+            <ProtectedRoute
+              element={<CommentAnalyze />}
+              requiresFullAccess={false}
+            />
+          }
+        />
+        <Route
+          path="/comments/table"
+          element={
+            <ProtectedRoute
+              element={<CommentTable />}
+              requiresFullAccess={false}
+            />
+          }
+        />
+        <Route
+          path="/direct"
+          element={
+            <ProtectedRoute element={<Direct />} requiresFullAccess={false} />
+          }
+        />
+        <Route
+          path="/orders"
+          element={
+            <ProtectedRoute element={<Order />} requiresFullAccess={false} />
+          }
+        />
+        <Route
+          path="/employees"
+          element={
+            <ProtectedRoute
+              element={<CreatedEmployees />}
+              requiresFullAccess={false}
+            />
+          }
+        />
 
-          <Route
-            path="/employees/access"
-            element={
-              <ProtectedRoute
-                element={<EmployeeAccess />}
-                requiresFullAccess={false}
-              />
-            }
-          />
-          <Route
-            path="/schedules"
-            element={
-              <ProtectedRoute
-                element={<Schedule />}
-                requiresFullAccess={false}
-              />
-            }
-          />
-          <Route
-            path="/groups"
-            element={
-              <ProtectedRoute element={<Group />} requiresFullAccess={true} />
-            }
-          />
-          <Route
-            path="/buildings"
-            element={
-              <ProtectedRoute
-                element={<Building />}
-                requiresFullAccess={true}
-              />
-            }
-          />
-          <Route
-            path="/departments"
-            element={
-              <ProtectedRoute
-                element={<Department />}
-                requiresFullAccess={false}
-              />
-            }
-          />
-          <Route
-            path="/users"
-            element={
-              <ProtectedRoute element={<User />} requiresFullAccess={true} />
-            }
-          />
-          <Route
-            path="/departments-distributions"
-            element={
-              <ProtectedRoute
-                element={<DepartmentDistribution />}
-                requiresFullAccess={true}
-              />
-            }
-          />
-          <Route
-            path="/user-types"
-            element={
-              <ProtectedRoute
-                element={<UserType />}
-                requiresFullAccess={true}
-              />
-            }
-          />
-          <Route
-            path="/command-types"
-            element={
-              <ProtectedRoute
-                element={<CommandType />}
-                requiresFullAccess={false}
-              />
-            }
-          />
-          <Route
-            path="/forgive-types"
-            element={
-              <ProtectedRoute
-                element={<ForgiveType />}
-                requiresFullAccess={false}
-              />
-            }
-          />
-          <Route
-            path="/devices"
-            element={
-              <ProtectedRoute element={<Device />} requiresFullAccess={true} />
-            }
-          />
-          <Route
-            path="/reports/kitchen"
-            element={
-              <ProtectedRoute element={<KitchenReport />} requiresFullAccess={false} />
-            }
-          />
-        </Routes>
+        <Route
+          path="/employees/access"
+          element={
+            <ProtectedRoute
+              element={<EmployeeAccess />}
+              requiresFullAccess={false}
+            />
+          }
+        />
+        <Route
+          path="/schedules"
+          element={
+            <ProtectedRoute element={<Schedule />} requiresFullAccess={false} />
+          }
+        />
+        <Route
+          path="/groups"
+          element={
+            <ProtectedRoute element={<Group />} requiresFullAccess={true} />
+          }
+        />
+        <Route
+          path="/buildings"
+          element={
+            <ProtectedRoute element={<Building />} requiresFullAccess={true} />
+          }
+        />
+        <Route
+          path="/departments"
+          element={
+            <ProtectedRoute
+              element={<Department />}
+              requiresFullAccess={false}
+            />
+          }
+        />
+        <Route
+          path="/users"
+          element={
+            <ProtectedRoute element={<User />} requiresFullAccess={true} />
+          }
+        />
+        <Route
+          path="/departments-distributions"
+          element={
+            <ProtectedRoute
+              element={<DepartmentDistribution />}
+              requiresFullAccess={true}
+            />
+          }
+        />
+        <Route
+          path="/user-types"
+          element={
+            <ProtectedRoute element={<UserType />} requiresFullAccess={true} />
+          }
+        />
+        <Route
+          path="/command-types"
+          element={
+            <ProtectedRoute
+              element={<CommandType />}
+              requiresFullAccess={false}
+            />
+          }
+        />
+        <Route
+          path="/forgive-types"
+          element={
+            <ProtectedRoute
+              element={<ForgiveType />}
+              requiresFullAccess={false}
+            />
+          }
+        />
+        <Route
+          path="/devices"
+          element={
+            <ProtectedRoute element={<Device />} requiresFullAccess={true} />
+          }
+        />
+        <Route
+          path="/reports/kitchen"
+          element={
+            <ProtectedRoute
+              element={<KitchenReport />}
+              requiresFullAccess={false}
+            />
+          }
+        />
+      </Routes>
     </Router>
   );
 };
