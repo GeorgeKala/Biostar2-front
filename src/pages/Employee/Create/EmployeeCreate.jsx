@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import AuthenticatedLayout from "../../../Layouts/AuthenticatedLayout";
 import InputGroup from "../../../components/employee/InputGroup";
 import SaveIcon from "../../../assets/save.png";
@@ -12,7 +12,9 @@ import SearchIcon from "../../../assets/search.png";
 import CardScanModal from "../../../components/CardScanModal";
 
 const EmployeeCreate = () => {
-  const { departments, nestedDepartments } = useSelector((state) => state.departments);
+  const { departments, nestedDepartments } = useSelector(
+    (state) => state.departments
+  );
   const user = useSelector((state) => state.user.user);
   const groups = useSelector((state) => state.groups.items);
   const schedules = useSelector((state) => state.schedules.items);
@@ -30,8 +32,8 @@ const EmployeeCreate = () => {
     device_id: "",
     card_number: "",
     checksum: "",
-    session_id: sessionStorage.getItem('sessionToken'),
-    holidays: []
+    session_id: sessionStorage.getItem("sessionToken"),
+    holidays: [],
   });
 
   const [errors, setErrors] = useState({});
@@ -40,29 +42,45 @@ const EmployeeCreate = () => {
   const holidays = useSelector(selectHolidays);
   const [isOpen, setIsOpen] = useState(false);
   const [devices, setDevices] = useState([]);
-  const [selectedDevice, setSelectedDevice] = useState("")
+  const [selectedDevice, setSelectedDevice] = useState("");
   const [openNestedDropdown, setOpenNestedDropdown] = useState(false);
   const [isCardScanModalOpen, setIsCardScanModalOpen] = useState(false);
 
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
-      dispatch(fetchHolidays());
+    dispatch(fetchHolidays());
   }, [dispatch]);
 
+  useEffect(() => {
+    // Detect clicks outside the dropdown
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownRef]);
+
   const toggleDropdown = () => {
-      setIsOpen(!isOpen);
+    setIsOpen(!isOpen);
   };
 
   const handleOptionToggle = (optionId) => {
     if (formData.holidays.includes(optionId)) {
-      setFormData(prevData => ({
+      setFormData((prevData) => ({
         ...prevData,
-        holidays: prevData.holidays.filter(item => item !== optionId)
+        holidays: prevData.holidays.filter((item) => item !== optionId),
       }));
     } else {
-      setFormData(prevData => ({
+      setFormData((prevData) => ({
         ...prevData,
-        holidays: [...prevData.holidays, optionId]
+        holidays: [...prevData.holidays, optionId],
       }));
     }
   };
@@ -94,8 +112,6 @@ const EmployeeCreate = () => {
       error = "ბარათის ნომერი აუცილებელია";
     }
 
-  
-
     setErrors((prevErrors) => ({
       ...prevErrors,
       [name]: error,
@@ -110,8 +126,8 @@ const EmployeeCreate = () => {
       if (
         !formData[field] &&
         field !== "expiry_datetime" &&
-        field !== "checksum" && 
-        field !== "honorable_minutes_per_day" && 
+        field !== "checksum" &&
+        field !== "honorable_minutes_per_day" &&
         field !== "device"
       ) {
         newErrors[field] = `${georgianLabels[field]} მითითება აუცილებელია`;
@@ -159,27 +175,26 @@ const EmployeeCreate = () => {
 
   useEffect(() => {
     const fetchDevices = async () => {
-      const devices = await deviceService.fetchDevices()
-      setDevices(devices)
-    }
+      const devices = await deviceService.fetchDevices();
+      setDevices(devices);
+    };
 
-    fetchDevices()
-  },[])
-
+    fetchDevices();
+  }, []);
 
   const handleDeviceSelect = (e) => {
     const deviceId = e.target.value;
-    setSelectedDevice(deviceId); 
+    setSelectedDevice(deviceId);
     const updatedFormData = {
       ...formData,
-      device_id: deviceId
+      device_id: deviceId,
     };
 
-    setFormData(updatedFormData)
+    setFormData(updatedFormData);
   };
 
   const handleScanCard = async () => {
-    setIsCardScanModalOpen(true); 
+    setIsCardScanModalOpen(true);
     try {
       const scanResult = await deviceService.scanCard(selectedDevice);
       const updatedFormData = {
@@ -187,41 +202,39 @@ const EmployeeCreate = () => {
         card_number: scanResult.Card.card_id,
         display_card_id: scanResult.Card.display_card_id,
       };
-      setIsCardScanModalOpen(false); 
+      setIsCardScanModalOpen(false);
       setFormData(updatedFormData);
-      
     } catch (error) {
       console.error("Error scanning card:", error);
-      
     }
   };
 
   const renderHolidays = () => {
-      return (
-          <div>
-              {holidays && holidays.map(holiday => (
-                  <div key={holiday.id}>
-                      <input
-                          type="checkbox"
-                          id={holiday.id}
-                          checked={formData.holidays.includes(holiday.id)}
-                          onChange={() => handleOptionToggle(holiday.id)}
-                      />
-                      <label htmlFor={holiday.id}>{holiday.name}</label>
-                  </div>
-              ))}
-          </div>
-      );
+    return (
+      <div>
+        {holidays &&
+          holidays.map((holiday) => (
+            <div key={holiday.id}>
+              <input
+                type="checkbox"
+                id={holiday.id}
+                checked={formData.holidays.includes(holiday.id)}
+                onChange={() => handleOptionToggle(holiday.id)}
+              />
+              <label htmlFor={holiday.id}>{holiday.name}</label>
+            </div>
+          ))}
+      </div>
+    );
   };
 
-  const handleDepartmentSelect = (departmentId, departmentName) => {
+  const handleDepartmentSelect = (departmentId) => {
     setFormData((prevData) => ({
       ...prevData,
       department_id: departmentId,
     }));
     setOpenNestedDropdown(false);
   };
-
 
   const handleClearDepartment = () => {
     setFormData((prevData) => ({
@@ -230,7 +243,11 @@ const EmployeeCreate = () => {
     }));
   };
 
-  
+  const selectedHolidays = holidays
+    .filter((holiday) => formData.holidays.includes(holiday.id))
+    .map((holiday) => holiday.name)
+    .join(", ");
+
   return (
     <AuthenticatedLayout>
       <div className="w-full px-20 py-4 flex flex-col gap-8">
@@ -239,7 +256,7 @@ const EmployeeCreate = () => {
             თანამშრომლის დამატება
           </h1>
         </div>
-        
+
         <div className="flex flex-col gap-4">
           <div className="flex justify-between gap-8">
             <InputGroup
@@ -274,10 +291,13 @@ const EmployeeCreate = () => {
             <div className="w-full flex flex-col gap-2 relative">
               <label className="text-[#105D8D] font-medium">დეპარტამენტი</label>
               <div className="flex">
-                <input 
+                <input
                   className="bg-white border border-[#105D8D] outline-none rounded-l-2xl py-3 px-4 w-full pr-10"
                   placeholder="დეპარტამენტი"
-                  value={departments.find((d) => d.id === formData.department_id)?.name || ""}
+                  value={
+                    departments.find((d) => d.id === formData.department_id)
+                      ?.name || ""
+                  }
                   readOnly
                 />
                 {formData.department_id && (
@@ -286,12 +306,26 @@ const EmployeeCreate = () => {
                     onClick={handleClearDepartment}
                     className="absolute right-12 top-[70%] transform -translate-y-1/2 mr-4"
                   >
-                    <svg className="w-6 h-6" fill="none" stroke="black" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      stroke="black"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M6 18L18 6M6 6l12 12"
+                      ></path>
                     </svg>
                   </button>
                 )}
-                <button onClick={() => setOpenNestedDropdown(true)} className="bg-[#105D8D] px-4 rounded-r-2xl">
+                <button
+                  onClick={() => setOpenNestedDropdown(true)}
+                  className="bg-[#105D8D] px-4 rounded-r-2xl"
+                >
                   <img className="w-[20px]" src={SearchIcon} alt="" />
                 </button>
               </div>
@@ -421,30 +455,36 @@ const EmployeeCreate = () => {
             </div>
           </div>
           <div className="flex justify-between gap-8">
-            
-            <div className="relative w-full flex flex-col gap-2">
+            <div
+              className="relative w-full flex flex-col gap-2"
+              ref={dropdownRef}
+            >
               <label className="text-[#105D8D] font-medium">
                 დასვენების დღეები
               </label>
               <div className="relative">
                 <button
                   type="button"
-                  className="w-full flex justify-between items-center relative bg-white border border-[#105D8D] outline-none rounded-xl py-3  px-4 "
+                  className="w-full flex justify-between items-center relative bg-white border border-[#105D8D] outline-none rounded-xl py-3  px-4"
                   onClick={toggleDropdown}
                 >
-                  აირჩიე დასვენების დღეები
+                  {selectedHolidays || "აირჩიე დასვენების დღეები"}
                   <svg
                     className="-mr-1 ml-2 h-5 w-5"
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 20 20"
                     fill="currentColor"
                   >
-                    <select name="" id=""></select>
+                    <path
+                      fillRule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 </button>
               </div>
               {isOpen && (
-                <div className=" w-full rounded-md bg-white shadow-lg">
+                <div className="w-full rounded-md bg-white shadow-lg z-10">
                   <div className="flex flex-col flex-wrap p-2">
                     {renderHolidays()}
                   </div>
@@ -463,7 +503,7 @@ const EmployeeCreate = () => {
           <div className="flex justify-end  gap-4 mt-10">
             <button
               onClick={handleSubmit}
-              className="bg-[#FBD15B] text-white fixed bottom-0 right-20 px-4 py-2 rounded-md flex items-center gap-2"
+              className="bg-[#FBD15B] text-white  px-4 py-2 rounded-md flex items-center gap-2"
             >
               <img src={SaveIcon} alt="Save" />
               შენახვა
@@ -478,13 +518,13 @@ const EmployeeCreate = () => {
           />
         )}
         {openNestedDropdown && (
-          <NestedDropdownModal 
+          <NestedDropdownModal
             header="დეპარტამენტები"
             isOpen={openNestedDropdown}
             onClose={() => setOpenNestedDropdown(false)}
             onSelect={handleDepartmentSelect}
             data={nestedDepartments}
-            link={'/departments'}
+            link={"/departments"}
           />
         )}
         <CardScanModal

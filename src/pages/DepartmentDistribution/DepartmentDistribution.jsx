@@ -11,9 +11,9 @@ import { fetchDepartments } from "../../redux/departmentsSlice";
 import { fetchBuildings } from "../../redux/buildingSlice";
 import * as XLSX from "xlsx";
 import { useFilter } from "../../hooks/useFilter";
-import useFilterAndSort from "../../hooks/useFilterAndSort";
 import FilterModal from "../../components/FilterModal";
 import Table from "../../components/Table";
+import { useFilterAndSort } from "../../hooks/useFilterAndSort";
 
 const DepartmentDistribution = () => {
   const dispatch = useDispatch();

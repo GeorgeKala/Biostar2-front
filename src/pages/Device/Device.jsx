@@ -8,7 +8,7 @@ import * as XLSX from "xlsx";
 import Table from "../../components/Table";
 import FilterModal from "../../components/FilterModal";
 import { useFilter } from "../../hooks/useFilter";
-import useFilterAndSort from "../../hooks/useFilterAndSort";
+import { useFilterAndSort } from "../../hooks/useFilterAndSort";
 
 const Device = () => {
   const [data, setData] = useState([]);

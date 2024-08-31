@@ -8,8 +8,8 @@ import directService from '../../services/direct';
 import deviceService from '../../services/device';
 import Table from '../../components/Table';
 import { useFilter } from '../../hooks/useFilter';
-import useFilterAndSort from '../../hooks/useFilterAndSort';
 import FilterModal from '../../components/FilterModal';
+import { useFilterAndSort } from '../../hooks/useFilterAndSort';
 
 const Direct = () => {
   const [devices, setDevices] = useState([]);

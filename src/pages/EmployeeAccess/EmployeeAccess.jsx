@@ -421,8 +421,8 @@ import EmployeeModal from "../../components/employee/EmployeeModal";
 import * as XLSX from "xlsx";
 import Table from "../../components/Table";
 import FilterModal from "../../components/FilterModal";
-import useFilterAndSort from "../../hooks/useFilterAndSort";
 import { useFilter } from "../../hooks/useFilter";
+import { useFilterAndSort } from "../../hooks/useFilterAndSort";
 
 const EmployeeAccess = () => {
   const dispatch = useDispatch();

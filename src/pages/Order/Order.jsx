@@ -15,32 +15,17 @@ import DepartmentInput from "../../components/DepartmentInput";
 import EmployeeInput from "../../components/employee/EmployeeInput";
 import { fetchEmployeeOrders } from "../../redux/orderSlice";
 import SuccessPopup from "../../components/SuccessPopup";
+import Table from "../../components/Table";
+import FilterModal from "../../components/FilterModal";
+import { useFilterAndSort } from "../../hooks/useFilterAndSort";
 
 const Order = () => {
   const user = useSelector((state) => state.user.user);
-  const [openModal, setOpenModal] = useState(false);
   const { orders } = useSelector((state) => state.orders);
-  const [EmployeeModalOpen, setEmployeeModalOpen] = useState(false);
-  const [currentEmployeeInput, setCurrentEmployeeInput] = useState("");
   const { departments, nestedDepartments } = useSelector(
     (state) => state.departments
   );
   const dispatch = useDispatch();
-  const [filters, setFilters] = useState({
-    start_date: "",
-    end_date: "",
-    employee_id: "",
-    department_id: user?.user_type?.has_full_access ? "" : user?.department?.id,
-  });
-  const [data, setData] = useState([]);
-  const [showSuccessPopup, setShowSuccessPopup] = useState(false); 
-  const [successMessage, setSuccessMessage] = useState(""); 
-  const columns = [
-    { label: "თარიღი", key: "date" },
-    { label: "თანამშრომელი", key: "employee" },
-    { label: "დეპარტამენტი", key: "department" },
-    { label: "ბრძანების ტიპი", key: "violation_type" },
-  ];
 
   const [formData, setFormData] = useState({
     employee_id: "",
@@ -50,7 +35,53 @@ const Order = () => {
   });
   const [dayTypes, setDayTypes] = useState([]);
   const [modalMode, setModalMode] = useState("create");
+  const [openModal, setOpenModal] = useState(false);
+  const [EmployeeModalOpen, setEmployeeModalOpen] = useState(false);
+  const [currentEmployeeInput, setCurrentEmployeeInput] = useState("");
   const [openNestedDropdown, setOpenNestedDropdown] = useState(false);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [filterableData, setFilterableData] = useState([]);
+  const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
+  const [currentFilterField, setCurrentFilterField] = useState("");
+
+  const [filters, setFilters] = useState({
+    start_date: "",
+    end_date: "",
+    employee_id: "",
+    department_id: user?.user_type?.has_full_access ? "" : user?.department?.id,
+  });
+
+  const {
+    filteredAndSortedData,
+    handleFilterChange,
+    applyModalFilters,
+    handleSort,
+    filters: tableFilters,
+    sortConfig,
+  } = useFilterAndSort(
+    orders,
+    {
+      date: { text: "", selected: [] },
+      employee: { text: "", selected: [] },
+      department: { text: "", selected: [] },
+      violation_type: { text: "", selected: [] },
+    },
+    { key: "", direction: "ascending" }
+  );
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const dayTypesResponse = await dayTypeService.getAllDayTypes();
+        setDayTypes(dayTypesResponse);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    fetchData();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -87,9 +118,9 @@ const Order = () => {
     e.preventDefault();
     try {
       await reportService.updateDayTypeForDateRange(formData);
-      dispatch(fetchEmployeeOrders(filters)); 
-      setShowSuccessPopup(true); 
-      setSuccessMessage("ბრძანება წარმატებით დაემატა"); 
+      dispatch(fetchEmployeeOrders(filters));
+      setShowSuccessPopup(true);
+      setSuccessMessage("ბრძანება წარმატებით დაემატა");
       closeModal();
     } catch (error) {
       console.error("Error saving order:", error);
@@ -101,12 +132,22 @@ const Order = () => {
     try {
       await reportService.deleteDayTypeForDateRange(formData);
       dispatch(fetchEmployeeOrders(filters));
-      setShowSuccessPopup(true); 
+      setShowSuccessPopup(true);
       setSuccessMessage("ბრძანება წარმატებით წაიშალა");
       closeModal();
     } catch (error) {
       console.error("Error deleting order:", error);
     }
+  };
+
+  const openModalForCreate = () => {
+    setModalMode("create");
+    setOpenModal(true);
+  };
+
+  const openModalForDelete = () => {
+    setModalMode("delete");
+    setOpenModal(true);
   };
 
   const closeModal = () => {
@@ -118,19 +159,6 @@ const Order = () => {
       day_type_id: "",
     });
   };
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const dayTypesResponse = await dayTypeService.getAllDayTypes();
-        setDayTypes(dayTypesResponse);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData();
-  }, []);
 
   const openEmployeeModal = (inputName) => {
     setCurrentEmployeeInput(inputName);
@@ -158,33 +186,6 @@ const Order = () => {
     closeEmployeeModal();
   };
 
-  const openModalForCreate = () => {
-    setModalMode("create");
-    setOpenModal(true);
-  };
-
-  const openModalForDelete = () => {
-    setModalMode("delete");
-    setOpenModal(true);
-  };
-
-  const exportToExcel = () => {
-    const dataToExport = [];
-    const header = columns.map((col) => col.label);
-    dataToExport.push(header);
-
-    data.forEach((item) => {
-      const row = columns.map((col) => item[col.key]);
-      dataToExport.push(row);
-    });
-
-    const worksheet = XLSX.utils.aoa_to_sheet(dataToExport);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Orders");
-
-    XLSX.writeFile(workbook, "Orders.xlsx");
-  };
-
   const handleDepartmentSelect = (departmentId, departmentName) => {
     setFilters((prevData) => ({
       ...prevData,
@@ -192,21 +193,6 @@ const Order = () => {
     }));
     setOpenNestedDropdown(false);
   };
-
-  const handleClear = (field) => {
-    setFilters((prevData) => ({
-      ...prevData,
-      [field]: "",
-    }));
-  };
-
-  const filteredNestedDepartments = user?.user_type?.has_full_access
-    ? nestedDepartments
-    : nestedDepartments.filter(
-        (dept) =>
-          dept.id === user?.department?.id ||
-          dept.parent_id === user?.department?.id
-      );
 
   const handleClearFilterData = () => {
     setFilters((prevData) => ({
@@ -224,10 +210,66 @@ const Order = () => {
     }));
   };
 
+  const exportToExcel = () => {
+    const dataToExport = [];
+    const header = ["თარიღი", "თანამშრომელი", "დეპარტამენტი", "ბრძანების ტიპი"];
+    dataToExport.push(header);
+
+    filteredAndSortedData.forEach((item) => {
+      const row = [
+        item.date,
+        item.employee,
+        item.department,
+        item.violation_type,
+      ];
+      dataToExport.push(row);
+    });
+
+    const worksheet = XLSX.utils.aoa_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Orders");
+
+    XLSX.writeFile(workbook, "Orders.xlsx");
+  };
+
+  const handleOpenFilterModal = (data, fieldName, rect) => {
+    setFilterableData(data);
+    setIsFilterModalOpen(true);
+    setModalPosition({ top: rect.bottom, left: rect.left - 240 });
+    setCurrentFilterField(fieldName);
+  };
+
+  const orderHeaders = [
+    { label: "თარიღი", key: "date", extractValue: (item) => item.date },
+    {
+      label: "თანამშრომელი",
+      key: "employee",
+      extractValue: (item) => item.employee,
+    },
+    {
+      label: "დეპარტამენტი",
+      key: "department",
+      extractValue: (item) => item.department,
+    },
+    {
+      label: "ბრძანების ტიპი",
+      key: "violation_type",
+      extractValue: (item) => item.violation_type,
+    },
+  ];
+
+  const filteredNestedDepartments = user?.user_type?.has_full_access
+    ? nestedDepartments
+    : nestedDepartments.filter(
+        (dept) =>
+          dept.id === user?.department?.id ||
+          dept.parent_id === user?.department?.id
+      );
+
   useEffect(() => {
     if (showSuccessPopup) {
       const timer = setTimeout(() => {
-        setShowSuccessPopup(false); 
+        setShowSuccessPopup(false);
       }, 3000);
 
       return () => clearTimeout(timer);
@@ -265,7 +307,7 @@ const Order = () => {
           />
           <EmployeeInput
             value={filters.employee}
-            onClear={() => handleClearFilterData()}
+            onClear={handleClearFilterData}
             onSearchClick={() => openEmployeeModal("filter")}
             onChange={handleInputChange}
           />
@@ -296,41 +338,21 @@ const Order = () => {
             წაშლა
           </button>
         </div>
-        <div className="min-w-max">
-          <table className="min-w-full divide-y divide-gray-200 table-fixed border-collapse">
-            <thead className="bg-[#1976D2] text-white">
-              <tr>
-                {columns.map((header) => (
-                  <th
-                    key={header.key}
-                    className="px-4 py-2 border border-gray-200 w-1/6 truncate"
-                  >
-                    {header.label}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {orders &&
-                orders.map((item) => (
-                  <tr key={item.id}>
-                    <td className="px-4 py-2 border border-gray-200 w-1/6 truncate">
-                      {item.date}
-                    </td>
-                    <td className="px-4 py-2 border border-gray-200 w-1/6 truncate">
-                      {item.employee}
-                    </td>
-                    <td className="px-4 py-2 border border-gray-200 w-1/6 truncate">
-                      {item.department}
-                    </td>
-                    <td className="px-4 py-2 border border-gray-200 w-1/6 truncate">
-                      {item.day_type}
-                    </td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
-        </div>
+        <Table
+          data={filteredAndSortedData}
+          headers={orderHeaders}
+          filters={tableFilters}
+          sortConfig={sortConfig}
+          onSort={handleSort}
+          onFilterClick={handleOpenFilterModal}
+          onFilterChange={handleFilterChange}
+          filterableFields={[
+            "date",
+            "employee",
+            "department",
+            "violation_type",
+          ]}
+        />
       </div>
       {openModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
@@ -338,7 +360,7 @@ const Order = () => {
             <div className="flex justify-between items-center p-3 bg-blue-500 text-white rounded-t-lg">
               <h2 className="text-lg font-semibold">
                 {modalMode === "create"
-                  ? "დაამატე ბრაძანება"
+                  ? "დაამატე ბრძანება"
                   : "წაშალე ბრძანება"}
               </h2>
               <button
@@ -483,6 +505,15 @@ const Order = () => {
           onClose={() => setShowSuccessPopup(false)}
         />
       )}
+      <FilterModal
+        isOpen={isFilterModalOpen}
+        onClose={() => setIsFilterModalOpen(false)}
+        filterableData={filterableData}
+        onApply={(selectedFilters) =>
+          applyModalFilters(currentFilterField, selectedFilters)
+        }
+        position={modalPosition}
+      />
     </AuthenticatedLayout>
   );
 };

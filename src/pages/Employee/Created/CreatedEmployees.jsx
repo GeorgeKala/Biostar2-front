@@ -6,134 +6,55 @@ import EmployeeEditModal from "../../../components/EmployeeEditModal";
 import EmployeeStatusModal from "../../../components/EmployeeStatusModal";
 import * as XLSX from "xlsx";
 import FilterModal from "../../../components/FilterModal";
-import { useFilter } from "../../../hooks/useFilter";
 import Table from "../../../components/Table";
+import { Link } from "react-router-dom";
 import NewIcon from "../../../assets/new.png";
 import DeleteIcon from "../../../assets/delete.png";
 import EditIcon from "../../../assets/edit.png";
-import { Link } from "react-router-dom";
+import { useFilterAndSort } from "../../../hooks/useFilterAndSort";
+
 
 const CreatedEmployees = () => {
   const dispatch = useDispatch();
   const employees = useSelector((state) => state.employees.items);
   const user = useSelector((state) => state.user.user);
-
-  const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [employeeStatusModal, setEmployeeStatusModal] = useState(false);
-  const [sortConfig, setSortConfig] = useState({
-    key: "",
-    direction: "ascending",
-  });
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [filterableData, setFilterableData] = useState([]);
   const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
   const [currentFilterField, setCurrentFilterField] = useState("");
 
-  const { filters, handleInputChange, applyModalFilters, clearFilters } =
-    useFilter({
+  const {
+    filteredAndSortedData,
+    handleFilterChange,
+    applyModalFilters,
+    handleSort,
+    filters,
+    sortConfig,
+  } = useFilterAndSort(
+    employees,
+    {
       fullname: { text: "", selected: [] },
-      department_name: { text: "", selected: [] },
+      "department.name": { text: "", selected: [] },
       position: { text: "", selected: [] },
       personal_id: { text: "", selected: [] },
       phone_number: { text: "", selected: [] },
       card_number: { text: "", selected: [] },
-      group_name: { text: "", selected: [] },
-      schedule_name: { text: "", selected: [] },
+      "group.name": { text: "", selected: [] },
+      "schedule.name": { text: "", selected: [] },
       honorable_minutes_per_day: { text: "", selected: [] },
       holidays: { text: "", selected: [] },
-    });
-
-  const [filteredEmployees, setFilteredEmployees] = useState([]);
+    },
+    { key: "", direction: "ascending" }
+  );
 
   useEffect(() => {
     dispatch(fetchEmployees());
   }, [dispatch]);
 
-  useEffect(() => {
-    applyFilters();
-  }, [employees, filters, sortConfig]);
-
-  const applyFilters = () => {
-    let filtered = employees.filter((employee) => {
-      const matches = (fieldValue, filter) => {
-        const textFilter = filter.text.toLowerCase();
-        const selectedFilters = filter.selected.map((f) => f.toLowerCase());
-
-        const matchesText =
-          !textFilter ||
-          (fieldValue && fieldValue.toLowerCase().includes(textFilter));
-        const matchesSelected =
-          selectedFilters.length === 0 ||
-          selectedFilters.some(
-            (selected) =>
-              fieldValue && fieldValue.toLowerCase().includes(selected)
-          );
-
-        return matchesText && matchesSelected;
-      };
-
-      return (
-        matches(employee.fullname, filters.fullname) &&
-        matches(employee?.department?.name, filters.department_name) &&
-        matches(employee.position, filters.position) &&
-        matches(employee.personal_id, filters.personal_id) &&
-        matches(employee.phone_number, filters.phone_number) &&
-        matches(employee.card_number, filters.card_number) &&
-        matches(employee?.group?.name, filters.group_name) &&
-        matches(employee?.schedule?.name, filters.schedule_name) &&
-        matches(
-          employee.honorable_minutes_per_day?.toString(),
-          filters.honorable_minutes_per_day
-        ) &&
-        matches(
-          employee.holidays.map((holiday) => holiday.name).join(", "),
-          filters.holidays
-        )
-      );
-    });
-
-    if (sortConfig.key) {
-      filtered = filtered.sort((a, b) => {
-        const aValue = sortConfig.key
-          .split(".")
-          .reduce((o, i) => (o ? o[i] : ""), a);
-        const bValue = sortConfig.key
-          .split(".")
-          .reduce((o, i) => (o ? o[i] : ""), b);
-        if (aValue < bValue) {
-          return sortConfig.direction === "ascending" ? -1 : 1;
-        }
-        if (aValue > bValue) {
-          return sortConfig.direction === "ascending" ? 1 : -1;
-        }
-        return 0;
-      });
-    }
-
-    setFilteredEmployees(filtered);
-  };
-
-  const handleSort = (key) => {
-    let direction = "ascending";
-    if (sortConfig.key === key && sortConfig.direction === "ascending") {
-      direction = "descending";
-    }
-    setSortConfig({ key, direction });
-  };
-
-  const handleOpenFilterModal = (data, fieldName, rect) => {
-    setFilterableData(data);
-    setIsFilterModalOpen(true);
-    setModalPosition({ top: rect.bottom, left: rect.left - 240 });
-    setCurrentFilterField(fieldName);
-  };
-
-  const handleDeleteEmployee = (employeeId) => {
-    dispatch(deleteEmployee(employeeId));
-  };
-
-  const exportToExcel = () => {
+  const handleExportToExcel = () => {
     const dataToExport = [
       [
         "სახელი/გვარი",
@@ -147,89 +68,133 @@ const CreatedEmployees = () => {
         "საპატიო წუთები",
         "დასვენების დღეები",
       ],
-      ...filteredEmployees.map((employee) => [
-        employee.fullname,
+      ...filteredAndSortedData.map((employee) => [
+        employee.fullname || "",
         employee?.department?.name || "",
-        employee.position,
-        employee.personal_id,
-        employee.phone_number,
-        employee.card_number,
+        employee.position || "",
+        employee.personal_id || "",
+        employee.phone_number || "",
+        employee.card_number || "",
         employee?.group?.name || "",
         employee?.schedule?.name || "",
-        employee.honorable_minutes_per_day,
-        employee.holidays.map((holiday) => holiday.name).join(", "),
+        employee.honorable_minutes_per_day !== null
+          ? employee.honorable_minutes_per_day
+          : "",
+        employee.holidays.length > 0
+          ? employee.holidays.map((holiday) => holiday.name).join(", ")
+          : "",
       ]),
     ];
 
     const worksheet = XLSX.utils.aoa_to_sheet(dataToExport);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Employees");
+
+    const headerRange = XLSX.utils.decode_range(worksheet["!ref"]);
+    for (let C = headerRange.s.c; C <= headerRange.e.c; ++C) {
+      const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C }); 
+      if (!worksheet[cellAddress]) continue;
+      worksheet[cellAddress].s = {
+        font: {
+          bold: true,
+        },
+        alignment: {
+          horizontal: "center",
+          vertical: "center",
+        },
+      };
+    }
+
+    worksheet["!cols"] = [
+      { wch: 20 },
+      { wch: 30 },
+      { wch: 20 },
+      { wch: 20 },
+      { wch: 20 },
+      { wch: 20 },
+      { wch: 20 },
+      { wch: 30 },
+      { wch: 20 },
+      { wch: 30 },
+    ];
+
     XLSX.writeFile(workbook, "Employees.xlsx");
   };
 
-  const handleRightClick = (e) => {
-    e.preventDefault();
-    setEmployeeStatusModal(true);
-  };
 
-  const handleSearch = (status = "active") => {
-    dispatch(fetchEmployees({ status })); 
-    setEmployeeStatusModal(false);
+
+  const handleOpenFilterModal = (data, fieldName, rect) => {
+    setFilterableData(data);
+    setIsFilterModalOpen(true);
+    setModalPosition({ top: rect.bottom, left: rect.left - 240 });
+    setCurrentFilterField(fieldName);
   };
 
   const employeeHeaders = [
     {
       label: "სახელი/გვარი",
       key: "fullname",
-      extractValue: (employee) => employee.fullname,
+      extractValue: (emp) => emp.fullname,
     },
     {
       label: "დეპარტამენტი",
       key: "department.name",
-      extractValue: (employee) => employee?.department?.name || "",
+      extractValue: (emp) => emp?.department?.name || "",
     },
-    {
-      label: "პოზიცია",
-      key: "position",
-      extractValue: (employee) => employee.position,
-    },
+    { label: "პოზიცია", key: "position", extractValue: (emp) => emp.position },
     {
       label: "პირადი ნომერი",
       key: "personal_id",
-      extractValue: (employee) => employee.personal_id,
+      extractValue: (emp) => emp.personal_id,
     },
     {
       label: "ტელეფონის ნომერი",
       key: "phone_number",
-      extractValue: (employee) => employee.phone_number,
+      extractValue: (emp) => emp.phone_number,
     },
     {
       label: "ბარათის ნომერი",
       key: "card_number",
-      extractValue: (employee) => employee.card_number,
+      extractValue: (emp) => emp.card_number,
     },
     {
       label: "ჯგუფი",
       key: "group.name",
-      extractValue: (employee) => employee?.group?.name || "",
+      extractValue: (emp) => emp?.group?.name || "",
     },
     {
       label: "განრიგი",
       key: "schedule.name",
-      extractValue: (employee) => employee?.schedule?.name || "",
+      extractValue: (emp) => emp?.schedule?.name || "",
     },
     {
       label: "საპატიო წუთები",
       key: "honorable_minutes_per_day",
-      extractValue: (employee) => employee.honorable_minutes_per_day,
+      extractValue: (emp) => emp.honorable_minutes_per_day,
     },
     {
       label: "დასვენების დღეები",
       key: "holidays",
-      extractValue: (employee) =>
-        employee.holidays.map((holiday) => holiday.name).join(", "),
+      extractValue: (emp) =>
+        emp.holidays.map((holiday) => holiday.name).join(", "),
     },
   ];
+
+
+  const handleDeleteEmployee = (employeeId) => {
+    if (window.confirm("Are you sure you want to delete this employee?")) {
+      dispatch(deleteEmployee(employeeId)).then(() => {
+        dispatch(fetchEmployees());
+        setSelectedEmployee(null); 
+      });
+    }
+  };
+
+
+
+  console.log(filters);
+  
+  
 
   return (
     <AuthenticatedLayout>
@@ -243,7 +208,7 @@ const CreatedEmployees = () => {
             user?.user_type?.name === "მენეჯერი-რეგიონები" ? (
               <>
                 <Link
-                to={'/employees/create'}
+                  to="/employees/create"
                   className="bg-[#1976D2] text-white px-4 py-4 rounded-md flex items-center gap-2"
                 >
                   <img src={NewIcon} alt="New" />
@@ -266,7 +231,7 @@ const CreatedEmployees = () => {
               </>
             ) : null}
             <button
-              onClick={exportToExcel}
+              onClick={handleExportToExcel}
               className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative"
             >
               ჩამოტვირთვა
@@ -275,30 +240,33 @@ const CreatedEmployees = () => {
           </div>
         </div>
         <Table
-          data={filteredEmployees}
+          data={filteredAndSortedData}
           headers={employeeHeaders}
-          onContext={handleRightClick}
           filters={filters}
           sortConfig={sortConfig}
           onSort={handleSort}
           onFilterClick={handleOpenFilterModal}
-          onFilterChange={handleInputChange}
-          rowClassName={(employee) =>
-            selectedEmployee?.id === employee.id ? "bg-blue-200" : ""
-          }
-          onRowClick={(employee) => setSelectedEmployee(employee)}
+          onFilterChange={handleFilterChange}
           filterableFields={[
             "fullname",
-            "department_name",
+            "department.name",
             "position",
             "personal_id",
             "phone_number",
             "card_number",
-            "group_name",
-            "schedule_name",
+            "group.name",
+            "schedule.name",
             "honorable_minutes_per_day",
             "holidays",
           ]}
+          rowClassName={(employee) =>
+            selectedEmployee?.id === employee.id ? "bg-blue-200" : ""
+          }
+          onRowClick={(employee) => setSelectedEmployee(employee)}
+          onContext={(e) => {
+            e.preventDefault();
+            setEmployeeStatusModal(true);
+          }}
         />
       </div>
       {editModalOpen && (
@@ -312,7 +280,7 @@ const CreatedEmployees = () => {
         <EmployeeStatusModal
           isOpen={employeeStatusModal}
           onClose={() => setEmployeeStatusModal(false)}
-          handleSearch={handleSearch}
+          handleSearch={(status) => dispatch(fetchEmployees({ status }))}
         />
       )}
       <FilterModal

@@ -235,7 +235,7 @@ const CommentAnalyze = () => {
           <table className="min-w-full divide-y divide-gray-200 border-collapse border border-gray-200">
             <thead className="bg-[#1976D2] text-white">
               <tr>
-                <th className="w-24 border border-gray-200">თანამშრომელი</th>
+                <th className="w-24 border border-gray-200 px-3">თანამშრომელი</th>
                 {uniqueDates.map((date) => (
                   <th key={date} className="border border-gray-200">
                     {date}

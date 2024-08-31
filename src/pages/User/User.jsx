@@ -3,19 +3,18 @@ import { useSelector, useDispatch } from "react-redux";
 import AuthenticatedLayout from "../../Layouts/AuthenticatedLayout";
 import NewIcon from "../../assets/new.png";
 import ArrowDownIcon from "../../assets/arrow-down-2.png";
-import CreateIcon from "../../assets/create.png";
 import DeleteIcon from "../../assets/delete.png";
 import EditIcon from "../../assets/edit.png";
 import { fetchUsers } from "../../redux/userDataSlice";
 import { fetchUserTypes } from "../../redux/userTypeSlice";
 import userService from "../../services/users";
 import EmployeeModal from "../../components/employee/EmployeeModal";
-import * as XLSX from "xlsx";
 import NestedDropdownModal from "../../components/NestedDropdownModal";
-import { useFilter } from "../../hooks/useFilter";
 import FilterModal from "../../components/FilterModal";
 import Table from "../../components/Table";
 import UserForm from "../../components/user/UserForm";
+import { useFilterAndSort } from "../../hooks/useFilterAndSort";
+import * as XLSX from "xlsx";
 
 const User = () => {
   const dispatch = useDispatch();
@@ -25,21 +24,10 @@ const User = () => {
     (state) => state.departments
   );
 
-  const { filters, handleInputChange, applyModalFilters, clearFilters } =
-    useFilter({
-      username: { text: "", selected: [] },
-      name: { text: "", selected: [] },
-      userType: { text: "", selected: [] },
-      department: { text: "", selected: [] },
-      employeeFullname: { text: "", selected: [] },
-    });
-
-  const [users, setUsers] = useState([]);
-  const [filteredUsers, setFilteredUsers] = useState([]);
-  const [selectedUserId, setSelectedUserId] = useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("create");
+  const [selectedUserId, setSelectedUserId] = useState(null);
   const [openNestedDropdown, setOpenNestedDropdown] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -49,86 +37,34 @@ const User = () => {
     employee: "",
     employeeId: "",
   });
-
-  const [sortConfig, setSortConfig] = useState({
-    key: "",
-    direction: "ascending",
-  });
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [filterableData, setFilterableData] = useState([]);
   const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
   const [currentFilterField, setCurrentFilterField] = useState("");
 
+  const {
+    filteredAndSortedData: filteredUsers,
+    filters,
+    handleFilterChange,
+    applyModalFilters,
+    handleSort,
+    sortConfig,
+  } = useFilterAndSort(
+    usersData,
+    {
+      username: { text: "", selected: [] },
+      name: { text: "", selected: [] },
+      userType: { text: "", selected: [] },
+      department: { text: "", selected: [] },
+      employeeFullname: { text: "", selected: [] },
+    },
+    { key: "", direction: "ascending" }
+  );
+
   useEffect(() => {
     dispatch(fetchUsers());
     dispatch(fetchUserTypes());
   }, [dispatch]);
-
-  useEffect(() => {
-    setUsers(usersData);
-    setFilteredUsers(usersData);
-  }, [usersData]);
-
-  useEffect(() => {
-    applyFilters();
-  }, [filters, sortConfig]);
-
-  const applyFilters = () => {
-    const filtered = users.filter((user) => {
-      const matches = (fieldValue, filter) => {
-        const textFilter = filter.text.toLowerCase();
-        const selectedFilters = filter.selected.map((f) => f.toLowerCase());
-
-        const matchesText =
-          !textFilter ||
-          (fieldValue && fieldValue.toLowerCase().includes(textFilter));
-        const matchesSelected =
-          selectedFilters.length === 0 ||
-          selectedFilters.some(
-            (selected) =>
-              fieldValue && fieldValue.toLowerCase().includes(selected)
-          );
-
-        return matchesText && matchesSelected;
-      };
-
-      return (
-        matches(user.username, filters.username) &&
-        matches(user.name, filters.name) &&
-        matches(user?.user_type?.name, filters.userType) &&
-        matches(user?.department?.name, filters.department) &&
-        matches(user?.employee?.fullname, filters.employeeFullname)
-      );
-    });
-
-    if (sortConfig.key) {
-      filtered.sort((a, b) => {
-        const aValue = sortConfig.key
-          .split(".")
-          .reduce((o, i) => (o ? o[i] : ""), a);
-        const bValue = sortConfig.key
-          .split(".")
-          .reduce((o, i) => (o ? o[i] : ""), b);
-        if (aValue < bValue) {
-          return sortConfig.direction === "ascending" ? -1 : 1;
-        }
-        if (aValue > bValue) {
-          return sortConfig.direction === "ascending" ? 1 : -1;
-        }
-        return 0;
-      });
-    }
-
-    setFilteredUsers(filtered);
-  };
-
-  const handleSort = (key) => {
-    let direction = "ascending";
-    if (sortConfig.key === key && sortConfig.direction === "ascending") {
-      direction = "descending";
-    }
-    setSortConfig({ key, direction });
-  };
 
   const handleOpenFilterModal = (data, fieldName, rect) => {
     setFilterableData(data);
@@ -200,11 +136,11 @@ const User = () => {
           selectedUserId,
           userData
         );
-        const updatedIndex = users.findIndex(
+        const updatedIndex = usersData.findIndex(
           (user) => user.id === selectedUserId
         );
         if (updatedIndex !== -1) {
-          const updatedUsers = [...users];
+          const updatedUsers = [...usersData];
           updatedUsers[updatedIndex] = updatedUser;
           setUsers(updatedUsers);
         }
@@ -220,7 +156,7 @@ const User = () => {
     if (window.confirm("Are you sure you want to delete this user?")) {
       try {
         await userService.deleteUser(userId);
-        setUsers(users.filter((user) => user.id !== userId));
+        dispatch(fetchUsers());
       } catch (error) {
         alert("Failed to delete user: " + error.message);
       }
@@ -263,61 +199,51 @@ const User = () => {
     }));
   };
 
-  const exportToExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(
-      filteredUsers.map((user) => ({
-        მომხმარებელი: user.username,
-        "სახელი გვარი": user.name,
-        "მომხმარებლის ტიპი": user.user_type.name,
-        დეპარტამენტი: user.department?.name,
-        თანამშრომელი: user.employee?.fullname,
-      }))
-    );
+  const exportUserToExcel = () => {
+    const userHeaders = [
+      "მომხმარებელი",
+      "სახელი გვარი",
+      "მომხმარებლის ტიპი",
+      "დეპარტამენტი",
+      "თანამშრომელი",
+    ];
+
+    const dataToExport = [
+      userHeaders,
+      ...filteredUsers.map((user) => [
+        user.username || "",
+        user.name || "",
+        user?.user_type?.name || "",
+        user?.department?.name || "",
+        user?.employee?.fullname || "",
+      ]),
+    ];
+
+    const worksheet = XLSX.utils.aoa_to_sheet(dataToExport);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
+
+    // Apply styles to header row
+    const headerRange = XLSX.utils.decode_range(worksheet["!ref"]);
+    for (let C = headerRange.s.c; C <= headerRange.e.c; ++C) {
+      const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C });
+      if (!worksheet[cellAddress]) continue;
+      worksheet[cellAddress].s = {
+        font: { bold: true },
+        alignment: { horizontal: "center", vertical: "center" },
+      };
+    }
+
+    worksheet["!cols"] = [
+      { wch: 20 },
+      { wch: 30 },
+      { wch: 20 },
+      { wch: 20 },
+      { wch: 30 },
+    ];
+
     XLSX.writeFile(workbook, "Users.xlsx");
   };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  };
-
-  const handleEmployeeInputClick = () => {
-    setIsEmployeeModalOpen(true);
-  };
-
-
-  const tableHeaders = [
-    {
-      label: "მომხმარებელი",
-      key: "username",
-      extractValue: (user) => user.username,
-    },
-    {
-      label: "სახელი გვარი",
-      key: "name",
-      extractValue: (user) => user.name,
-    },
-    {
-      label: "მომხმარებლის ტიპი",
-      key: "user_type.name",
-      extractValue: (user) => user?.user_type?.name,
-    },
-    {
-      label: "დეპარტამენტი",
-      key: "department.name",
-      extractValue: (user) => user?.department?.name,
-    },
-    {
-      label: "თანამშრომელი",
-      key: "employee.fullname",
-      extractValue: (user) => user?.employee?.fullname,
-    },
-  ];
 
   return (
     <AuthenticatedLayout>
@@ -337,7 +263,7 @@ const User = () => {
             <button
               onClick={() =>
                 openUpdateModal(
-                  users.find((user) => user.id === selectedUserId)
+                  usersData.find((user) => user.id === selectedUserId)
                 )
               }
               className="bg-[#1976D2] text-white px-4 py-4 rounded-md flex items-center gap-2"
@@ -356,7 +282,7 @@ const User = () => {
               წაშლა
             </button>
             <button
-              onClick={exportToExcel}
+              onClick={exportUserToExcel}
               className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative"
             >
               ჩამოტვირთვა
@@ -367,12 +293,38 @@ const User = () => {
         </div>
         <Table
           data={filteredUsers}
-          headers={tableHeaders}
+          headers={[
+            {
+              label: "მომხმარებელი",
+              key: "username",
+              extractValue: (user) => user.username,
+            },
+            {
+              label: "სახელი გვარი",
+              key: "name",
+              extractValue: (user) => user.name,
+            },
+            {
+              label: "მომხმარებლის ტიპი",
+              key: "user_type.name",
+              extractValue: (user) => user?.user_type?.name,
+            },
+            {
+              label: "დეპარტამენტი",
+              key: "department.name",
+              extractValue: (user) => user?.department?.name,
+            },
+            {
+              label: "თანამშრომელი",
+              key: "employee.fullname",
+              extractValue: (user) => user?.employee?.fullname,
+            },
+          ]}
           filters={filters}
           sortConfig={sortConfig}
           onSort={handleSort}
           onFilterClick={handleOpenFilterModal}
-          onFilterChange={handleInputChange}
+          onFilterChange={handleFilterChange}
           rowClassName={(user) =>
             user?.id === selectedUserId ? "bg-blue-200" : ""
           }
@@ -392,13 +344,18 @@ const User = () => {
           formData={formData}
           userTypes={userTypes}
           departments={departments}
-          handleChange={handleChange}
+          handleChange={(e) =>
+            setFormData((prev) => ({
+              ...prev,
+              [e.target.name]: e.target.value,
+            }))
+          }
           handleSave={handleSave}
           closeModal={closeAddModal}
           modalMode={modalMode}
           handleClearDepartment={handleClearDepartment}
           handleSelectEmployee={handleSelectEmployee}
-          handleEmployeeInputClick={handleEmployeeInputClick}
+          handleEmployeeInputClick={() => setIsEmployeeModalOpen(true)}
           openNestedDropdown={openNestedDropdown}
           setOpenNestedDropdown={setOpenNestedDropdown}
         />

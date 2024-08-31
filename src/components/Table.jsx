@@ -11,6 +11,7 @@ const Table = ({
   onFilterChange,
   rowClassName = () => "",
   onRowClick,
+  onRowDoubleClick, // Add the new prop for double-click handling
   filterableFields,
   onContext,
 }) => {
@@ -79,12 +80,11 @@ const Table = ({
   );
 
   return (
-    <div className="container mx-auto mt-10 overflow-x-auto">
-      {/* Outer container with max height set to viewport height */}
+    <div className="container mx-auto  overflow-x-auto">
       <div
         className="min-w-max max-h-[100vh] overflow-y-auto"
         ref={tableRef}
-        style={{ maxHeight: "calc(100vh - 300px)" }} // Adjust 200px according to the space needed for other elements
+        style={{ maxHeight: "calc(100vh - 300px)" }}
       >
         <table className="min-w-full divide-y divide-gray-200 border-collapse">
           <thead className="bg-[#1976D2] text-white text-xs sticky top-0 z-10">
@@ -109,7 +109,8 @@ const Table = ({
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            const rect = e.currentTarget.getBoundingClientRect();
+                            const rect =
+                              e.currentTarget.getBoundingClientRect();
                             onFilterClick(
                               data
                                 .map((item) => header.extractValue(item))
@@ -185,6 +186,7 @@ const Table = ({
                     item
                   )}`}
                   onClick={() => onRowClick(item)}
+                  onDoubleClick={() => onRowDoubleClick(item)} // Add double-click handler
                   onContextMenu={(e) => onContext(e)}
                 >
                   <td className="w-[30px]"></td>

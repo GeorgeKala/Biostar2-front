@@ -11,7 +11,7 @@ import NestedDropdownModal from "../../../components/NestedDropdownModal";
 import SearchIcon from "../../../assets/search.png";
 import EmployeeInput from "../../../components/employee/EmployeeInput";
 import EmployeeModal from "../../../components/employee/EmployeeModal";
-import useFilterAndSort from "../../../hooks/useFilterAndSort";
+import { useFilterAndSort } from "../../../hooks/useFilterAndSort";
 
 const FullRecords = () => {
   const dispatch = useDispatch();
