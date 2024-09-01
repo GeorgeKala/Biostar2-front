@@ -61,9 +61,10 @@ const Navbar = () => {
   };
 
   const handleDelete = (route) => {
-    // Remove filter and sort configurations from localStorage
+    // Remove filter, sort configurations, and formData from localStorage
     localStorage.removeItem(`${route}-filters`);
     localStorage.removeItem(`${route}-sortConfig`);
+    localStorage.removeItem(`${route}-formData`);
 
     // Update the history
     const updatedHistory = history.filter((item) => item !== route);
@@ -78,6 +79,7 @@ const Navbar = () => {
       navigate(updatedHistory[0]);
     }
   };
+
 
   return (
     <div className="bg-[#1976D2] w-full flex items-center  py-4 border-b-2 border-[#0A5FB6] relative">

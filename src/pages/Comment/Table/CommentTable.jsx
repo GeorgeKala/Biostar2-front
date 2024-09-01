@@ -49,7 +49,6 @@ const CommentTable = () => {
     employee_id: "",
   });
 
-  // Initialize filters
   const initialFilters = {
     employee: { text: formData.employee_id, selected: [] },
     department: { text: formData.department_id, selected: [] },
