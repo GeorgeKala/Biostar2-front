@@ -82,7 +82,7 @@ const Navbar = () => {
 
 
   return (
-    <div className="bg-[#1976D2] w-full flex items-center  py-4 border-b-2 border-[#0A5FB6] relative">
+    <div className="bg-[#1976D2] w-full flex items-center  py-4  border-[#0A5FB6] relative">
       <div className="flex space-x-2 overflow-hidden ">
         {history
           .slice(currentIndex, currentIndex + maxVisibleTabs)
@@ -91,12 +91,22 @@ const Navbar = () => {
               key={index}
               className={`flex items-center px-4 py-2 text-white cursor-pointer 
                 ${
-                  location.pathname === route ? "bg-[#0A5FB6]" : "bg-[#255585]"
+                  location.pathname === route
+                    ? "bg-white text-[#1976D2] "
+                    : "bg-[#255585]"
                 } 
                 hover:bg-[#0A5FB6] transition-colors duration-200 rounded-md`}
               onClick={() => navigate(route)}
             >
-              <span>{routeNames[route] || route}</span>
+              <span
+                className={`${
+                  location.pathname === route
+                    ? " text-[#1976D2] "
+                    : "text-white"
+                } `}
+              >
+                {routeNames[route] || route}
+              </span>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -109,7 +119,11 @@ const Navbar = () => {
                   className="h-4 w-4"
                   fill="none"
                   viewBox="0 0 24 24"
-                  stroke="currentColor"
+                  stroke={`${
+                    location.pathname === route
+                      ? "#1976D2"
+                      : "white"
+                  } `}
                 >
                   <path
                     strokeLinecap="round"

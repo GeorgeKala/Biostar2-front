@@ -6,14 +6,14 @@ export const useFormData = (initialFormData) => {
   const pageKey = `${location.pathname}-formData`;
 
   const getStoredFormData = () => {
-    const storedFormData = localStorage.getItem(pageKey);
+    const storedFormData = sessionStorage.getItem(pageKey);
     return storedFormData ? JSON.parse(storedFormData) : initialFormData;
   };
 
   const [formData, setFormData] = useState(getStoredFormData);
 
   useEffect(() => {
-    localStorage.setItem(pageKey, JSON.stringify(formData));
+    sessionStorage.setItem(pageKey, JSON.stringify(formData));
   }, [formData, pageKey]);
 
   const handleFormDataChange = (e) => {
@@ -25,7 +25,7 @@ export const useFormData = (initialFormData) => {
   };
 
   const clearFormData = () => {
-    localStorage.removeItem(pageKey);
+    sessionStorage.removeItem(pageKey);
     setFormData(initialFormData);
   };
 
@@ -33,5 +33,6 @@ export const useFormData = (initialFormData) => {
     formData,
     handleFormDataChange,
     clearFormData,
+    setFormData, 
   };
 };

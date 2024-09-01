@@ -676,7 +676,6 @@
 
 import React, { useEffect, useState } from "react";
 import AuthenticatedLayout from "../../../Layouts/AuthenticatedLayout";
-import ArrowDownIcon from "../../../assets/arrow-down-2.png";
 import GeneralInputGroup from "../../../components/GeneralInputGroup";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchForgiveTypes } from "../../../redux/forgiveTypeSlice";
@@ -689,7 +688,6 @@ import { fetchReports, updateOrAddReport } from "../../../redux/reportSlice";
 import FilterModal from "../../../components/FilterModal";
 import Table from "../../../components/Table";
 import { useFilterAndSort } from "../../../hooks/useFilterAndSort";
-import SearchButton from "../../../components/SearchButton";
 import SearchIcon from "../../../assets/search.png";
 import reportService from "../../../services/report";
 
@@ -1067,7 +1065,6 @@ const GeneralReport = () => {
             className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative"
           >
             ჩამოტვირთვა
-            <img src={ArrowDownIcon} className="ml-3" alt="Arrow Down Icon" />
             <span className="absolute inset-0 border border-white border-dashed rounded"></span>
           </button>
         </div>

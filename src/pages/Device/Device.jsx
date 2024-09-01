@@ -220,12 +220,39 @@ const Device = () => {
   };
 
   const exportToExcel = useCallback(() => {
-    const worksheet = XLSX.utils.json_to_sheet(
-      filteredRecords.map((item) => ({
-        შენობა: item?.building_name,
-        მოწყობილობა: item?.access_group_name,
-      }))
-    );
+    const dataToExport = [];
+
+    filteredRecords.forEach((item) => {
+      const existingBuilding = dataToExport.find(
+        (entry) => entry["შენობა"] === item.building_name
+      );
+
+      if (existingBuilding) {
+        existingBuilding["მოწყობილობა"] += `, ${item.access_group_name}`;
+      } else {
+        dataToExport.push({
+          შენობა: item.building_name,
+          მოწყობილობა: item.access_group_name,
+        });
+      }
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+
+    const headerStyle = {
+      font: { bold: true },
+      alignment: { horizontal: "center" },
+    };
+
+    const headerRange = XLSX.utils.decode_range(worksheet["!ref"]);
+    for (let C = headerRange.s.c; C <= headerRange.e.c; ++C) {
+      const cellAddress = XLSX.utils.encode_cell({ c: C, r: 0 });
+      if (!worksheet[cellAddress]) continue;
+      worksheet[cellAddress].s = headerStyle;
+    }
+
+    worksheet["!cols"] = [{ wpx: 200 }, { wpx: 200 }];
+
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "მოწყობილობები");
     XLSX.writeFile(workbook, "მოწყობილობები.xlsx");

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import AuthenticatedLayout from "../../../Layouts/AuthenticatedLayout";
-import ArrowDownIcon from "../../../assets/arrow-down-2.png";
 import GeneralInputGroup from "../../../components/GeneralInputGroup";
 import SearchButton from "../../../components/SearchButton";
 import commentService from "../../../services/comment";
@@ -179,7 +178,6 @@ const CommentAnalyze = () => {
             onClick={exportToExcel}
           >
             ჩამოტვირთვა
-            <img src={ArrowDownIcon} className="ml-3" alt="Arrow Down Icon" />
             <span className="absolute inset-0 border border-white border-dashed rounded"></span>
           </button>
         </div>

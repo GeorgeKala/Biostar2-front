@@ -10,6 +10,7 @@ import deviceService from "../../../services/device";
 import NestedDropdownModal from "../../../components/NestedDropdownModal";
 import SearchIcon from "../../../assets/search.png";
 import CardScanModal from "../../../components/CardScanModal";
+import { useFormData } from "../../../hooks/useFormData"; // Import the useFormData hook
 
 const EmployeeCreate = () => {
   const { departments, nestedDepartments } = useSelector(
@@ -18,7 +19,9 @@ const EmployeeCreate = () => {
   const user = useSelector((state) => state.user.user);
   const groups = useSelector((state) => state.groups.items);
   const schedules = useSelector((state) => state.schedules.items);
-  const [formData, setFormData] = useState({
+
+  // Use the useFormData hook
+  const initialFormData = {
     fullname: "",
     personal_id: "",
     phone_number: "",
@@ -34,7 +37,10 @@ const EmployeeCreate = () => {
     checksum: "",
     session_id: sessionStorage.getItem("sessionToken"),
     holidays: [],
-  });
+  };
+
+  const { formData, handleFormDataChange, clearFormData, setFormData } =
+    useFormData(initialFormData);
 
   const [errors, setErrors] = useState({});
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
@@ -86,15 +92,10 @@ const EmployeeCreate = () => {
   };
 
   const handleInput = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-
+    handleFormDataChange(e);
     setErrors((prevErrors) => ({
       ...prevErrors,
-      [name]: "",
+      [e.target.name]: "",
     }));
   };
 
@@ -128,7 +129,7 @@ const EmployeeCreate = () => {
         field !== "expiry_datetime" &&
         field !== "checksum" &&
         field !== "honorable_minutes_per_day" &&
-        field !== "device"
+        field !== "device_id"
       ) {
         newErrors[field] = `${georgianLabels[field]} მითითება აუცილებელია`;
       }
@@ -142,6 +143,7 @@ const EmployeeCreate = () => {
     try {
       await employeeService.createEmployee(formData);
       setShowSuccessPopup(true);
+      clearFormData(); // Clear form data after successful submission
     } catch (error) {
       if (error.response && error.response.data.errors) {
         const apiErrors = error.response.data.errors;
@@ -169,7 +171,7 @@ const EmployeeCreate = () => {
     position: "პოზიცია",
     group_id: "ჯგუფი",
     schedule_id: "განრიგი",
-    device: "მოწყობილობა",
+    device_id: "მოწყობილობა",
     card_number: "ბარათის ნომერი",
   };
 
@@ -185,25 +187,22 @@ const EmployeeCreate = () => {
   const handleDeviceSelect = (e) => {
     const deviceId = e.target.value;
     setSelectedDevice(deviceId);
-    const updatedFormData = {
-      ...formData,
+    setFormData((prevData) => ({
+      ...prevData,
       device_id: deviceId,
-    };
-
-    setFormData(updatedFormData);
+    }));
   };
 
   const handleScanCard = async () => {
     setIsCardScanModalOpen(true);
     try {
       const scanResult = await deviceService.scanCard(selectedDevice);
-      const updatedFormData = {
-        ...formData,
+      setFormData((prevData) => ({
+        ...prevData,
         card_number: scanResult.Card.card_id,
         display_card_id: scanResult.Card.display_card_id,
-      };
+      }));
       setIsCardScanModalOpen(false);
-      setFormData(updatedFormData);
     } catch (error) {
       console.error("Error scanning card:", error);
     }
@@ -432,8 +431,8 @@ const EmployeeCreate = () => {
                     </option>
                   ))}
               </select>
-              {errors.schedule_id && (
-                <p className="text-red-500 text-sm">{errors.schedule_id}</p>
+              {errors.device_id && (
+                <p className="text-red-500 text-sm">{errors.device_id}</p>
               )}
             </div>
             <div className="w-full flex gap-3 items-center">
