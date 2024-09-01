@@ -33,16 +33,21 @@ const DepartmentDistribution = () => {
     building_id: "",
   });
 
-  const { filters, handleInputChange, applyModalFilters } = useFilter({
-    building_name: { text: "", selected: [] },
-    department_name: { text: "", selected: [] },
-  });
-
   const {
     filteredAndSortedData: filteredRecords,
+    handleFilterChange,
+    applyModalFilters,
     handleSort,
+    filters,
     sortConfig,
-  } = useFilterAndSort(data, filters, { key: "", direction: "ascending" });
+  } = useFilterAndSort(
+    data,
+    {
+      building_name: { text: "", selected: [] },
+      department_name: { text: "", selected: [] },
+    },
+    { key: "", direction: "ascending" }
+  );
 
   useEffect(() => {
     fetchData();
@@ -210,7 +215,7 @@ const DepartmentDistribution = () => {
           sortConfig={sortConfig}
           onSort={handleSort}
           onFilterClick={handleOpenFilterModal}
-          onFilterChange={handleInputChange}
+          onFilterChange={handleFilterChange}
           rowClassName={(record) =>
             selectedItemId === record.id ? "bg-gray-200" : ""
           }

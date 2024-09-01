@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const routeNames = {
@@ -26,7 +26,7 @@ const routeNames = {
   "/notifications": "შეტყობინებები",
   "/dashboard": "დაფა",
   "/records/full": "სრული ჩანაწერები",
-  "/reports/kitchen": "სამზარეულო"
+  "/reports/kitchen": "სამზარეულო",
 };
 
 const Navbar = () => {
@@ -61,24 +61,36 @@ const Navbar = () => {
   };
 
   const handleDelete = (route) => {
-    // Clear the session data associated with this route
-    sessionStorage.removeItem(route);
+    // Remove filter and sort configurations from localStorage
+    localStorage.removeItem(`${route}-filters`);
+    localStorage.removeItem(`${route}-sortConfig`);
 
+    // Update the history
     const updatedHistory = history.filter((item) => item !== route);
     setHistory(updatedHistory);
     sessionStorage.setItem("navHistory", JSON.stringify(updatedHistory));
+
+    // Navigate to the previous tab in the history
+    const currentIndex = updatedHistory.indexOf(location.pathname);
+    if (currentIndex > 0) {
+      navigate(updatedHistory[currentIndex - 1]);
+    } else if (updatedHistory.length > 0) {
+      navigate(updatedHistory[0]);
+    }
   };
 
   return (
-    <div className="bg-[#1976D2] w-full flex items-center px-4 py-4 border-b-2 border-[#0A5FB6] relative">
-      <div className="flex space-x-2 overflow-hidden mx-8">
+    <div className="bg-[#1976D2] w-full flex items-center  py-4 border-b-2 border-[#0A5FB6] relative">
+      <div className="flex space-x-2 overflow-hidden ">
         {history
           .slice(currentIndex, currentIndex + maxVisibleTabs)
           .map((route, index) => (
             <div
               key={index}
               className={`flex items-center px-4 py-2 text-white cursor-pointer 
-                ${location.pathname === route ? "bg-[#0A5FB6]" : "bg-[#255585]"} 
+                ${
+                  location.pathname === route ? "bg-[#0A5FB6]" : "bg-[#255585]"
+                } 
                 hover:bg-[#0A5FB6] transition-colors duration-200 rounded-md`}
               onClick={() => navigate(route)}
             >

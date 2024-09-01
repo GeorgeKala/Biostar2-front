@@ -29,16 +29,26 @@ const Device = () => {
   const [currentFilterField, setCurrentFilterField] = useState("");
   const [filterableData, setFilterableData] = useState([]);
 
-  const { filters, handleInputChange, applyModalFilters } = useFilter({
-    building_name: { text: "", selected: [] },
-    device_name: { text: "", selected: [] },
-  });
+  // const { filters, handleInputChange, applyModalFilters } = useFilter({
+  //   building_name: { text: "", selected: [] },
+  //   device_name: { text: "", selected: [] },
+  // });
 
   const {
     filteredAndSortedData: filteredRecords,
+    handleFilterChange,
+    applyModalFilters,
     handleSort,
+    filters,
     sortConfig,
-  } = useFilterAndSort(data, filters, { key: "", direction: "ascending" });
+  } = useFilterAndSort(
+    data,
+    {
+      building_name: { text: "", selected: [] },
+      access_group_name: { text: "", selected: [] },
+    },
+    { key: "", direction: "ascending" }
+  );
 
   useEffect(() => {
     const fetchBuildingsWithAccessGroups = async () => {
@@ -280,7 +290,7 @@ const Device = () => {
           sortConfig={sortConfig}
           onSort={handleSort}
           onFilterClick={handleOpenFilterModal}
-          onFilterChange={handleInputChange}
+          onFilterChange={handleFilterChange}
           rowClassName={(record) =>
             selectedItem?.building_id === record.building_id &&
             selectedItem?.access_group_id === record.access_group_id

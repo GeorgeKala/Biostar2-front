@@ -5,9 +5,14 @@ import NewIcon from "../../assets/new.png";
 import ArrowDownIcon from "../../assets/arrow-down-2.png";
 import DeleteIcon from "../../assets/delete.png";
 import EditIcon from "../../assets/edit.png";
-import { fetchSchedules, createSchedule, updateSchedule, deleteSchedule } from "../../redux/scheduleSlice";
+import {
+  fetchSchedules,
+  createSchedule,
+  updateSchedule,
+  deleteSchedule,
+} from "../../redux/scheduleSlice";
 import * as XLSX from "xlsx";
-import { useFilter } from "../../hooks/useFilter";
+import { useFilterAndSort } from "../../hooks/useFilterAndSort";
 import FilterModal from "../../components/FilterModal";
 import Table from "../../components/Table";
 import ScheduleForm from "../../components/schedule/ScheduleForm";
@@ -15,7 +20,6 @@ import ScheduleForm from "../../components/schedule/ScheduleForm";
 const Schedule = () => {
   const dispatch = useDispatch();
   const schedules = useSelector((state) => state.schedules.items);
-  const [filteredSchedules, setFilteredSchedules] = useState([]);
   const [selectedScheduleId, setSelectedScheduleId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("create");
@@ -27,87 +31,45 @@ const Schedule = () => {
     day_end: "",
     repetition_unit: "",
     interval: "",
-    comment: ""
+    comment: "",
   });
 
-  const { filters, handleInputChange, applyModalFilters, clearFilters } = useFilter({
-    name: { text: "", selected: [] },
-    start_date: { text: "", selected: [] },
-    end_date: { text: "", selected: [] }
-  });
-
-  const [sortConfig, setSortConfig] = useState({
-    key: "",
-    direction: "ascending"
-  });
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [filterableData, setFilterableData] = useState([]);
   const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
   const [currentFilterField, setCurrentFilterField] = useState("");
 
+  const {
+    filteredAndSortedData: filteredSchedules,
+    handleFilterChange,
+    applyModalFilters,
+    handleSort,
+    filters,
+    sortConfig,
+  } = useFilterAndSort(
+    schedules,
+    {
+      name: { text: "", selected: [] },
+      start_date: { text: "", selected: [] },
+      end_date: { text: "", selected: [] },
+      day_start: { text: "", selected: [] },
+      day_end: { text: "", selected: [] },
+      repetition_unit: { text: "", selected: [] },
+      interval: { text: "", selected: [] },
+      comment: { text: "", selected: [] },
+    },
+    { key: "", direction: "ascending" }
+  );
+
   useEffect(() => {
     dispatch(fetchSchedules());
   }, [dispatch]);
 
-  useEffect(() => {
-    setFilteredSchedules(schedules);
-  }, [schedules]);
 
-  useEffect(() => {
-    applyFilters();
-  }, [filters, sortConfig]);
-
-  const applyFilters = () => {
-    const filtered = schedules.filter((schedule) => {
-      const matches = (fieldValue, filter) => {
-        const textFilter = filter.text.toLowerCase();
-        const selectedFilters = filter.selected.map((f) => f.toLowerCase());
-
-        const matchesText =
-          !textFilter || (fieldValue && fieldValue.toLowerCase().includes(textFilter));
-        const matchesSelected =
-          selectedFilters.length === 0 ||
-          selectedFilters.some(
-            (selected) => fieldValue && fieldValue.toLowerCase().includes(selected)
-          );
-
-        return matchesText && matchesSelected;
-      };
-
-      return (
-        matches(schedule.name, filters.name) &&
-        matches(schedule.start_date, filters.start_date) &&
-        matches(schedule.end_date, filters.end_date)
-      );
-    });
-
-    if (sortConfig.key) {
-      filtered.sort((a, b) => {
-        const aValue = sortConfig.key.split(".").reduce((o, i) => (o ? o[i] : ""), a);
-        const bValue = sortConfig.key.split(".").reduce((o, i) => (o ? o[i] : ""), b);
-        if (aValue < bValue) {
-          return sortConfig.direction === "ascending" ? -1 : 1;
-        }
-        if (aValue > bValue) {
-          return sortConfig.direction === "ascending" ? 1 : -1;
-        }
-        return 0;
-      });
-    }
-
-    setFilteredSchedules(filtered);
-  };
-
-  const handleSort = (key) => {
-    let direction = "ascending";
-    if (sortConfig.key === key && sortConfig.direction === "ascending") {
-      direction = "descending";
-    }
-    setSortConfig({ key, direction });
-  };
 
   const handleOpenFilterModal = (data, fieldName, rect) => {
-    setFilterableData(data);
+    const uniqueData = [...new Set(data)];
+    setFilterableData(uniqueData);
     setIsFilterModalOpen(true);
     setModalPosition({ top: rect.bottom, left: rect.left - 240 });
     setCurrentFilterField(fieldName);
@@ -124,7 +86,7 @@ const Schedule = () => {
       day_end: "",
       repetition_unit: "",
       interval: "",
-      comment: ""
+      comment: "",
     });
   };
 
@@ -140,7 +102,7 @@ const Schedule = () => {
       day_end: schedule.day_end,
       repetition_unit: schedule.repetition_unit,
       interval: schedule.interval,
-      comment: schedule.comment
+      comment: schedule.comment,
     });
   };
 
@@ -156,7 +118,7 @@ const Schedule = () => {
       day_end: "",
       repetition_unit: "",
       interval: "",
-      comment: ""
+      comment: "",
     });
   };
 
@@ -168,7 +130,9 @@ const Schedule = () => {
         dispatch(createSchedule(formData));
         closeAddModal();
       } else if (modalMode === "update" && selectedScheduleId) {
-        dispatch(updateSchedule({ id: selectedScheduleId, scheduleData: formData }));
+        dispatch(
+          updateSchedule({ id: selectedScheduleId, scheduleData: formData })
+        );
         closeAddModal();
       }
     } catch (error) {
@@ -183,20 +147,22 @@ const Schedule = () => {
   };
 
   const handleRowClick = (scheduleId) => {
-    setSelectedScheduleId(scheduleId === selectedScheduleId ? null : scheduleId);
+    setSelectedScheduleId(
+      scheduleId === selectedScheduleId ? null : scheduleId
+    );
   };
 
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(
       filteredSchedules.map((schedule) => ({
-        "სახელი": schedule.name,
+        სახელი: schedule.name,
         "დაწყების თარიღი": schedule.start_date,
         "დასრულების თარიღი": schedule.end_date,
         "დაწყების დრო": schedule.day_start,
         "დამთავრების დრო": schedule.day_end,
         "გამეორების ერთეული": schedule.repetition_unit,
-        "ინტერვალი": schedule.interval,
-        "კომენტარი": schedule.comment
+        ინტერვალი: schedule.interval,
+        კომენტარი: schedule.comment,
       }))
     );
     const workbook = XLSX.utils.book_new();
@@ -208,43 +174,43 @@ const Schedule = () => {
     {
       label: "სახელი",
       key: "name",
-      extractValue: (schedule) => schedule.name
+      extractValue: (schedule) => schedule.name,
     },
     {
       label: "დაწყების თარიღი",
       key: "start_date",
-      extractValue: (schedule) => schedule.start_date
+      extractValue: (schedule) => schedule.start_date,
     },
     {
       label: "დასრულების თარიღი",
       key: "end_date",
-      extractValue: (schedule) => schedule.end_date
+      extractValue: (schedule) => schedule.end_date,
     },
     {
       label: "დაწყების დრო",
       key: "day_start",
-      extractValue: (schedule) => schedule.day_start
+      extractValue: (schedule) => schedule.day_start,
     },
     {
       label: "დამთავრების დრო",
       key: "day_end",
-      extractValue: (schedule) => schedule.day_end
+      extractValue: (schedule) => schedule.day_end,
     },
     {
       label: "გამეორების ერთეული",
       key: "repetition_unit",
-      extractValue: (schedule) => schedule.repetition_unit
+      extractValue: (schedule) => schedule.repetition_unit,
     },
     {
       label: "ინტერვალი",
       key: "interval",
-      extractValue: (schedule) => schedule.interval
+      extractValue: (schedule) => schedule.interval,
     },
     {
       label: "კომენტარი",
       key: "comment",
-      extractValue: (schedule) => schedule.comment
-    }
+      extractValue: (schedule) => schedule.comment,
+    },
   ];
 
   return (
@@ -261,7 +227,13 @@ const Schedule = () => {
               ახალი
             </button>
             <button
-              onClick={() => openUpdateModal(schedules.find((schedule) => schedule.id === selectedScheduleId))}
+              onClick={() =>
+                openUpdateModal(
+                  schedules.find(
+                    (schedule) => schedule.id === selectedScheduleId
+                  )
+                )
+              }
               className="bg-[#1976D2] text-white px-4 py-4 rounded-md flex items-center gap-2"
             >
               <img src={EditIcon} alt="Edit" />
@@ -274,7 +246,7 @@ const Schedule = () => {
               }}
               className="bg-[#D9534F] text-white px-4 py-4 rounded-md flex items-center gap-2"
             >
-              <img  src={DeleteIcon} alt="Delete" />
+              <img src={DeleteIcon} alt="Delete" />
               წაშლა
             </button>
             <button
@@ -294,17 +266,30 @@ const Schedule = () => {
           sortConfig={sortConfig}
           onSort={handleSort}
           onFilterClick={handleOpenFilterModal}
-          onFilterChange={handleInputChange}
-          rowClassName={(schedule) => (schedule.id === selectedScheduleId ? "bg-blue-200" : "")}
+          onFilterChange={handleFilterChange}
+          rowClassName={(schedule) =>
+            schedule.id === selectedScheduleId ? "bg-blue-200" : ""
+          }
           onRowClick={(schedule) => handleRowClick(schedule.id)}
-          filterableFields={["name", "start_date", "end_date", "day_start", "day_end", "repetition_unit", "interval", "comment"]}
+          filterableFields={[
+            "name",
+            "start_date",
+            "end_date",
+            "day_start",
+            "day_end",
+            "repetition_unit",
+            "interval",
+            "comment",
+          ]}
         />
       </div>
 
       {isModalOpen && (
         <ScheduleForm
           formData={formData}
-          handleChange={(e) => setFormData({ ...formData, [e.target.name]: e.target.value })}
+          handleChange={(e) =>
+            setFormData({ ...formData, [e.target.name]: e.target.value })
+          }
           handleSave={handleSave}
           closeModal={closeAddModal}
           modalMode={modalMode}
@@ -315,7 +300,9 @@ const Schedule = () => {
         isOpen={isFilterModalOpen}
         onClose={() => setIsFilterModalOpen(false)}
         filterableData={filterableData}
-        onApply={(selectedFilters) => applyModalFilters(currentFilterField, selectedFilters)}
+        onApply={(selectedFilters) =>
+          applyModalFilters(currentFilterField, selectedFilters)
+        }
         position={modalPosition}
       />
     </AuthenticatedLayout>

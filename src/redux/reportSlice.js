@@ -33,10 +33,9 @@ const reportSlice = createSlice({
     },
 
     updateOrAddReport(state, action) {
+      const { user_id, date } = action.payload;
       const index = state.reports.findIndex(
-        (report) =>
-          report.user_id === action.payload.user_id &&
-          report.date === action.payload.date
+        (report) => report.user_id === user_id && report.date === date
       );
 
       if (index !== -1) {

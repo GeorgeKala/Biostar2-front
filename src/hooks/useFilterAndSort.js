@@ -1,8 +1,30 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 export const useFilterAndSort = (data, initialFilters, initialSortConfig) => {
-  const [filters, setFilters] = useState(initialFilters);
-  const [sortConfig, setSortConfig] = useState(initialSortConfig);
+  const location = useLocation(); // Get the current route
+  const pageKey = location.pathname; // Use the current route as a key
+
+  const getStoredFilters = () => {
+    const storedFilters = localStorage.getItem(`${pageKey}-filters`);
+    return storedFilters ? JSON.parse(storedFilters) : initialFilters;
+  };
+
+  const getStoredSortConfig = () => {
+    const storedSortConfig = localStorage.getItem(`${pageKey}-sortConfig`);
+    return storedSortConfig ? JSON.parse(storedSortConfig) : initialSortConfig;
+  };
+
+  const [filters, setFilters] = useState(getStoredFilters);
+  const [sortConfig, setSortConfig] = useState(getStoredSortConfig);
+
+  useEffect(() => {
+    localStorage.setItem(`${pageKey}-filters`, JSON.stringify(filters));
+  }, [filters, pageKey]);
+
+  useEffect(() => {
+    localStorage.setItem(`${pageKey}-sortConfig`, JSON.stringify(sortConfig));
+  }, [sortConfig, pageKey]);
 
   const filteredAndSortedData = useMemo(() => {
     return data
@@ -50,28 +72,12 @@ export const useFilterAndSort = (data, initialFilters, initialSortConfig) => {
     }));
   };
 
-  // const applyModalFilters = (field, selectedFilters) => {
-  //   const selectedText = selectedFilters.join(", "); // Convert the array of selected filters into a comma-separated string
-
-  //   setFilters((prevFilters) => ({
-  //     ...prevFilters,
-  //     [field]: {
-  //       ...prevFilters[field],
-  //       selected: selectedFilters,
-  //       text: selectedText, // Update the text field with the selected filters
-  //     },
-  //   }));
-  // };
-
-
   const applyModalFilters = (field, selectedFilters) => {
     let displayText = "";
 
     if (selectedFilters.length === 1) {
-      // If there's only one selected item, set it as the text
       displayText = selectedFilters[0];
     } else if (selectedFilters.length > 1) {
-      // If there are multiple selected items, clear the text
       displayText = "";
     }
 
@@ -83,9 +89,6 @@ export const useFilterAndSort = (data, initialFilters, initialSortConfig) => {
       },
     }));
   };
-
-
-  
 
   const handleSort = (key) => {
     setSortConfig((prev) => ({

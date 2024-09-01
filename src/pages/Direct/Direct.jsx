@@ -20,19 +20,24 @@ const Direct = () => {
   const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
   const [currentFilterField, setCurrentFilterField] = useState('');
 
-  const { filters, handleInputChange, applyModalFilters } = useFilter({
-    datetime: { text: '', selected: [] },
-    employee_name: { text: '', selected: [] },
-    department: { text: '', selected: [] },
-    employee_status: { text: '', selected: [] },
-    device_name: { text: '', selected: [] },
-  });
-
   const {
     filteredAndSortedData: filteredEvents,
+    handleFilterChange,
+    applyModalFilters,
     handleSort,
     sortConfig,
-  } = useFilterAndSort(events, filters, { key: '', direction: 'ascending' });
+    filters
+  } = useFilterAndSort(
+    events,
+    {
+      datetime: { text: "", selected: [] },
+      employee_name: { text: "", selected: [] },
+      department: { text: "", selected: [] },
+      employee_status: { text: "", selected: [] },
+      device_name: { text: "", selected: [] },
+    },
+    { key: "", direction: "ascending" }
+  );
 
   useEffect(() => {
     const fetchDevices = async () => {
@@ -160,7 +165,7 @@ const Direct = () => {
             sortConfig={sortConfig}
             onSort={handleSort}
             onFilterClick={handleOpenFilterModal}
-            onFilterChange={handleInputChange}
+            onFilterChange={handleFilterChange}
             filterableFields={[
               'datetime',
               'employee_name',
