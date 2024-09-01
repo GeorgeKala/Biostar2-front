@@ -9,6 +9,7 @@ import Table from "../../components/Table";
 import FilterModal from "../../components/FilterModal";
 import { useFilter } from "../../hooks/useFilter";
 import { useFilterAndSort } from "../../hooks/useFilterAndSort";
+import ExcelJS from "exceljs";
 
 const Device = () => {
   const [data, setData] = useState([]);
@@ -219,44 +220,56 @@ const Device = () => {
     setSelectedAccessGroup(selectedGroup);
   };
 
-  const exportToExcel = useCallback(() => {
+  const exportToExcel = async () => {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("მოწყობილობები");
+
+    worksheet.columns = [
+      { header: "შენობა", key: "building_name", width: 30 },
+      { header: "მოწყობილობა", key: "access_group_name", width: 30 },
+    ];
+
+    worksheet.getRow(1).font = { bold: true };
+    worksheet.getRow(1).alignment = { horizontal: "center" };
+
     const dataToExport = [];
 
     filteredRecords.forEach((item) => {
       const existingBuilding = dataToExport.find(
-        (entry) => entry["შენობა"] === item.building_name
+        (entry) => entry.building_name === item.building_name
       );
 
       if (existingBuilding) {
-        existingBuilding["მოწყობილობა"] += `, ${item.access_group_name}`;
+        existingBuilding.access_group_name += `, ${item.access_group_name}`;
       } else {
         dataToExport.push({
-          შენობა: item.building_name,
-          მოწყობილობა: item.access_group_name,
+          building_name: item.building_name,
+          access_group_name: item.access_group_name,
         });
       }
     });
 
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    dataToExport.forEach((item) => {
+      worksheet.addRow(item);
+    });
 
-    const headerStyle = {
-      font: { bold: true },
-      alignment: { horizontal: "center" },
-    };
+    const buffer = await workbook.xlsx.writeBuffer();
 
-    const headerRange = XLSX.utils.decode_range(worksheet["!ref"]);
-    for (let C = headerRange.s.c; C <= headerRange.e.c; ++C) {
-      const cellAddress = XLSX.utils.encode_cell({ c: C, r: 0 });
-      if (!worksheet[cellAddress]) continue;
-      worksheet[cellAddress].s = headerStyle;
-    }
+    const blob = new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    const url = URL.createObjectURL(blob);
 
-    worksheet["!cols"] = [{ wpx: 200 }, { wpx: 200 }];
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "მოწყობილობები.xlsx";
+    document.body.appendChild(link);
+    link.click();
 
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "მოწყობილობები");
-    XLSX.writeFile(workbook, "მოწყობილობები.xlsx");
-  }, [filteredRecords]);
+    // Clean up the URL.createObjectURL object
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
 
   const handleOpenFilterModal = useCallback((data, fieldName, rect) => {
     const uniqueData = [...new Set(data)];
