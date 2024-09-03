@@ -33,14 +33,20 @@ const reportSlice = createSlice({
     },
 
     updateOrAddReport(state, action) {
-      const { user_id, date } = action.payload;
-      const index = state.reports.findIndex(
-        (report) => report.user_id === user_id && report.date === date
+      const { employee_id, date } = action.payload;
+
+      // Find the index of the report that matches the employee_id and date
+      const reportIndex = state.reports.findIndex(
+        (report) => report.user_id === employee_id && report.date === date
       );
 
-      if (index !== -1) {
-        state.reports[index] = { ...state.reports[index], ...action.payload };
+      if (reportIndex !== -1) {
+        state.reports[reportIndex] = {
+          ...state.reports[reportIndex],
+          ...action.payload,
+        };
       } else {
+        // If no matching report exists, add it to the state
         state.reports.push(action.payload);
       }
     },

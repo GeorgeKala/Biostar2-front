@@ -4,7 +4,7 @@ import ArrowDownIcon from "../../assets/arrow-down-2.png";
 import CreateIcon from "../../assets/create.png";
 import DeleteIcon from "../../assets/delete-2.png";
 import dayTypeService from "../../services/dayType";
-import * as XLSX from "xlsx";
+import ExcelJS from "exceljs";
 import { useSelector } from "react-redux";
 
 const CommandType = () => {
@@ -93,16 +93,37 @@ const CommandType = () => {
 
 
    const exportToExcel = () => {
-     const worksheet = XLSX.utils.json_to_sheet(
-       dayTypeList.map((item) => ({
-         ID: item.id,
-         Name: item.name,
-       }))
-     );
-     const workbook = XLSX.utils.book_new();
-     XLSX.utils.book_append_sheet(workbook, worksheet, "DayTypes");
-     XLSX.writeFile(workbook, "ბრძანებები.xlsx");
+     const workbook = new ExcelJS.Workbook();
+     const worksheet = workbook.addWorksheet("DayTypes");
+
+     worksheet.addRow(["ID", "Name"]);
+
+     dayTypeList.forEach((item) => {
+       worksheet.addRow([item.id, item.name]);
+     });
+
+     worksheet.columns = [{ width: 20 }, { width: 20 }];
+
+     worksheet.getRow(1).font = { bold: true };
+     worksheet.getRow(1).alignment = { horizontal: "center" };
+
+     workbook.xlsx.writeBuffer().then((buffer) => {
+       const blob = new Blob([buffer], {
+         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+       });
+       const url = URL.createObjectURL(blob);
+
+       const link = document.createElement("a");
+       link.href = url;
+       link.download = "ბრძანებები.xlsx";
+       document.body.appendChild(link);
+       link.click();
+       document.body.removeChild(link);
+       URL.revokeObjectURL(url);
+     });
    };
+
+
 
   return (
     <AuthenticatedLayout>
@@ -124,11 +145,6 @@ const CommandType = () => {
                 className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative"
               >
                 ჩამოტვირთვა
-                <img
-                  src={ArrowDownIcon}
-                  className="ml-3"
-                  alt="Arrow Down Icon"
-                />
                 <span className="absolute inset-0 border border-white border-dashed rounded"></span>
               </button>
             </div>

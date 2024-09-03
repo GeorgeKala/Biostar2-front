@@ -12,7 +12,7 @@ import {
   updateGroup,
   deleteGroup,
 } from "../../redux/groupSlice";
-import * as XLSX from "xlsx";
+import ExcelJS from "exceljs";
 
 
 const Group = () => {
@@ -53,20 +53,43 @@ const Group = () => {
   };
 
 
-  const exportToExcel = () => {
-    const dataToExport = [];
-    const header = ["#", "სახელი"];
-    dataToExport.push(header);
-    groupItems.forEach((item) => {
-      const row = [item.id, item.name];
-      dataToExport.push(row);
+  const exportToExcel = async () => {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Groups");
+
+    worksheet.columns = [
+      { header: "#", key: "id", width: 10 },
+      { header: "სახელი", key: "name", width: 30 },
+    ];
+
+    worksheet.getRow(1).font = { bold: true };
+    worksheet.getRow(1).alignment = {
+      horizontal: "center",
+      vertical: "center",
+    };
+
+    groupItems.forEach((item, index) => {
+      worksheet.addRow({
+        id: item.id,
+        name: item.name,
+      });
     });
 
-    const worksheet = XLSX.utils.aoa_to_sheet(dataToExport);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Groups");
+    const buffer = await workbook.xlsx.writeBuffer();
 
-    XLSX.writeFile(workbook, "ჯგუფები.xlsx");
+    const blob = new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "ჯგუფები.xlsx";
+    document.body.appendChild(link);
+    link.click();
+
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   console.log(user);
@@ -90,11 +113,11 @@ const Group = () => {
                 onClick={exportToExcel}
               >
                 ჩამოტვირთვა
-                <img
+                {/* <img
                   src={ArrowDownIcon}
                   className="ml-3"
                   alt="Arrow Down Icon"
-                />
+                /> */}
                 <span className="absolute inset-0 border border-white border-dashed rounded"></span>
               </button>
             </div>

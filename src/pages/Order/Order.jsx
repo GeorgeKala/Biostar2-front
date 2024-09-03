@@ -3,12 +3,10 @@ import AuthenticatedLayout from "../../Layouts/AuthenticatedLayout";
 import ArrowDownIcon from "../../assets/arrow-down-2.png";
 import GeneralInputGroup from "../../components/GeneralInputGroup";
 import SearchIcon from "../../assets/search.png";
-import orderService from "../../services/order";
 import dayTypeService from "../../services/dayType";
 import EmployeeModal from "../../components/employee/EmployeeModal";
 import reportService from "../../services/report";
 import DeleteIcon from "../../assets/delete.png";
-import * as XLSX from "xlsx";
 import { useDispatch, useSelector } from "react-redux";
 import NestedDropdownModal from "../../components/NestedDropdownModal";
 import DepartmentInput from "../../components/DepartmentInput";
@@ -18,6 +16,8 @@ import SuccessPopup from "../../components/SuccessPopup";
 import Table from "../../components/Table";
 import FilterModal from "../../components/FilterModal";
 import { useFilterAndSort } from "../../hooks/useFilterAndSort";
+import ExcelJS from "exceljs";
+
 
 const Order = () => {
   const user = useSelector((state) => state.user.user);
@@ -210,26 +210,47 @@ const Order = () => {
     }));
   };
 
-  const exportToExcel = () => {
-    const dataToExport = [];
-    const header = ["თარიღი", "თანამშრომელი", "დეპარტამენტი", "ბრძანების ტიპი"];
-    dataToExport.push(header);
+  const exportToExcel = async () => {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Orders");
+
+    // Set uniform width for all columns
+    const uniformWidth = 30;
+
+    worksheet.columns = [
+      { header: "თარიღი", key: "date", width: uniformWidth },
+      { header: "თანამშრომელი", key: "employee", width: uniformWidth },
+      { header: "დეპარტამენტი", key: "department", width: uniformWidth },
+      { header: "ბრძანების ტიპი", key: "violation_type", width: uniformWidth },
+    ];
+
+    worksheet.getRow(1).font = { bold: true };
+    worksheet.getRow(1).alignment = { horizontal: "center" };
 
     filteredAndSortedData.forEach((item) => {
-      const row = [
-        item.date,
-        item.employee,
-        item.department,
-        item.violation_type,
-      ];
-      dataToExport.push(row);
+      worksheet.addRow({
+        date: item.date,
+        employee: item.employee,
+        department: item.department,
+        violation_type: item.violation_type,
+      });
     });
 
-    const worksheet = XLSX.utils.aoa_to_sheet(dataToExport);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Orders");
+    const buffer = await workbook.xlsx.writeBuffer();
 
-    XLSX.writeFile(workbook, "Orders.xlsx");
+    const blob = new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "Orders.xlsx";
+    document.body.appendChild(link);
+    link.click();
+
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   const handleOpenFilterModal = (data, fieldName, rect) => {

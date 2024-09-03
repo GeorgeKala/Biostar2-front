@@ -4,7 +4,6 @@ import { fetchEmployees, deleteEmployee } from "../../../redux/employeeSlice";
 import AuthenticatedLayout from "../../../Layouts/AuthenticatedLayout";
 import EmployeeEditModal from "../../../components/EmployeeEditModal";
 import EmployeeStatusModal from "../../../components/EmployeeStatusModal";
-import * as XLSX from "xlsx";
 import FilterModal from "../../../components/FilterModal";
 import Table from "../../../components/Table";
 import { Link } from "react-router-dom";
@@ -12,6 +11,7 @@ import NewIcon from "../../../assets/new.png";
 import DeleteIcon from "../../../assets/delete.png";
 import EditIcon from "../../../assets/edit.png";
 import { useFilterAndSort } from "../../../hooks/useFilterAndSort";
+import ExcelJS from "exceljs";
 
 
 const CreatedEmployees = () => {
@@ -54,71 +54,67 @@ const CreatedEmployees = () => {
     dispatch(fetchEmployees());
   }, [dispatch]);
 
-  const handleExportToExcel = () => {
-    const dataToExport = [
-      [
-        "სახელი/გვარი",
-        "დეპარტამენტი",
-        "პოზიცია",
-        "პირადი ნომერი",
-        "ტელეფონის ნომერი",
-        "ბარათის ნომერი",
-        "ჯგუფი",
-        "განრიგი",
-        "საპატიო წუთები",
-        "დასვენების დღეები",
-      ],
-      ...filteredAndSortedData.map((employee) => [
-        employee.fullname || "",
-        employee?.department?.name || "",
-        employee.position || "",
-        employee.personal_id || "",
-        employee.phone_number || "",
-        employee.card_number || "",
-        employee?.group?.name || "",
-        employee?.schedule?.name || "",
-        employee.honorable_minutes_per_day !== null
-          ? employee.honorable_minutes_per_day
-          : "",
-        employee.holidays.length > 0
-          ? employee.holidays.map((holiday) => holiday.name).join(", ")
-          : "",
-      ]),
+  const handleExportToExcel = async () => {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Employees");
+
+    const columns = [
+      { header: "სახელი/გვარი", key: "fullname", width: 20 },
+      { header: "დეპარტამენტი", key: "department", width: 30 },
+      { header: "პოზიცია", key: "position", width: 20 },
+      { header: "პირადი ნომერი", key: "personal_id", width: 20 },
+      { header: "ტელეფონის ნომერი", key: "phone_number", width: 20 },
+      { header: "ბარათის ნომერი", key: "card_number", width: 20 },
+      { header: "ჯგუფი", key: "group", width: 20 },
+      { header: "განრიგი", key: "schedule", width: 30 },
+      { header: "საპატიო წუთები", key: "honorable_minutes_per_day", width: 20 },
+      { header: "დასვენების დღეები", key: "holidays", width: 30 },
     ];
 
-    const worksheet = XLSX.utils.aoa_to_sheet(dataToExport);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Employees");
+    worksheet.columns = columns;
 
-    const headerRange = XLSX.utils.decode_range(worksheet["!ref"]);
-    for (let C = headerRange.s.c; C <= headerRange.e.c; ++C) {
-      const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C }); 
-      if (!worksheet[cellAddress]) continue;
-      worksheet[cellAddress].s = {
-        font: {
-          bold: true,
-        },
-        alignment: {
-          horizontal: "center",
-          vertical: "center",
-        },
-      };
-    }
+    worksheet.getRow(1).font = { bold: true };
+    worksheet.getRow(1).alignment = {
+      horizontal: "center",
+      vertical: "center",
+    };
 
-    worksheet["!cols"] = [
-      { wch: 20 },
-      { wch: 30 },
-      { wch: 20 },
-      { wch: 20 },
-      { wch: 20 },
-      { wch: 20 },
-      { wch: 20 },
-      { wch: 30 },
-      { wch: 20 },
-      { wch: 30 },
-    ];
+    filteredAndSortedData.forEach((employee) => {
+      worksheet.addRow({
+        fullname: employee.fullname || "",
+        department: employee?.department?.name || "",
+        position: employee.position || "",
+        personal_id: employee.personal_id || "",
+        phone_number: employee.phone_number || "",
+        card_number: employee.card_number || "",
+        group: employee?.group?.name || "",
+        schedule: employee?.schedule?.name || "",
+        honorable_minutes_per_day:
+          employee.honorable_minutes_per_day !== null
+            ? employee.honorable_minutes_per_day
+            : "",
+        holidays:
+          employee.holidays.length > 0
+            ? employee.holidays.map((holiday) => holiday.name).join(", ")
+            : "",
+      });
+    });
 
-    XLSX.writeFile(workbook, "Employees.xlsx");
+    const buffer = await workbook.xlsx.writeBuffer();
+
+    const blob = new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "Employees.xlsx";
+    document.body.appendChild(link);
+    link.click();
+
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
 

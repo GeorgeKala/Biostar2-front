@@ -5,7 +5,6 @@ import SearchIcon from "../../../assets/search.png";
 import EmployeeModal from "../../../components/employee/EmployeeModal";
 import { useDispatch, useSelector } from "react-redux";
 import DeleteIcon from "../../../assets/delete.png";
-import * as XLSX from "xlsx";
 import NestedDropdownModal from "../../../components/NestedDropdownModal";
 import DepartmentInput from "../../../components/DepartmentInput";
 import EmployeeInput from "../../../components/employee/EmployeeInput";
@@ -17,6 +16,7 @@ import Table from "../../../components/Table";
 import { useFilterAndSort } from "../../../hooks/useFilterAndSort";
 import FilterModal from "../../../components/FilterModal";
 import reportService from "../../../services/report";
+import ExcelJS from "exceljs";
 
 
 const CommentTable = () => {
@@ -113,31 +113,52 @@ const CommentTable = () => {
     }
   };
 
-  const exportToExcel = () => {
-    const dataToExport = [
-      [
-        "თანამშრომელი",
-        "დეპარტამენტი",
-        "პატიების ტიპი",
-        "მომხმარებელი",
-        "ჩაწერის თარიღი",
-        "კომენტარი",
-      ],
-      ...filteredComments.map((item) => [
-        item.employee,
-        item.department,
-        item.forgive_type,
-        item.user,
-        item.created_at,
-        item.comment,
-      ]),
+  const exportToExcel = useCallback(async () => {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Comments");
+
+    // Set a uniform width for all columns
+    const uniformWidth = 30;
+
+    worksheet.columns = [
+      { header: "თანამშრომელი", key: "employee", width: uniformWidth },
+      { header: "დეპარტამენტი", key: "department", width: uniformWidth },
+      { header: "პატიების ტიპი", key: "forgive_type", width: uniformWidth },
+      { header: "მომხმარებელი", key: "user", width: uniformWidth },
+      { header: "ჩაწერის თარიღი", key: "created_at", width: uniformWidth },
+      { header: "კომენტარი", key: "comment", width: uniformWidth },
     ];
 
-    const worksheet = XLSX.utils.aoa_to_sheet(dataToExport);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Comments");
-    XLSX.writeFile(workbook, "Comments.xlsx");
-  };
+    worksheet.getRow(1).font = { bold: true };
+    worksheet.getRow(1).alignment = { horizontal: "center" };
+
+    filteredComments.forEach((comment) => {
+      worksheet.addRow({
+        employee: comment.employee,
+        department: comment.department,
+        forgive_type: comment.forgive_type,
+        user: comment.user,
+        created_at: comment.created_at,
+        comment: comment.comment,
+      });
+    });
+
+    const buffer = await workbook.xlsx.writeBuffer();
+
+    const blob = new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "Comments.xlsx";
+    document.body.appendChild(link);
+    link.click();
+
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }, [filteredComments]);
 
   const tableHeaders = [
     {

@@ -11,7 +11,7 @@ import {
   updateSchedule,
   deleteSchedule,
 } from "../../redux/scheduleSlice";
-import * as XLSX from "xlsx";
+  import ExcelJS from "exceljs";
 import { useFilterAndSort } from "../../hooks/useFilterAndSort";
 import FilterModal from "../../components/FilterModal";
 import Table from "../../components/Table";
@@ -152,23 +152,66 @@ const Schedule = () => {
     );
   };
 
-  const exportToExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(
-      filteredSchedules.map((schedule) => ({
-        სახელი: schedule.name,
-        "დაწყების თარიღი": schedule.start_date,
-        "დასრულების თარიღი": schedule.end_date,
-        "დაწყების დრო": schedule.day_start,
-        "დამთავრების დრო": schedule.day_end,
-        "გამეორების ერთეული": schedule.repetition_unit,
-        ინტერვალი: schedule.interval,
-        კომენტარი: schedule.comment,
-      }))
-    );
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Schedules");
-    XLSX.writeFile(workbook, "Schedules.xlsx");
+
+  const exportToExcel = async () => {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Schedules");
+
+    // Define the columns with the same width
+    const columnWidth = 25; // Set the desired width for all columns
+    worksheet.columns = [
+      { header: "სახელი", key: "name", width: columnWidth },
+      { header: "დაწყების თარიღი", key: "start_date", width: columnWidth },
+      { header: "დასრულების თარიღი", key: "end_date", width: columnWidth },
+      { header: "დაწყების დრო", key: "day_start", width: columnWidth },
+      { header: "დამთავრების დრო", key: "day_end", width: columnWidth },
+      {
+        header: "გამეორების ერთეული",
+        key: "repetition_unit",
+        width: columnWidth,
+      },
+      { header: "ინტერვალი", key: "interval", width: columnWidth },
+      { header: "კომენტარი", key: "comment", width: columnWidth },
+    ];
+
+    // Add header styling
+    worksheet.getRow(1).font = { bold: true };
+    worksheet.getRow(1).alignment = {
+      horizontal: "center",
+      vertical: "center",
+    };
+
+    // Add the filtered schedules data
+    filteredSchedules.forEach((schedule) => {
+      worksheet.addRow({
+        name: schedule.name,
+        start_date: schedule.start_date,
+        end_date: schedule.end_date,
+        day_start: schedule.day_start,
+        day_end: schedule.day_end,
+        repetition_unit: schedule.repetition_unit,
+        interval: schedule.interval,
+        comment: schedule.comment,
+      });
+    });
+
+    const buffer = await workbook.xlsx.writeBuffer();
+
+    const blob = new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "Schedules.xlsx";
+    document.body.appendChild(link);
+    link.click();
+
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
+
 
   const tableHeaders = [
     {
@@ -254,7 +297,6 @@ const Schedule = () => {
               className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative"
             >
               ჩამოტვირთვა
-              <img src={ArrowDownIcon} className="ml-3" alt="Arrow Down Icon" />
               <span className="absolute inset-0 border border-white border-dashed rounded"></span>
             </button>
           </div>

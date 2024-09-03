@@ -3,7 +3,6 @@ import AuthenticatedLayout from "../../Layouts/AuthenticatedLayout";
 import buildingService from "../../services/building";
 import accessGroupService from "../../services/accessGroup";
 import { useDispatch, useSelector } from "react-redux";
-import * as XLSX from "xlsx";
 import Table from "../../components/Table";
 import FilterModal from "../../components/FilterModal";
 import { useFilterAndSort } from "../../hooks/useFilterAndSort";
@@ -316,6 +315,7 @@ const Device = () => {
               className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative"
             >
               ჩამოტვირთვა
+              <span className="absolute inset-0 border border-white border-dashed rounded"></span>
             </button>
           </div>
         </div>

@@ -6,7 +6,7 @@ import DeleteIcon from "../../assets/delete-2.png";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchDepartments, fetchNestedDepartments } from "../../redux/departmentsSlice";
 import departmentService from "../../services/department";
-import * as XLSX from "xlsx";
+import ExcelJS from "exceljs";
 
 const Department = () => {
   const user = useSelector((state) => state.user.user);
@@ -100,15 +100,30 @@ const Department = () => {
     }));
   };
 
-  const exportToExcel = () => {
-    const dataToExport = [];
+  const exportToExcel = async () => {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Departments");
 
+    // Define columns
+    worksheet.columns = [
+      { header: "ID", key: "ID", width: 10 },
+      { header: "Name", key: "Name", width: 50 },
+    ];
+
+    // Add header styling
+    worksheet.getRow(1).font = { bold: true };
+    worksheet.getRow(1).alignment = {
+      horizontal: "center",
+      vertical: "center",
+    };
+
+    // Function to flatten the department data
     const flattenData = (departments, parentName = "") => {
       departments.forEach((department) => {
         const fullName = parentName
           ? `${parentName} > ${department.name}`
           : department.name;
-        dataToExport.push({
+        worksheet.addRow({
           ID: department.id,
           Name: fullName,
         });
@@ -119,13 +134,24 @@ const Department = () => {
       });
     };
 
+    // Flatten the nested department structure
     flattenData(nesteds);
 
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Departments");
+    const buffer = await workbook.xlsx.writeBuffer();
 
-    XLSX.writeFile(workbook, "Departments.xlsx");
+    const blob = new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "Departments.xlsx";
+    document.body.appendChild(link);
+    link.click();
+
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   const renderSubMenu = (subMenu, level = 1) => {
@@ -180,11 +206,6 @@ const Department = () => {
                 className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative"
               >
                 ჩამოტვირთვა
-                <img
-                  src={ArrowDownIcon}
-                  className="ml-3"
-                  alt="Arrow Down Icon"
-                />
                 <span className="absolute inset-0 border border-white border-dashed rounded"></span>
               </button>
             </div>
