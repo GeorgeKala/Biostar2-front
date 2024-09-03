@@ -143,7 +143,7 @@ const EmployeeCreate = () => {
     try {
       await employeeService.createEmployee(formData);
       setShowSuccessPopup(true);
-      clearFormData(); // Clear form data after successful submission
+      // clearFormData(); // Clear form data after successful submission
     } catch (error) {
       if (error.response && error.response.data.errors) {
         const apiErrors = error.response.data.errors;

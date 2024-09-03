@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import AuthenticatedLayout from "../../../Layouts/AuthenticatedLayout";
 import GeneralInputGroup from "../../../components/GeneralInputGroup";
-import SearchButton from "../../../components/SearchButton";
+import SearchIcon from "../../../assets/search.png";
 import commentService from "../../../services/comment";
 import EmployeeModal from "../../../components/employee/EmployeeModal";
 import * as XLSX from "xlsx";
@@ -227,7 +227,11 @@ const CommentAnalyze = () => {
             onSearchClick={() => setIsEmployeeModalOpen(true)}
             placeholder="თანამშრომელი"
           />
-          <SearchButton />
+          <button
+            className="bg-[#1AB7C1] rounded-lg px-6 py-3"
+          >
+            <img src={SearchIcon} className="w-[140px]"  alt="Search Icon" />
+          </button>
         </form>
         <div className="container mx-auto mt-10 overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 border-collapse border border-gray-200">

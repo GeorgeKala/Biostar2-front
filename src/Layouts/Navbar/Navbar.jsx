@@ -27,6 +27,7 @@ const routeNames = {
   "/dashboard": "დაფა",
   "/records/full": "სრული ჩანაწერები",
   "/reports/kitchen": "სამზარეულო",
+  '/change-password': "პაროლის შეცვლა"
 };
 
 const Navbar = () => {
@@ -34,7 +35,7 @@ const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const maxVisibleTabs = 5;
+  const maxVisibleTabs = 10;
 
   useEffect(() => {
     const savedHistory = JSON.parse(sessionStorage.getItem("navHistory")) || [];
@@ -80,30 +81,27 @@ const Navbar = () => {
     }
   };
 
-
   return (
-    <div className="bg-[#1976D2] w-full flex items-center  py-4  border-[#0A5FB6] relative">
-      <div className="flex space-x-2 overflow-hidden ">
+    <div className="bg-[#1976D2] w-full flex justify-between gap-4 items-center h-[70px] py-4 border-[#0A5FB6] relative">
+      <div className="flex space-x-1 overflow-hidden">
         {history
           .slice(currentIndex, currentIndex + maxVisibleTabs)
           .map((route, index) => (
             <div
               key={index}
-              className={`flex items-center px-4 py-2 text-white cursor-pointer 
+              className={`flex items-center px-2 py-2 text-white cursor-pointer text-sm
                 ${
                   location.pathname === route
-                    ? "bg-white text-[#1976D2] "
+                    ? "bg-white text-[#1976D2]"
                     : "bg-[#255585]"
-                } 
+                }
                 hover:bg-[#0A5FB6] transition-colors duration-200 rounded-md`}
               onClick={() => navigate(route)}
             >
               <span
                 className={`${
-                  location.pathname === route
-                    ? " text-[#1976D2] "
-                    : "text-white"
-                } `}
+                  location.pathname === route ? "text-[#1976D2]" : "text-white"
+                } text-xs`}
               >
                 {routeNames[route] || route}
               </span>
@@ -112,18 +110,16 @@ const Navbar = () => {
                   e.stopPropagation();
                   handleDelete(route);
                 }}
-                className="ml-2"
+                className="ml-1"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4"
+                  className="h-3 w-3"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke={`${
-                    location.pathname === route
-                      ? "#1976D2"
-                      : "white"
-                  } `}
+                    location.pathname === route ? "#1976D2" : "white"
+                  }`}
                 >
                   <path
                     strokeLinecap="round"
@@ -138,7 +134,7 @@ const Navbar = () => {
       </div>
 
       {/* Scroll Buttons */}
-      <div className="absolute right-0 flex items-center space-x-2 mr-4">
+      <div className=" flex items-center space-x-1 mr-2">
         <button
           onClick={handleScrollLeft}
           className="text-white bg-[#0A5FB6] px-2 py-1 rounded-md"

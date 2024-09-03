@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchDepartments, fetchNestedDepartments } from "../../redux/departmentsSlice";
 import departmentService from "../../services/department";
 import * as XLSX from "xlsx";
+
 const Department = () => {
   const user = useSelector((state) => state.user.user);
   const dispatch = useDispatch();
@@ -15,22 +16,22 @@ const Department = () => {
   const [selectedDepartmentId, setSelectedDepartmentId] = useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('create');
-  const [nesteds, setNesteds] = useState([])
+  const [nesteds, setNesteds] = useState([]);
+  const [openMenus, setOpenMenus] = useState({});
 
   useEffect(() => {
     dispatch(fetchNestedDepartments());
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     setNesteds(nestedDepartments);
   }, [nestedDepartments]);
-  
 
-  const toggleSubMenu = (e) => {
-    e.stopPropagation();
-    const submenu = e.currentTarget.querySelector("ul");
-    if (!submenu) return;
-    submenu.style.display = submenu.style.display === "none" || submenu.style.display === "" ? "block" : "none";
+  const toggleSubMenu = (id) => {
+    setOpenMenus(prevState => ({
+      ...prevState,
+      [id]: !prevState[id],
+    }));
   };
 
   const openAddModal = () => {
@@ -61,7 +62,7 @@ const Department = () => {
         setNesteds([...nesteds, createdDepartment]);
         closeAddModal();
         dispatch(fetchNestedDepartments());
-        dispatch(fetchDepartments())
+        dispatch(fetchDepartments());
       } else if (modalMode === 'update' && selectedDepartmentId) {
         const updatedDepartment = await departmentService.updateDepartment(selectedDepartmentId, formData);
         const updatedIndex = nesteds.findIndex(dep => dep.id === selectedDepartmentId);
@@ -72,7 +73,7 @@ const Department = () => {
         }
         closeAddModal();
         dispatch(fetchNestedDepartments());
-        dispatch(fetchDepartments())
+        dispatch(fetchDepartments());
       }
     } catch (error) {
       alert("Failed to save department: " + error.message);
@@ -83,15 +84,14 @@ const Department = () => {
     if (window.confirm("Are you sure you want to delete this department?")) {
       try {
         await departmentService.deleteDepartment(departmentId);
-        // setNesteds(nesteds.filter(dep => dep.id !== departmentId)); 
         dispatch(fetchNestedDepartments());
-        dispatch(fetchDepartments())
+        dispatch(fetchDepartments());
       } catch (error) {
         alert("Failed to delete department: " + error.message);
       }
     }
   };
-  
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prevState => ({
@@ -128,39 +128,27 @@ const Department = () => {
     XLSX.writeFile(workbook, "Departments.xlsx");
   };
 
-
-  console.log(nestedDepartments);
-  
-
   const renderSubMenu = (subMenu, level = 1) => {
     return (
-      <ul className={`ml-10 hidden`}>
+      <ul className={`ml-10 ${openMenus[subMenu[0]?.parent_id] ? 'block' : 'hidden'}`}>
         {subMenu.map((subItem, index) => (
-          <li key={index} onClick={toggleSubMenu} className="cursor-pointer">
+          <li key={index} onClick={() => toggleSubMenu(subItem.id)} className="cursor-pointer">
             <div className="flex justify-between items-center mb-2 border-b py-2 border-black">
               <div className="flex items-center gap-2 text-sm">
                 {subItem?.children?.length > 0 && (
                   <button className="bg-[#00C7BE] text-white px-1 rounded py-[0.2px]">
-                    +
+                    {openMenus[subItem.id] ? '-' : '+'}
                   </button>
                 )}
                 <p className="text-gray-700 font-medium">{subItem.name}</p>
               </div>
-              {user.user_type.name == "ადმინისტრატორი" && (
+              {user.user_type.name === "ადმინისტრატორი" && (
                 <div className="flex space-x-2">
-                  <button>
-                    <img
-                      src={CreateIcon}
-                      alt=""
-                      onClick={() => openUpdateModal(subItem)}
-                    />
+                  <button onClick={() => openUpdateModal(subItem)}>
+                    <img src={CreateIcon} alt="Edit Icon" className="w-4 h-4" />
                   </button>
-                  <button>
-                    <img
-                      src={DeleteIcon}
-                      alt=""
-                      onClick={() => handleDelete(subItem.id)}
-                    />
+                  <button onClick={() => handleDelete(subItem.id)}>
+                    <img src={DeleteIcon} alt="Delete Icon" className="w-4 h-4" />
                   </button>
                 </div>
               )}
@@ -172,8 +160,6 @@ const Department = () => {
     );
   };
 
-  
-  
   return (
     <AuthenticatedLayout>
       <div className="w-full px-20 py-4 flex flex-col gap-8">
@@ -181,13 +167,13 @@ const Department = () => {
           <h1 className="text-[#1976D2] font-medium text-[23px]">
             დეპარტამენტები
           </h1>
-          {user.user_type.name == "ადმინისტრატორი" && (
+          {user.user_type.name === "ადმინისტრატორი" && (
             <div className="flex items-center gap-8">
               <button
                 className="bg-[#FBD15B] text-[#1976D2] px-4 py-4 rounded-md flex items-center gap-2"
                 onClick={openAddModal}
               >
-                + დაამატე ახალი დეპარტამენტები
+                + დაამატე ახალი დეპარტამენტი
               </button>
               <button
                 onClick={exportToExcel}
@@ -209,26 +195,25 @@ const Department = () => {
             nesteds.map((item, index) => (
               <div
                 key={index}
-                onClick={toggleSubMenu}
+                onClick={() => toggleSubMenu(item.id)}
                 className="cursor-pointer"
               >
                 <div className="flex justify-between items-center mb-2 border-b py-2 border-black">
                   <div className="flex items-center gap-2 text-sm">
                     {item?.children?.length > 0 && (
                       <button className="bg-[#00C7BE] text-white px-1 rounded py-[0.2px]">
-                        +
+                        {openMenus[item.id] ? '-' : '+'}
                       </button>
                     )}
-
                     <p className="text-gray-700 font-medium">{item.name}</p>
                   </div>
-                  {user.user_type.name == "ადმინისტრატორი" && (
+                  {user.user_type.name === "ადმინისტრატორი" && (
                     <div className="flex space-x-2">
                       <button onClick={() => openUpdateModal(item)}>
-                        <img src={CreateIcon} alt="" />
+                        <img src={CreateIcon} alt="" className="w-4 h-4" />
                       </button>
                       <button onClick={() => handleDelete(item.id)}>
-                        <img src={DeleteIcon} alt="" />
+                        <img src={DeleteIcon} alt="" className="w-4 h-4" />
                       </button>
                     </div>
                   )}
@@ -242,10 +227,8 @@ const Department = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
           <div className="bg-white rounded-lg max-w-md w-full">
             <div className="flex justify-between items-center p-3 bg-blue-500 text-white rounded-t-lg">
-              <h2 className="text-lg font-semibold">
-                {modalMode === "create"
-                  ? "დაამატე ახალი დეპარტამენტი"
-                  : "განაახლე დეპარტამენტი"}
+            <h2 className="text-lg font-semibold">
+                {modalMode === "create" ? "დაამატე ახალი დეპარტამენტი" : "განაახლე დეპარტამენტი"}
               </h2>
               <button
                 onClick={closeAddModal}
@@ -287,19 +270,19 @@ const Department = () => {
               </div>
               <div className="mb-4">
                 <label
-                  htmlFor="userType"
+                  htmlFor="parent_id"
                   className="block text-sm font-medium text-gray-700"
                 >
-                  მომხმარებლის ტიპი:
+                  დაქვემდებარებული:
                 </label>
                 <select
                   id="parent_id"
                   name="parent_id"
                   className="mt-1 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                  value={formData.parent_id}
+                  value={formData.parent_id || ''}
                   onChange={handleChange}
                 >
-                  <option value="">დაქვემდებარებული</option>
+                  <option value="">აირჩიე დეპარტამენტი</option>
                   {departments &&
                     departments.map((item) => (
                       <option key={item.id} value={item.id}>
@@ -332,3 +315,4 @@ const Department = () => {
 };
 
 export default Department;
+

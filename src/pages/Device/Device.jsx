@@ -3,11 +3,9 @@ import AuthenticatedLayout from "../../Layouts/AuthenticatedLayout";
 import buildingService from "../../services/building";
 import accessGroupService from "../../services/accessGroup";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchBuildings } from "../../redux/buildingSlice";
 import * as XLSX from "xlsx";
 import Table from "../../components/Table";
 import FilterModal from "../../components/FilterModal";
-import { useFilter } from "../../hooks/useFilter";
 import { useFilterAndSort } from "../../hooks/useFilterAndSort";
 import ExcelJS from "exceljs";
 
