@@ -14,6 +14,7 @@ import { useFilter } from "../../hooks/useFilter";
 import FilterModal from "../../components/FilterModal";
 import Table from "../../components/Table";
 import { useFilterAndSort } from "../../hooks/useFilterAndSort";
+import CustomSelect from "../../components/CustomSelect";
 
 const DepartmentDistribution = () => {
   const dispatch = useDispatch();
@@ -256,6 +257,14 @@ const DepartmentDistribution = () => {
                     </option>
                   ))}
               </select>
+              {/* <CustomSelect
+                options={buildings}
+                selectedValue={formData.building_id}
+                onSelect={(e) =>
+                  setFormData({ ...formData, building_id: e.target.value })
+                }
+                placeholder="აირჩიეთ პატიების ტიპი"
+              /> */}
             </div>
             <div className="mb-4">
               <label

@@ -41,7 +41,7 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="bg-[#1976D2] w-[18%] flex flex-col gap-8">
+    <div className="bg-[#1976D2] min-w-[18%] flex flex-col gap-8">
       <div className="flex flex-col items-center w-full">
         <Link to="/reports/general" className="cursor-pointer">
           <img

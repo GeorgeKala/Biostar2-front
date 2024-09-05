@@ -4,11 +4,12 @@ import GeneralInputGroup from "../../../components/GeneralInputGroup";
 import SearchIcon from "../../../assets/search.png";
 import commentService from "../../../services/comment";
 import EmployeeModal from "../../../components/employee/EmployeeModal";
-import * as XLSX from "xlsx";
+  import ExcelJS from "exceljs";
 import { useSelector } from "react-redux";
 import NestedDropdownModal from "../../../components/NestedDropdownModal";
 import DepartmentInput from "../../../components/DepartmentInput";
 import EmployeeInput from "../../../components/employee/EmployeeInput";
+import CustomSelect from "../../../components/CustomSelect";
 
 const CommentAnalyze = () => {
   const user = useSelector((state) => state.user.user);
@@ -117,27 +118,74 @@ const CommentAnalyze = () => {
     });
   };
 
-  const exportToExcel = () => {
-    const dataToExport = [];
 
-    const header = ["თანამშრომელი", ...uniqueDates, monthName];
-    dataToExport.push(header);
+  const exportToExcel = async () => {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Comments Analysis");
 
+    // Define the columns and add styles to the header
+    worksheet.columns = [
+      { header: "თანამშრომელი", key: "employee", width: 30 },
+      ...uniqueDates.map((date) => ({
+        header: date.toString(),
+        key: `date_${date}`,
+        width: 15,
+      })),
+      { header: monthName, key: "total", width: 15 },
+    ];
+
+    // Style for the header row
+    worksheet.getRow(1).font = { bold: true };
+    worksheet.getRow(1).alignment = {
+      vertical: "middle",
+      horizontal: "center",
+    };
+    worksheet.getRow(1).border = {
+      top: { style: "thin" },
+      left: { style: "thin" },
+      bottom: { style: "thin" },
+      right: { style: "thin" },
+    };
+
+    // Adding data rows
     Object.keys(groupedComments).forEach((employeeFullname) => {
-      const row = [employeeFullname];
+      const rowValues = {
+        employee: employeeFullname,
+        total: groupedComments[employeeFullname].total,
+      };
+
       uniqueDates.forEach((date) => {
-        row.push(groupedComments[employeeFullname].times[date] || "");
+        rowValues[`date_${date}`] =
+          groupedComments[employeeFullname].times[date] || "";
       });
-      row.push(groupedComments[employeeFullname].total);
-      dataToExport.push(row);
+
+      worksheet.addRow(rowValues);
     });
 
-    const worksheet = XLSX.utils.aoa_to_sheet(dataToExport);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Comments Analysis");
+    // Style all data rows
+    worksheet.eachRow({ includeEmpty: false }, function (row, rowNumber) {
+      row.eachCell({ includeEmpty: true }, function (cell) {
+        cell.border = {
+          top: { style: "thin" },
+          left: { style: "thin" },
+          bottom: { style: "thin" },
+          right: { style: "thin" },
+        };
+        cell.alignment = { vertical: "middle", horizontal: "center" };
+      });
+    });
 
-    XLSX.writeFile(workbook, "Comments_Analysis.xlsx");
+    // Write to Excel file and trigger download
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "Comments_Analysis.xlsx";
+    link.click();
   };
+
 
   const handleDepartmentSelect = (departmentId) => {
     setFilters((prevData) => ({
@@ -163,7 +211,12 @@ const CommentAnalyze = () => {
       );
 
 
-      console.log(filters);
+    const handleForgiveTypeSelect = (option) => {
+      setFilters({
+        ...filters,
+        forgive_type_id: option.id,
+      });
+    };
       
 
   return (
@@ -204,7 +257,7 @@ const CommentAnalyze = () => {
             onClear={() => handleClear("department_id")}
             onSearchClick={() => setOpenNestedDropdown(true)}
           />
-          <div className="w-full flex flex-col gap-2">
+          {/* <div className="w-full flex flex-col gap-2">
             <select
               id="forgive_type_id"
               name="forgive_type_id"
@@ -220,24 +273,33 @@ const CommentAnalyze = () => {
                   </option>
                 ))}
             </select>
-          </div>
+          </div> */}
+          <CustomSelect
+            options={forgiveTypes}
+            selectedValue={
+              forgiveTypes.find((item) => item.id === filters.forgive_type_id)
+                ?.name || "აირჩიეთ პატიების ტიპი"
+            }
+            onSelect={handleForgiveTypeSelect}
+            placeholder="აირჩიეთ პატიების ტიპი"
+          />
           <EmployeeInput
             value={filters.employee_fullname}
             onClear={() => handleClear("employee_fullname")}
             onSearchClick={() => setIsEmployeeModalOpen(true)}
             placeholder="თანამშრომელი"
           />
-          <button
-            className="bg-[#1AB7C1] rounded-lg px-6 py-3"
-          >
-            <img src={SearchIcon} className="w-[140px]"  alt="Search Icon" />
+          <button className="bg-[#1AB7C1] rounded-lg px-6 py-3">
+            <img src={SearchIcon} className="w-[140px]" alt="Search Icon" />
           </button>
         </form>
         <div className="container mx-auto mt-10 overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 border-collapse border border-gray-200">
             <thead className="bg-[#1976D2] text-white">
               <tr>
-                <th className="w-24 border border-gray-200 px-3">თანამშრომელი</th>
+                <th className="w-24 border border-gray-200 px-3">
+                  თანამშრომელი
+                </th>
                 {uniqueDates.map((date) => (
                   <th key={date} className="border border-gray-200">
                     {date}
