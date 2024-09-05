@@ -339,8 +339,10 @@ const Order = () => {
             onClear={() => handleClear("department_id")}
             onSearchClick={() => setOpenNestedDropdown(true)}
           />
-          <button className="bg-[#1AB7C1] rounded-lg px-6 py-4" type="submit">
-            <img src={SearchIcon} className="w-[100px]" alt="Search Icon" />
+          <button
+            className="bg-[#1AB7C1] rounded-lg min-w-[75px] flex items-center justify-center py-2"
+          >
+            <img src={SearchIcon}   alt="Search Icon" />
           </button>
         </form>
         <div className="flex justify-end gap-4">

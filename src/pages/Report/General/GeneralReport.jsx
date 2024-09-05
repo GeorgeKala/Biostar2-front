@@ -444,10 +444,10 @@ const GeneralReport = () => {
             onSearchClick={() => setEmployeeModalOpen(true)}
           />
           <button
-            className="bg-[#1AB7C1] rounded-lg px-6 py-3"
+            className="bg-[#1AB7C1] rounded-lg min-w-[75px] flex items-center justify-center py-2"
             onClick={handleSubmit}
           >
-            <img src={SearchIcon} className="w-[140px]"  alt="Search Icon" />
+            <img src={SearchIcon}  alt="Search Icon" />
           </button>
         </div>
         <div className="container mx-auto  overflow-x-auto">

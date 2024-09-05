@@ -222,7 +222,7 @@ const Department = () => {
                 <div className="flex justify-between items-center mb-2 border-b py-2 border-black">
                   <div className="flex items-center gap-2 text-sm">
                     {item?.children?.length > 0 && (
-                      <button className="bg-[#00C7BE] text-white px-1 rounded py-[0.2px]">
+                      <button className="bg-[#00C7BE] text-white px-1 rounded w-[20px] ">
                         {openMenus[item.id] ? '-' : '+'}
                       </button>
                     )}
@@ -231,10 +231,10 @@ const Department = () => {
                   {user.user_type.name === "ადმინისტრატორი" && (
                     <div className="flex space-x-2">
                       <button onClick={() => openUpdateModal(item)}>
-                        <img src={CreateIcon} alt="" className="w-4 h-4" />
+                        <img src={CreateIcon} alt="" className="" />
                       </button>
                       <button onClick={() => handleDelete(item.id)}>
-                        <img src={DeleteIcon} alt="" className="w-4 h-4" />
+                        <img src={DeleteIcon} alt="" className="" />
                       </button>
                     </div>
                   )}

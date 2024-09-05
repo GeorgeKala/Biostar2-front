@@ -289,8 +289,10 @@ const CommentAnalyze = () => {
             onSearchClick={() => setIsEmployeeModalOpen(true)}
             placeholder="თანამშრომელი"
           />
-          <button className="bg-[#1AB7C1] rounded-lg px-6 py-3">
-            <img src={SearchIcon} className="w-[140px]" alt="Search Icon" />
+          <button
+            className="bg-[#1AB7C1] rounded-lg min-w-[75px] flex items-center justify-center py-2"
+          >
+            <img src={SearchIcon}   alt="Search Icon" />
           </button>
         </form>
         <div className="container mx-auto mt-10 overflow-x-auto">

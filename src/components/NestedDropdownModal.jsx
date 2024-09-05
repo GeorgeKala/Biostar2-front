@@ -19,30 +19,17 @@ const NestedDropdownModal = ({
   }, [isOpen]);
 
   const toggleSubMenu = (e, subItemId) => {
-    e.stopPropagation();
-    const submenu = e.currentTarget.querySelector("ul");
-
-    
-    if (!submenu) return;
-
-    submenu.style.maxHeight = submenu.style.maxHeight
-      ? null
-      : submenu.scrollHeight + "px";
-
+    e.stopPropagation(); // Prevent parent click event
     setOpenSubmenus((prevOpenSubmenus) => ({
       ...prevOpenSubmenus,
       [subItemId]: !prevOpenSubmenus[subItemId],
     }));
   };
 
-  const renderSubMenu = (subMenu, level = 1) => (
-    <ul className="submenu transition-all duration-300 ease-in-out overflow-hidden max-h-0 ml-10">
+  const renderSubMenu = (subMenu) => (
+    <ul className="ml-10">
       {subMenu.map((subItem, index) => (
-        <li
-          key={index}
-          onClick={(e) => toggleSubMenu(e, subItem.id)}
-          className="cursor-pointer"
-        >
+        <li key={index} className="cursor-pointer">
           <div
             onClick={() => setSelectedItem(subItem)}
             className={`flex justify-between items-center mb-2 border-b py-2 border-black ${
@@ -51,22 +38,27 @@ const NestedDropdownModal = ({
           >
             <div className="flex items-center gap-2 text-sm">
               {subItem?.children?.length > 0 && (
-                <button className="bg-[#00C7BE] text-white px-1 rounded py-[0.2px]">
+                <button
+                  onClick={(e) => toggleSubMenu(e, subItem.id)}
+                  className="bg-[#00C7BE] text-white px-1 rounded py-[0.2px]"
+                >
                   {openSubmenus[subItem.id] ? "-" : "+"}
                 </button>
               )}
               <p className="text-gray-700 font-medium">{subItem.name}</p>
             </div>
           </div>
-          {subItem?.children && renderSubMenu(subItem?.children, level + 1)}
+          {subItem?.children && openSubmenus[subItem.id] && renderSubMenu(subItem?.children)}
         </li>
       ))}
     </ul>
   );
 
   const handleItemClick = () => {
-    onSelect(selectedItem.id, selectedItem.name);
-    onClose();
+    if (selectedItem && selectedItem.id) {
+      onSelect(selectedItem.id, selectedItem.name);
+      onClose();
+    }
   };
 
   return (
@@ -82,12 +74,6 @@ const NestedDropdownModal = ({
             opacity: 1;
             transform: scale(1);
             animation: fadeOut 0.3s forwards;
-          }
-
-          .submenu {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-in-out;
           }
 
           @keyframes fadeIn {
@@ -145,11 +131,7 @@ const NestedDropdownModal = ({
           <div className="p-4 overflow-y-auto">
             {data &&
               data.map((item, index) => (
-                <div
-                  key={index}
-                  onClick={(e) => toggleSubMenu(e, item.id)}
-                  className="cursor-pointer"
-                >
+                <div key={index} className="cursor-pointer">
                   <div
                     onClick={() => setSelectedItem(item)}
                     className={`flex justify-between items-center border-b py-2 border-black ${
@@ -159,7 +141,7 @@ const NestedDropdownModal = ({
                     <div className="flex items-center gap-2 text-sm">
                       {item?.children?.length > 0 && (
                         <button
-                          onClick={() => console.log("some")}
+                          onClick={(e) => toggleSubMenu(e, item.id)}
                           className="bg-[#00C7BE] text-white px-1 rounded w-[20px] z-100"
                         >
                           {openSubmenus[item.id] ? "-" : "+"}
@@ -168,7 +150,7 @@ const NestedDropdownModal = ({
                       <p className="text-gray-700 font-medium">{item.name}</p>
                     </div>
                   </div>
-                  {item.children && renderSubMenu(item.children)}
+                  {item.children && openSubmenus[item.id] && renderSubMenu(item.children)}
                 </div>
               ))}
           </div>
