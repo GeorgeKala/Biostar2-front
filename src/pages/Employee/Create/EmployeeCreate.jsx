@@ -102,7 +102,7 @@ const EmployeeCreate = () => {
   const validateField = (name, value) => {
     let error = "";
     if (name === "fullname" && !value) {
-      error = "სახელი/გვარი აუცილებელია";
+      error = "გვარი/სახელი აუცილებელია";
     } else if (name === "personal_id" && !value) {
       error = "პირადი ნომერი აუცილებელია";
     } else if (name === "phone_number" && !value) {
@@ -162,7 +162,7 @@ const EmployeeCreate = () => {
   };
 
   const georgianLabels = {
-    fullname: "სახელი/გვარი",
+    fullname: "გვარი/სახელი",
     personal_id: "პირადი ნომერი",
     phone_number: "ტელეფონის ნომერი",
     department_id: "დეპარტამენტი",
@@ -259,9 +259,9 @@ const EmployeeCreate = () => {
         <div className="flex flex-col gap-4">
           <div className="flex justify-between gap-8">
             <InputGroup
-              label="სახელი/გვარი"
+              label="გვარი / სახელი"
               name="fullname"
-              placeholder="სახელი/გვარი"
+              placeholder="გვარი / სახელი"
               type="text"
               value={formData.fullname}
               onChange={handleInput}

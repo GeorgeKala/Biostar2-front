@@ -1,8 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import AuthenticatedLayout from "../../Layouts/AuthenticatedLayout";
-import ArrowDownIcon from "../../assets/arrow-down-2.png";
 import NewIcon from "../../assets/new.png";
-import SearchIcon from "../../assets/search.png";
 import DeleteIcon from "../../assets/delete.png";
 import EditIcon from "../../assets/edit.png";
 import buildingService from "../../services/building";
@@ -10,7 +8,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchDepartments } from "../../redux/departmentsSlice";
 import { fetchBuildings } from "../../redux/buildingSlice";
 import * as XLSX from "xlsx";
-import { useFilter } from "../../hooks/useFilter";
 import FilterModal from "../../components/FilterModal";
 import Table from "../../components/Table";
 import { useFilterAndSort } from "../../hooks/useFilterAndSort";
@@ -185,7 +182,7 @@ const DepartmentDistribution = () => {
             </button>
             <button
               className="bg-[#1976D2] text-white px-4 py-4 rounded-md flex items-center gap-2"
-              onClick={handleEditClick} // Attach the edit click handler here
+              onClick={handleEditClick}
             >
               <img src={EditIcon} alt="Edit Icon" />
               შეცვლა
@@ -240,31 +237,15 @@ const DepartmentDistribution = () => {
               >
                 შენობა:
               </label>
-              <select
-                id="building_id"
-                name="building_id"
-                value={formData.building_id}
-                onChange={(e) =>
-                  setFormData({ ...formData, building_id: e.target.value })
-                }
-                className="mt-1 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-              >
-                <option value="">შენობა</option>
-                {buildings &&
-                  buildings.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.name}
-                    </option>
-                  ))}
-              </select>
-              {/* <CustomSelect
+              <CustomSelect
                 options={buildings}
-                selectedValue={formData.building_id}
-                onSelect={(e) =>
-                  setFormData({ ...formData, building_id: e.target.value })
+                selectedValue={buildings.find((b) => b.id === formData.building_id)?.name}
+                onSelect={(selectedOption) =>
+                  setFormData({ ...formData, building_id: selectedOption.id })
                 }
-                placeholder="აირჩიეთ პატიების ტიპი"
-              /> */}
+                placeholder="შენობა"
+                className="bg-gray-300"
+              />
             </div>
             <div className="mb-4">
               <label
@@ -273,23 +254,15 @@ const DepartmentDistribution = () => {
               >
                 დეპარტამენტი:
               </label>
-              <select
-                id="department_id"
-                name="department_id"
-                value={formData.department_id}
-                onChange={(e) =>
-                  setFormData({ ...formData, department_id: e.target.value })
+              <CustomSelect
+                options={departments}
+                selectedValue={departments.find((d) => d.id === formData.department_id)?.name}
+                onSelect={(selectedOption) =>
+                  setFormData({ ...formData, department_id: selectedOption.id })
                 }
-                className="mt-1 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-              >
-                <option value="">დეპარტამენტი</option>
-                {departments &&
-                  departments.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.name}
-                    </option>
-                  ))}
-              </select>
+                placeholder="დეპარტამენტი"
+                className="bg-gray-300"
+              />
             </div>
             <div className="flex justify-end">
               <button

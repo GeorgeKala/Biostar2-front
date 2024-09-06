@@ -11,12 +11,38 @@ const NestedDropdownModal = ({
   const [selectedItem, setSelectedItem] = useState({});
   const [isModalVisible, setModalVisible] = useState(false);
   const [openSubmenus, setOpenSubmenus] = useState({});
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredData, setFilteredData] = useState(data);
 
   useEffect(() => {
     if (isOpen) {
       setModalVisible(true);
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    if (searchTerm) {
+      setFilteredData(searchItems(data, searchTerm));
+    } else {
+      setFilteredData(data);
+    }
+  }, [searchTerm, data]);
+
+  const searchItems = (items, term) => {
+    return items.reduce((acc, item) => {
+      // Check if the current item or any of its children match the search term
+      if (
+        item.name.toLowerCase().includes(term.toLowerCase()) ||
+        (item.children && searchItems(item.children, term).length > 0)
+      ) {
+        acc.push({
+          ...item,
+          children: item.children ? searchItems(item.children, term) : [],
+        });
+      }
+      return acc;
+    }, []);
+  };
 
   const toggleSubMenu = (e, subItemId) => {
     e.stopPropagation(); // Prevent parent click event
@@ -128,9 +154,21 @@ const NestedDropdownModal = ({
               </svg>
             </button>
           </div>
+
+          {/* Search Bar */}
+          <div className="px-4 mb-4">
+            <input
+              type="text"
+              placeholder="ძიება..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none"
+            />
+          </div>
+
           <div className="p-4 overflow-y-auto">
-            {data &&
-              data.map((item, index) => (
+            {filteredData &&
+              filteredData.map((item, index) => (
                 <div key={index} className="cursor-pointer">
                   <div
                     onClick={() => setSelectedItem(item)}

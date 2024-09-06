@@ -15,7 +15,7 @@ const ArrowDownIcon = () => (
   </svg>
 );
 
-const CustomSelect = ({ options, selectedValue, onSelect, placeholder }) => {
+const CustomSelect = ({ options, selectedValue, onSelect, placeholder, className = '' }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [filteredOptions, setFilteredOptions] = useState(options);
@@ -50,10 +50,10 @@ const CustomSelect = ({ options, selectedValue, onSelect, placeholder }) => {
   return (
     <div
       ref={selectRef}
-      className="relative bg-white border border-[#105D8D] outline-none rounded-md w-full"
+      className={`relative outline-none rounded-md w-full ${className ? className : "bg-white border border-[#105D8D]"}`}
     >
       <div
-        className="bg-white border border-gray-300 rounded-md cursor-pointer py-3 px-4 flex items-center justify-between"
+        className={` ${className ? className : "bg-white border-[#105D8D]"} border border-gray-300 rounded-md cursor-pointer py-3 px-4 flex items-center justify-between`}
         onClick={() => setIsOpen(!isOpen)}
       >
         {/* Truncate long text and keep icon aligned */}
