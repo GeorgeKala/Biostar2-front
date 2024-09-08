@@ -22,6 +22,32 @@ const Department = () => {
   const [modalMode, setModalMode] = useState("create");
   const [openSubmenus, setOpenSubmenus] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
+  const [filteredDepartments, setFilteredDepartments] =
+    useState(nestedDepartments);
+
+  const searchItems = (items, term) => {
+    return items.reduce((acc, item) => {
+      if (
+        item.name.toLowerCase().includes(term.toLowerCase()) ||
+        (item.children && searchItems(item.children, term).length > 0)
+      ) {
+        acc.push({
+          ...item,
+          children: item.children ? searchItems(item.children, term) : [],
+        });
+      }
+      return acc;
+    }, []);
+  };
+
+  useEffect(() => {
+    if (searchTerm) {
+      setFilteredDepartments(searchItems(nestedDepartments, searchTerm));
+    } else {
+      setFilteredDepartments(nestedDepartments);
+    }
+  }, [searchTerm, nestedDepartments]);
+
 
   useEffect(() => {
     dispatch(fetchNestedDepartments());
@@ -77,7 +103,7 @@ const Department = () => {
   };
 
   const handleDelete = async (departmentId) => {
-    if (window.confirm("Are you sure you want to delete this department?")) {
+    if (window.confirm("დარწმუნებული ხართ რომ გინდათ დეპარტამენტის წაშლა?")) {
       try {
         await departmentService.deleteDepartment(departmentId);
         dispatch(fetchNestedDepartments());
@@ -219,9 +245,33 @@ const Department = () => {
             </div>
           )}
         </div>
-        <div className="p-4">
-          {nestedDepartments &&
-            nestedDepartments.map((item, index) => (
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="ძებნა დეპარტამენტის მიხედვით"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none"
+          />
+          <svg
+            className="absolute top-3 right-3 w-6 h-6 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M21 21l-4.35-4.35M16.65 10A6.65 6.65 0 1110 3.35 6.65 6.65 0 0116.65 10z"
+            ></path>
+          </svg>
+        </div>
+
+        <div>
+          {filteredDepartments &&
+            filteredDepartments.map((item, index) => (
               <div key={index} className="cursor-pointer">
                 <div
                   onClick={(e) => e.stopPropagation()}
@@ -241,18 +291,10 @@ const Department = () => {
                   {user.user_type.name === "ადმინისტრატორი" && (
                     <div className="flex space-x-2">
                       <button onClick={() => openUpdateModal(item)}>
-                        <img
-                          src={CreateIcon}
-                          alt="Edit Icon"
-                          
-                        />
+                        <img src={CreateIcon} alt="Edit Icon" />
                       </button>
                       <button onClick={() => handleDelete(item.id)}>
-                        <img
-                          src={DeleteIcon}
-                          alt="Delete Icon"
-                          
-                        />
+                        <img src={DeleteIcon} alt="Delete Icon" />
                       </button>
                     </div>
                   )}
