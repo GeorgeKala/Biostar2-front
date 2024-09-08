@@ -25,6 +25,8 @@ const Building = () => {
   const [buildingIdToUpdate, setBuildingIdToUpdate] = useState(null);
   const [nestedBuildings, setNestedBuildings] = useState([]);
   const [openSubmenus, setOpenSubmenus] = useState({});
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredBuildings, setFilteredBuildings] = useState(nestedBuildings);
 
   useEffect(() => {
     fetchNestedBuildings();
@@ -34,10 +36,34 @@ const Building = () => {
     try {
       const nestedData = await buildingService.getNestedBuildings();
       setNestedBuildings(nestedData);
+      setFilteredBuildings(nestedData); // Set filteredBuildings initially
     } catch (error) {
       console.error("Failed to fetch nested buildings:", error);
     }
   };
+
+  const searchItems = (items, term) => {
+    return items.reduce((acc, item) => {
+      if (
+        item.name.toLowerCase().includes(term.toLowerCase()) ||
+        (item.children && searchItems(item.children, term).length > 0)
+      ) {
+        acc.push({
+          ...item,
+          children: item.children ? searchItems(item.children, term) : [],
+        });
+      }
+      return acc;
+    }, []);
+  };
+
+  useEffect(() => {
+    if (searchTerm) {
+      setFilteredBuildings(searchItems(nestedBuildings, searchTerm));
+    } else {
+      setFilteredBuildings(nestedBuildings);
+    }
+  }, [searchTerm, nestedBuildings]);
 
   const openCreateModal = () => {
     setIsModalOpen(true);
@@ -183,10 +209,10 @@ const Building = () => {
             </div>
             <div className="flex space-x-2">
               <button onClick={() => openUpdateModal(subItem)}>
-                <img src={CreateIcon} alt="Edit Icon"  />
+                <img src={CreateIcon} alt="Edit Icon" />
               </button>
               <button onClick={() => handleDelete(subItem.id)}>
-                <img src={DeleteIcon} alt="Delete Icon"  />
+                <img src={DeleteIcon} alt="Delete Icon" />
               </button>
             </div>
           </div>
@@ -219,9 +245,34 @@ const Building = () => {
             </button>
           </div>
         </div>
-        <div className="p-4">
-          {nestedBuildings &&
-            nestedBuildings.map((item, index) => (
+
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="ძებნა შენობის მიხედვით"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none"
+          />
+          <svg
+            className="absolute top-3 right-3 w-6 h-6 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M21 21l-4.35-4.35M16.65 10A6.65 6.65 0 1110 3.35 6.65 6.65 0 0116.65 10z"
+            ></path>
+          </svg>
+        </div>
+
+        <div >
+          {filteredBuildings &&
+            filteredBuildings.map((item, index) => (
               <div key={index} className="cursor-pointer">
                 <div className="flex justify-between items-center mb-2 border-b py-2 border-black">
                   <div className="flex items-center gap-2 text-sm">
@@ -237,18 +288,10 @@ const Building = () => {
                   </div>
                   <div className="flex space-x-2">
                     <button onClick={() => openUpdateModal(item)}>
-                      <img
-                        src={CreateIcon}
-                        alt="Edit Icon"
-                        
-                      />
+                      <img src={CreateIcon} alt="Edit Icon" />
                     </button>
                     <button onClick={() => handleDelete(item.id)}>
-                      <img
-                        src={DeleteIcon}
-                        alt="Delete Icon"
-                        
-                      />
+                      <img src={DeleteIcon} alt="Delete Icon" />
                     </button>
                   </div>
                 </div>

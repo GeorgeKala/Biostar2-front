@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import AuthenticatedLayout from "../../Layouts/AuthenticatedLayout";
-import ArrowDownIcon from "../../assets/arrow-down-2.png";
 import CreateIcon from "../../assets/create.png";
 import DeleteIcon from "../../assets/delete-2.png";
 import dayTypeService from "../../services/dayType";
@@ -14,6 +13,7 @@ const CommandType = () => {
   const [modalMode, setModalMode] = useState("create");
   const [dayTypeList, setDayTypeList] = useState([]);
   const [selectedDayTypeId, setSelectedDayTypeId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState(""); // Search term state
 
   useEffect(() => {
     fetchDayTypes();
@@ -91,39 +91,41 @@ const CommandType = () => {
     }));
   };
 
+  const exportToExcel = () => {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("DayTypes");
 
-   const exportToExcel = () => {
-     const workbook = new ExcelJS.Workbook();
-     const worksheet = workbook.addWorksheet("DayTypes");
+    worksheet.addRow(["ID", "Name"]);
 
-     worksheet.addRow(["ID", "Name"]);
+    dayTypeList.forEach((item) => {
+      worksheet.addRow([item.id, item.name]);
+    });
 
-     dayTypeList.forEach((item) => {
-       worksheet.addRow([item.id, item.name]);
-     });
+    worksheet.columns = [{ width: 20 }, { width: 20 }];
 
-     worksheet.columns = [{ width: 20 }, { width: 20 }];
+    worksheet.getRow(1).font = { bold: true };
+    worksheet.getRow(1).alignment = { horizontal: "center" };
 
-     worksheet.getRow(1).font = { bold: true };
-     worksheet.getRow(1).alignment = { horizontal: "center" };
+    workbook.xlsx.writeBuffer().then((buffer) => {
+      const blob = new Blob([buffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+      const url = URL.createObjectURL(blob);
 
-     workbook.xlsx.writeBuffer().then((buffer) => {
-       const blob = new Blob([buffer], {
-         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-       });
-       const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "ბრძანებები.xlsx";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    });
+  };
 
-       const link = document.createElement("a");
-       link.href = url;
-       link.download = "ბრძანებები.xlsx";
-       document.body.appendChild(link);
-       link.click();
-       document.body.removeChild(link);
-       URL.revokeObjectURL(url);
-     });
-   };
-
-
+  // Filter the dayTypeList based on the search term
+  const filteredDayTypeList = dayTypeList.filter((item) =>
+    item.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <AuthenticatedLayout>
@@ -132,7 +134,7 @@ const CommandType = () => {
           <h1 className="text-[#1976D2] font-medium text-[23px]">
             ბრძანების ტიპი
           </h1>
-          {user.user_type.name == "ადმინისტრატორი" && (
+          {user.user_type.name === "ადმინისტრატორი" && (
             <div className="flex items-center gap-8">
               <button
                 className="bg-[#FBD15B] text-[#1976D2] px-4 py-4 rounded-md flex items-center gap-2"
@@ -150,9 +152,35 @@ const CommandType = () => {
             </div>
           )}
         </div>
-        <div className="p-4">
-          {dayTypeList &&
-            dayTypeList.map((dayType, index) => (
+
+        {/* Search Bar */}
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="ძებნა ბრძანების ტიპის მიხედვით"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none"
+          />
+          <svg
+            className="absolute top-3 right-3 w-6 h-6 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M21 21l-4.35-4.35M16.65 10A6.65 6.65 0 1110 3.35 6.65 6.65 0 0116.65 10z"
+            ></path>
+          </svg>
+        </div>
+
+        <div >
+          {filteredDayTypeList.length > 0 ? (
+            filteredDayTypeList.map((dayType, index) => (
               <div
                 key={index}
                 className="flex justify-between items-center mb-2 border-b py-2 border-black"
@@ -160,7 +188,7 @@ const CommandType = () => {
                 <div className="flex items-center gap-2 text-sm">
                   <p className="text-gray-700 font-medium">{dayType.name}</p>
                 </div>
-                {user.user_type.name == "ადმინისტრატორი" && (
+                {user.user_type.name === "ადმინისტრატორი" && (
                   <div className="flex space-x-2">
                     <button onClick={() => openEditModal(dayType)}>
                       <img src={CreateIcon} alt="Edit Icon" />
@@ -171,9 +199,13 @@ const CommandType = () => {
                   </div>
                 )}
               </div>
-            ))}
+            ))
+          ) : (
+            <p className="text-gray-500">მონაცემი ვერ მოიძებნა.</p>
+          )}
         </div>
       </div>
+
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
           <div className="bg-white rounded-lg max-w-md w-full">

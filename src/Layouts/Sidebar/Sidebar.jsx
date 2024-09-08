@@ -61,92 +61,8 @@ const Sidebar = () => {
           </div>
         </Link>
       </div>
+
       <div className="flex flex-col h-full gap-6 px-4">
-        <div>
-          <div
-            className="flex items-center gap-3 text-white text-[14px] cursor-pointer"
-            onClick={() => toggleSection("employees")}
-          >
-            <img
-              src={ArrowRight}
-              alt="Arrow Right Icon"
-              className={`transform ${
-                sections.employees ? "rotate-0" : "-rotate-90"
-              } transition-transform duration-300`}
-            />
-            ანგარიშები
-          </div>
-          {sections.employees && (
-            <div className="pl-4 flex flex-col gap-4 mt-4">
-              <Link
-                to="/reports/general"
-                className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === "/reports/general" ? "font-bold" : ""
-                }`}
-              >
-                <img src={ArrowRight} alt="Arrow Right Icon" />
-                პერიოდის რეპორტი
-              </Link>
-              <Link
-                to="/records/full"
-                className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === "/records/full" ? "font-bold" : ""
-                }`}
-              >
-                <img src={ArrowRight} alt="Arrow Right Icon" />
-                სრული ჩანაწერები
-              </Link>
-              {canAccessPage([
-                "ადმინისტრატორი",
-                "HR",
-                "IT",
-                "მენეჯერი",
-                "მენეჯერი-რეგიონები",
-              ]) && (
-                <Link
-                  to="/employees/create"
-                  className={`flex items-center gap-3 text-white text-[14px] ${
-                    location.pathname === "/employees/create" ? "font-bold" : ""
-                  }`}
-                >
-                  <img src={ArrowRight} alt="Arrow Right Icon" />
-                  თანამშრომლის დამატება
-                </Link>
-              )}
-              {canAccessPage(["ადმინისტრატორი", "HR", "IT", "მენეჯერი 1"]) && (
-                <Link
-                  to="/comments/table"
-                  className={`flex items-center gap-3 text-white text-[14px] ${
-                    location.pathname === "/comments/table" ? "font-bold" : ""
-                  }`}
-                >
-                  <img src={ArrowRight} alt="Arrow Right Icon" />
-                  კომენტარების ცხრილი
-                </Link>
-              )}
-
-              <Link
-                to="/comments/analyze"
-                className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === "/comments/analyze" ? "font-bold" : ""
-                }`}
-              >
-                <img src={ArrowRight} alt="Arrow Right Icon" />
-                კომენტარების ანალიზი
-              </Link>
-              <Link
-                to="/orders"
-                className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === "/orders" ? "font-bold" : ""
-                }`}
-              >
-                <img src={ArrowRight} alt="Arrow Right Icon" />
-                ბრძანებები
-              </Link>
-            </div>
-          )}
-        </div>
-
         <div>
           <div
             className="flex items-center gap-3 text-white text-[14px] cursor-pointer"
@@ -261,7 +177,90 @@ const Sidebar = () => {
             </div>
           )}
         </div>
+        <div>
+          <div
+            className="flex items-center gap-3 text-white text-[14px] cursor-pointer"
+            onClick={() => toggleSection("employees")}
+          >
+            <img
+              src={ArrowRight}
+              alt="Arrow Right Icon"
+              className={`transform ${
+                sections.employees ? "rotate-0" : "-rotate-90"
+              } transition-transform duration-300`}
+            />
+            ანგარიშები
+          </div>
+          {sections.employees && (
+            <div className="pl-4 flex flex-col gap-4 mt-4">
+              <Link
+                to="/reports/general"
+                className={`flex items-center gap-3 text-white text-[14px] ${
+                  location.pathname === "/reports/general" ? "font-bold" : ""
+                }`}
+              >
+                <img src={ArrowRight} alt="Arrow Right Icon" />
+                პერიოდის რეპორტი
+              </Link>
+              <Link
+                to="/records/full"
+                className={`flex items-center gap-3 text-white text-[14px] ${
+                  location.pathname === "/records/full" ? "font-bold" : ""
+                }`}
+              >
+                <img src={ArrowRight} alt="Arrow Right Icon" />
+                სრული ჩანაწერები
+              </Link>
+              {canAccessPage([
+                "ადმინისტრატორი",
+                "HR",
+                "IT",
+                "მენეჯერი",
+                "მენეჯერი-რეგიონები",
+              ]) && (
+                <Link
+                  to="/employees/create"
+                  className={`flex items-center gap-3 text-white text-[14px] ${
+                    location.pathname === "/employees/create" ? "font-bold" : ""
+                  }`}
+                >
+                  <img src={ArrowRight} alt="Arrow Right Icon" />
+                  თანამშრომლის დამატება
+                </Link>
+              )}
+              {canAccessPage(["ადმინისტრატორი", "HR", "IT", "მენეჯერი 1"]) && (
+                <Link
+                  to="/comments/table"
+                  className={`flex items-center gap-3 text-white text-[14px] ${
+                    location.pathname === "/comments/table" ? "font-bold" : ""
+                  }`}
+                >
+                  <img src={ArrowRight} alt="Arrow Right Icon" />
+                  კომენტარების ცხრილი
+                </Link>
+              )}
 
+              <Link
+                to="/comments/analyze"
+                className={`flex items-center gap-3 text-white text-[14px] ${
+                  location.pathname === "/comments/analyze" ? "font-bold" : ""
+                }`}
+              >
+                <img src={ArrowRight} alt="Arrow Right Icon" />
+                კომენტარების ანალიზი
+              </Link>
+              <Link
+                to="/orders"
+                className={`flex items-center gap-3 text-white text-[14px] ${
+                  location.pathname === "/orders" ? "font-bold" : ""
+                }`}
+              >
+                <img src={ArrowRight} alt="Arrow Right Icon" />
+                ბრძანებები
+              </Link>
+            </div>
+          )}
+        </div>
         <div>
           <div
             className="flex items-center gap-3 text-white text-[14px] cursor-pointer"
