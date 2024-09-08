@@ -1,55 +1,55 @@
 import React, { useEffect, useState } from "react";
 import AuthenticatedLayout from "../../Layouts/AuthenticatedLayout";
-import ArrowDownIcon from "../../assets/arrow-down-2.png";
 import CreateIcon from "../../assets/create.png";
 import DeleteIcon from "../../assets/delete-2.png";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchDepartments, fetchNestedDepartments } from "../../redux/departmentsSlice";
+import {
+  fetchDepartments,
+  fetchNestedDepartments,
+} from "../../redux/departmentsSlice";
 import departmentService from "../../services/department";
 import ExcelJS from "exceljs";
 
 const Department = () => {
   const user = useSelector((state) => state.user.user);
   const dispatch = useDispatch();
-  const { nestedDepartments, departments } = useSelector((state) => state.departments);
+  const { nestedDepartments, departments } = useSelector(
+    (state) => state.departments
+  );
   const [formData, setFormData] = useState({ name: "", parent_id: null });
   const [selectedDepartmentId, setSelectedDepartmentId] = useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState('create');
-  const [nesteds, setNesteds] = useState([]);
-  const [openMenus, setOpenMenus] = useState({});
+  const [modalMode, setModalMode] = useState("create");
+  const [openSubmenus, setOpenSubmenus] = useState({});
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     dispatch(fetchNestedDepartments());
   }, [dispatch]);
 
-  useEffect(() => {
-    setNesteds(nestedDepartments);
-  }, [nestedDepartments]);
-
-  const toggleSubMenu = (id) => {
-    setOpenMenus(prevState => ({
-      ...prevState,
-      [id]: !prevState[id],
+  const toggleSubMenu = (subItemId) => {
+    setOpenSubmenus((prevOpenSubmenus) => ({
+      ...prevOpenSubmenus,
+      [subItemId]: !prevOpenSubmenus[subItemId],
     }));
   };
 
   const openAddModal = () => {
     setIsAddModalOpen(true);
-    setModalMode('create');
+    setModalMode("create");
     setFormData({ name: "", parent_id: null });
   };
 
   const openUpdateModal = (department) => {
     setIsAddModalOpen(true);
-    setModalMode('update');
+    setModalMode("update");
     setSelectedDepartmentId(department.id);
     setFormData({ name: department.name, parent_id: department.parent_id });
   };
 
   const closeAddModal = () => {
     setIsAddModalOpen(false);
-    setModalMode('create');
+    setModalMode("create");
     setSelectedDepartmentId(null);
     setFormData({ name: "", parent_id: null });
   };
@@ -57,20 +57,16 @@ const Department = () => {
   const handleSave = async (e) => {
     e.preventDefault();
     try {
-      if (modalMode === 'create') {
-        const createdDepartment = await departmentService.createDepartment(formData);
-        setNesteds([...nesteds, createdDepartment]);
+      if (modalMode === "create") {
+        await departmentService.createDepartment(formData);
         closeAddModal();
         dispatch(fetchNestedDepartments());
         dispatch(fetchDepartments());
-      } else if (modalMode === 'update' && selectedDepartmentId) {
-        const updatedDepartment = await departmentService.updateDepartment(selectedDepartmentId, formData);
-        const updatedIndex = nesteds.findIndex(dep => dep.id === selectedDepartmentId);
-        if (updatedIndex !== -1) {
-          const updatedNesteds = [...nesteds];
-          updatedNesteds[updatedIndex] = updatedDepartment;
-          setNesteds(updatedNesteds); 
-        }
+      } else if (modalMode === "update" && selectedDepartmentId) {
+        await departmentService.updateDepartment(
+          selectedDepartmentId,
+          formData
+        );
         closeAddModal();
         dispatch(fetchNestedDepartments());
         dispatch(fetchDepartments());
@@ -94,9 +90,9 @@ const Department = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prevState => ({
+    setFormData((prevState) => ({
       ...prevState,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -135,7 +131,7 @@ const Department = () => {
     };
 
     // Flatten the nested department structure
-    flattenData(nesteds);
+    flattenData(nestedDepartments);
 
     const buffer = await workbook.xlsx.writeBuffer();
 
@@ -154,37 +150,49 @@ const Department = () => {
     URL.revokeObjectURL(url);
   };
 
-  const renderSubMenu = (subMenu, level = 1) => {
-    return (
-      <ul className={`ml-10 ${openMenus[subMenu[0]?.parent_id] ? 'block' : 'hidden'}`}>
-        {subMenu.map((subItem, index) => (
-          <li key={index} onClick={() => toggleSubMenu(subItem.id)} className="cursor-pointer">
-            <div className="flex justify-between items-center mb-2 border-b py-2 border-black">
-              <div className="flex items-center gap-2 text-sm">
-                {subItem?.children?.length > 0 && (
-                  <button className="bg-[#00C7BE] text-white px-1 rounded py-[0.2px]">
-                    {openMenus[subItem.id] ? '-' : '+'}
-                  </button>
-                )}
-                <p className="text-gray-700 font-medium">{subItem.name}</p>
-              </div>
-              {user.user_type.name === "ადმინისტრატორი" && (
-                <div className="flex space-x-2">
-                  <button onClick={() => openUpdateModal(subItem)}>
-                    <img src={CreateIcon} alt="Edit Icon" className="w-4 h-4" />
-                  </button>
-                  <button onClick={() => handleDelete(subItem.id)}>
-                    <img src={DeleteIcon} alt="Delete Icon" className="w-4 h-4" />
-                  </button>
-                </div>
+  const renderSubMenu = (subMenu) => (
+    <ul
+      className={`ml-10 transition-all ease-in-out duration-300 overflow-hidden ${
+        openSubmenus[subMenu[0]?.parent_id]
+          ? "max-h-[1000px] opacity-100"
+          : "max-h-0 opacity-0"
+      }`}
+    >
+      {subMenu.map((subItem, index) => (
+        <li key={index} className="cursor-pointer">
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="flex justify-between items-center mb-2 border-b py-2 border-black"
+          >
+            <div className="flex items-center gap-2 text-sm">
+              {subItem?.children?.length > 0 && (
+                <button
+                  onClick={() => toggleSubMenu(subItem.id)}
+                  className="bg-[#00C7BE] text-white px-1 rounded w-[20px] py-[0.2px]"
+                >
+                  {openSubmenus[subItem.id] ? "-" : "+"}
+                </button>
               )}
+              <p className="text-gray-700 font-medium">{subItem.name}</p>
             </div>
-            {subItem?.children && renderSubMenu(subItem?.children, level + 1)}
-          </li>
-        ))}
-      </ul>
-    );
-  };
+            {user.user_type.name === "ადმინისტრატორი" && (
+              <div className="flex space-x-2">
+                <button onClick={() => openUpdateModal(subItem)}>
+                  <img src={CreateIcon} alt="Edit Icon"  />
+                </button>
+                <button onClick={() => handleDelete(subItem.id)}>
+                  <img src={DeleteIcon} alt="Delete Icon"  />
+                </button>
+              </div>
+            )}
+          </div>
+          {subItem?.children &&
+            openSubmenus[subItem.id] &&
+            renderSubMenu(subItem.children)}
+        </li>
+      ))}
+    </ul>
+  );
 
   return (
     <AuthenticatedLayout>
@@ -212,18 +220,20 @@ const Department = () => {
           )}
         </div>
         <div className="p-4">
-          {nesteds &&
-            nesteds.map((item, index) => (
-              <div
-                key={index}
-                onClick={() => toggleSubMenu(item.id)}
-                className="cursor-pointer"
-              >
-                <div className="flex justify-between items-center mb-2 border-b py-2 border-black">
+          {nestedDepartments &&
+            nestedDepartments.map((item, index) => (
+              <div key={index} className="cursor-pointer">
+                <div
+                  onClick={(e) => e.stopPropagation()}
+                  className="flex justify-between items-center mb-2 border-b py-2 border-black"
+                >
                   <div className="flex items-center gap-2 text-sm">
                     {item?.children?.length > 0 && (
-                      <button className="bg-[#00C7BE] text-white px-1 rounded w-[20px] ">
-                        {openMenus[item.id] ? '-' : '+'}
+                      <button
+                        onClick={() => toggleSubMenu(item.id)}
+                        className="bg-[#00C7BE] text-white px-1 rounded w-[20px] py-[0.2px]"
+                      >
+                        {openSubmenus[item.id] ? "-" : "+"}
                       </button>
                     )}
                     <p className="text-gray-700 font-medium">{item.name}</p>
@@ -231,10 +241,18 @@ const Department = () => {
                   {user.user_type.name === "ადმინისტრატორი" && (
                     <div className="flex space-x-2">
                       <button onClick={() => openUpdateModal(item)}>
-                        <img src={CreateIcon} alt="" className="" />
+                        <img
+                          src={CreateIcon}
+                          alt="Edit Icon"
+                          
+                        />
                       </button>
                       <button onClick={() => handleDelete(item.id)}>
-                        <img src={DeleteIcon} alt="" className="" />
+                        <img
+                          src={DeleteIcon}
+                          alt="Delete Icon"
+                          
+                        />
                       </button>
                     </div>
                   )}
@@ -244,12 +262,15 @@ const Department = () => {
             ))}
         </div>
       </div>
+
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
           <div className="bg-white rounded-lg max-w-md w-full">
             <div className="flex justify-between items-center p-3 bg-blue-500 text-white rounded-t-lg">
-            <h2 className="text-lg font-semibold">
-                {modalMode === "create" ? "დაამატე ახალი დეპარტამენტი" : "განაახლე დეპარტამენტი"}
+              <h2 className="text-lg font-semibold">
+                {modalMode === "create"
+                  ? "დაამატე ახალი დეპარტამენტი"
+                  : "განაახლე დეპარტამენტი"}
               </h2>
               <button
                 onClick={closeAddModal}
@@ -300,7 +321,7 @@ const Department = () => {
                   id="parent_id"
                   name="parent_id"
                   className="mt-1 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                  value={formData.parent_id || ''}
+                  value={formData.parent_id || ""}
                   onChange={handleChange}
                 >
                   <option value="">აირჩიე დეპარტამენტი</option>
@@ -336,4 +357,3 @@ const Department = () => {
 };
 
 export default Department;
-

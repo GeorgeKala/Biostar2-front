@@ -66,7 +66,7 @@ const NestedDropdownModal = ({
               {subItem?.children?.length > 0 && (
                 <button
                   onClick={(e) => toggleSubMenu(e, subItem.id)}
-                  className="bg-[#00C7BE] text-white px-1 rounded py-[0.2px]"
+                  className="bg-[#00C7BE] text-white px-1 rounded w-[20px] py-[0.2px]"
                 >
                   {openSubmenus[subItem.id] ? "-" : "+"}
                 </button>

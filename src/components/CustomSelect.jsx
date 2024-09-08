@@ -50,10 +50,14 @@ const CustomSelect = ({ options, selectedValue, onSelect, placeholder, className
   return (
     <div
       ref={selectRef}
-      className={`relative outline-none rounded-md w-full ${className ? className : "bg-white border border-[#105D8D]"}`}
+      className={`relative outline-none rounded-md w-full ${
+        className ? className : "bg-white border border-[#105D8D]"
+      }`}
     >
       <div
-        className={` ${className ? className : "bg-white border-[#105D8D]"} border border-gray-300 rounded-md cursor-pointer py-3 px-4 flex items-center justify-between`}
+        className={` ${
+          className ? className : "bg-white border-[#105D8D]"
+        } border border-gray-300 rounded-md cursor-pointer py-3 px-4 flex items-center justify-between`}
         onClick={() => setIsOpen(!isOpen)}
       >
         {/* Truncate long text and keep icon aligned */}
@@ -64,7 +68,7 @@ const CustomSelect = ({ options, selectedValue, onSelect, placeholder, className
       </div>
 
       {isOpen && (
-        <div className="absolute bg-white border border-gray-300 rounded-md mt-2 w-full z-10 shadow-lg">
+        <div className="absolute z-50 bg-white border border-gray-300 rounded-md mt-2 w-full z-10 shadow-lg">
           <input
             type="text"
             className="w-full p-2 border-b focus:outline-none"
@@ -72,7 +76,7 @@ const CustomSelect = ({ options, selectedValue, onSelect, placeholder, className
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <ul className="max-h-60 overflow-y-auto py-2">
+          <ul className="max-h-60 z-50 overflow-y-auto py-2">
             {filteredOptions.length > 0 ? (
               filteredOptions.map((option) => (
                 <li

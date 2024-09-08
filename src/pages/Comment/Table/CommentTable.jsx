@@ -17,6 +17,7 @@ import { useFilterAndSort } from "../../../hooks/useFilterAndSort";
 import FilterModal from "../../../components/FilterModal";
 import reportService from "../../../services/report";
 import ExcelJS from "exceljs";
+import CustomSelect from "../../../components/CustomSelect";
 
 
 const CommentTable = () => {
@@ -236,7 +237,7 @@ const CommentTable = () => {
             onClear={() => handleClear("department_id")}
             onSearchClick={() => setOpenNestedDropdown(true)}
           />
-          <select
+          {/* <select
             id="forgive_type_id"
             name="forgive_type_id"
             value={formData.forgive_type_id}
@@ -255,7 +256,22 @@ const CommentTable = () => {
                   {item.name}
                 </option>
               ))}
-          </select>
+          </select> */}
+          <CustomSelect
+            options={forgiveTypeItems}
+            selectedValue={
+              forgiveTypeItems.find(
+                (item) => item.id === formData.forgive_type_id
+              )?.name || "აირჩიეთ პატიების ტიპი"
+            }
+            onSelect={(e) =>
+              setFormData((prev) => ({
+                ...prev,
+                forgive_type_id: e.target.value,
+              }))
+            }
+            placeholder="აირჩიეთ პატიების ტიპი"
+          />
           <EmployeeInput
             value={formData.employee}
             onClear={() => handleClear("employee")}
@@ -265,7 +281,7 @@ const CommentTable = () => {
             className="bg-[#1AB7C1] rounded-lg min-w-[75px] flex items-center justify-center py-2"
             onClick={handleSubmit}
           >
-            <img src={SearchIcon}   alt="Search Icon" />
+            <img src={SearchIcon} alt="Search Icon" />
           </button>
         </div>
 
