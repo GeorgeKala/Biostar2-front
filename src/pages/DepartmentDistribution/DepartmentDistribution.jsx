@@ -233,13 +233,15 @@ const DepartmentDistribution = () => {
             <div className="mb-4">
               <label
                 htmlFor="building_id"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-700 mb-2"
               >
                 შენობა:
               </label>
               <CustomSelect
                 options={buildings}
-                selectedValue={buildings.find((b) => b.id === formData.building_id)?.name}
+                selectedValue={
+                  buildings.find((b) => b.id === formData.building_id)?.name
+                }
                 onSelect={(selectedOption) =>
                   setFormData({ ...formData, building_id: selectedOption.id })
                 }
@@ -250,13 +252,15 @@ const DepartmentDistribution = () => {
             <div className="mb-4">
               <label
                 htmlFor="department_id"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-700 mb-2"
               >
                 დეპარტამენტი:
               </label>
               <CustomSelect
                 options={departments}
-                selectedValue={departments.find((d) => d.id === formData.department_id)?.name}
+                selectedValue={
+                  departments.find((d) => d.id === formData.department_id)?.name
+                }
                 onSelect={(selectedOption) =>
                   setFormData({ ...formData, department_id: selectedOption.id })
                 }

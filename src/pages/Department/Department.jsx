@@ -9,6 +9,7 @@ import {
 } from "../../redux/departmentsSlice";
 import departmentService from "../../services/department";
 import ExcelJS from "exceljs";
+import CustomSelect from "../../components/CustomSelect";
 
 const Department = () => {
   const user = useSelector((state) => state.user.user);
@@ -355,11 +356,11 @@ const Department = () => {
               <div className="mb-4">
                 <label
                   htmlFor="parent_id"
-                  className="block text-sm font-medium text-gray-700"
+                  className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   დაქვემდებარებული:
                 </label>
-                <select
+                {/* <select
                   id="parent_id"
                   name="parent_id"
                   className="mt-1 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
@@ -373,7 +374,21 @@ const Department = () => {
                         {item.name}
                       </option>
                     ))}
-                </select>
+                </select> */}
+                <CustomSelect
+                  options={departments.map((item) => ({
+                    id: item.id,
+                    name: item.name,
+                  }))}
+                  selectedValue={
+                    departments.find((d) => d.id === formData.parent_id)?.name
+                  }
+                  onSelect={(selectedOption) =>
+                    setFormData({ ...formData, parent_id: selectedOption.id })
+                  }
+                  placeholder="აირჩიე დეპარტამენტი"
+                  className="bg-gray-300"
+                />
               </div>
               <div className="flex justify-end mt-4">
                 <button

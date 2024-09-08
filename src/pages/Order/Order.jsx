@@ -17,6 +17,7 @@ import Table from "../../components/Table";
 import FilterModal from "../../components/FilterModal";
 import { useFilterAndSort } from "../../hooks/useFilterAndSort";
 import ExcelJS from "exceljs";
+import CustomSelect from "../../components/CustomSelect";
 
 
 const Order = () => {
@@ -297,6 +298,10 @@ const Order = () => {
     }
   }, [showSuccessPopup]);
 
+
+  console.log(formData);
+  
+
   return (
     <AuthenticatedLayout>
       <div className="w-full px-20 py-4 flex flex-col gap-8">
@@ -339,10 +344,8 @@ const Order = () => {
             onClear={() => handleClear("department_id")}
             onSearchClick={() => setOpenNestedDropdown(true)}
           />
-          <button
-            className="bg-[#1AB7C1] rounded-lg min-w-[75px] flex items-center justify-center py-2"
-          >
-            <img src={SearchIcon}   alt="Search Icon" />
+          <button className="bg-[#1AB7C1] rounded-lg min-w-[75px] flex items-center justify-center py-2">
+            <img src={SearchIcon} alt="Search Icon" />
           </button>
         </form>
         <div className="flex justify-end gap-4">
@@ -409,7 +412,7 @@ const Order = () => {
               <div className="mb-4">
                 <label
                   htmlFor="start_date"
-                  className="block text-sm font-medium text-gray-700"
+                  className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   დაწყების თარიღი:
                 </label>
@@ -426,7 +429,7 @@ const Order = () => {
               <div className="mb-4">
                 <label
                   htmlFor="end_date"
-                  className="block text-sm font-medium text-gray-700"
+                  className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   დამთავრების თარიღი:
                 </label>
@@ -443,7 +446,7 @@ const Order = () => {
               <div className="mb-4">
                 <label
                   htmlFor="employee"
-                  className="block text-sm font-medium text-gray-700"
+                  className="block text-sm font-medium text-gray-700 mb-2"
                 >
                   თანამშრომელი:
                 </label>
@@ -461,11 +464,11 @@ const Order = () => {
                 <div className="mb-4">
                   <label
                     htmlFor="day_type_id"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-700 mb-2"
                   >
                     ბრძანების ტიპი:
                   </label>
-                  <select
+                  {/* <select
                     id="day_type_id"
                     name="day_type_id"
                     className="mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
@@ -480,7 +483,24 @@ const Order = () => {
                           {dayType.name}
                         </option>
                       ))}
-                  </select>
+                  </select> */}
+                  <CustomSelect
+                    options={dayTypes.map((dayType) => ({
+                      id: dayType.id,
+                      name: dayType.name,
+                    }))}
+                    selectedValue={
+                      dayTypes.find((d) => d.id === formData.day_type_id)?.name
+                    }
+                    onSelect={(selectedOption) =>
+                      setFormData({
+                        ...formData,
+                        day_type_id: selectedOption.id,
+                      })
+                    }
+                    placeholder="აირჩიეთ ბრძანების ტიპი"
+                    className="bg-gray-300"
+                  />
                 </div>
               )}
               <div className="flex justify-end mt-4">
