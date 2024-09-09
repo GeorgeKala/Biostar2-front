@@ -289,35 +289,47 @@ const CommentAnalyze = () => {
             onSearchClick={() => setIsEmployeeModalOpen(true)}
             placeholder="თანამშრომელი"
           />
-          <button
-            className="bg-[#1AB7C1] rounded-lg min-w-[75px] flex items-center justify-center py-2"
-          >
-            <img src={SearchIcon}   alt="Search Icon" />
+          <button className="bg-[#1AB7C1] rounded-lg min-w-[75px] flex items-center justify-center py-2">
+            <img src={SearchIcon} alt="Search Icon" />
           </button>
         </form>
         <div className="container mx-auto mt-10 overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 border-collapse border border-gray-200">
             <thead className="bg-[#1976D2] text-white">
               <tr>
-                <th className="w-24 border border-gray-200 px-3">
-                  თანამშრომელი
+                {/* Employee Names */}
+                <th className="border border-gray-200 px-3" rowSpan={2}>
+                  თანამშრომელი {/* Employee names */}
                 </th>
+                {/* Month Header */}
+                <th
+                  className="border text-center border-gray-200"
+                  colSpan={uniqueDates.length}
+                >
+                  {monthName} {/* Month */}
+                </th>
+                {/* Sum of Penalized Minutes */}
+                <th className="border text-center border-gray-200" rowSpan={2}>
+                  გაცდენილი წუთები {/* Sum of penalized minutes */}
+                </th>
+              </tr>
+              <tr>
+                {/* Dates under the month */}
                 {uniqueDates.map((date) => (
-                  <th key={date} className="border border-gray-200">
+                  <th key={date} className="border text-center border-gray-200">
                     {date}
                   </th>
                 ))}
-                <th className="border text-center border-gray-200">
-                  {monthName}
-                </th>
               </tr>
             </thead>
             <tbody>
               {Object.keys(groupedComments).map((employeeFullname) => (
                 <tr key={employeeFullname}>
-                  <td className="w-24 border text-center border-gray-200">
+                  {/* Employee Names */}
+                  <td className="border text-center border-gray-200">
                     {employeeFullname}
                   </td>
+                  {/* Penalized time per date */}
                   {uniqueDates.map((date) => (
                     <td
                       key={date}
@@ -329,7 +341,8 @@ const CommentAnalyze = () => {
                         : ""}
                     </td>
                   ))}
-                  <td className="border text-center border-gray-200">
+                  {/* Total sum of penalized minutes */}
+                  <td className="border text-center border-gray-200 font-bold text-red-600">
                     {groupedComments[employeeFullname].total}
                   </td>
                 </tr>

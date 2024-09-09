@@ -11,6 +11,7 @@ import NestedDropdownModal from "../../../components/NestedDropdownModal";
 import SearchIcon from "../../../assets/search.png";
 import CardScanModal from "../../../components/CardScanModal";
 import { useFormData } from "../../../hooks/useFormData"; // Import the useFormData hook
+import SelectGroup from "../../../components/employee/SelectGroup";
 
 const EmployeeCreate = () => {
   const { departments, nestedDepartments } = useSelector(
@@ -247,6 +248,13 @@ const EmployeeCreate = () => {
     .map((holiday) => holiday.name)
     .join(", ");
 
+
+    console.log(formData);
+
+    console.log(selectedDevice);
+    
+    
+
   return (
     <AuthenticatedLayout>
       <div className="w-full px-20 py-4 flex flex-col gap-8">
@@ -360,30 +368,23 @@ const EmployeeCreate = () => {
               onChange={handleInput}
               error={errors.position}
             />
-            <div className="w-full flex flex-col gap-2">
-              <label className="text-[#105D8D] font-medium">ჯგუფი</label>
-              <select
-                id="group_id"
-                name="group_id"
-                value={formData.group_id}
-                onChange={handleInput}
-                className="bg-white border border-[#105D8D] outline-none rounded-xl py-3  px-4 w-full"
-              >
-                <option value="">აირჩიეთ ჯგუფი</option>
-                {groups &&
-                  groups.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.name}
-                    </option>
-                  ))}
-              </select>
-              {errors.group_id && (
-                <p className="text-red-500 text-sm">{errors.group_id}</p>
-              )}
-            </div>
+            <SelectGroup
+              label="ჯგუფი"
+              options={groups.map((group) => group.name)}
+              placeholder="აირჩიე ჯგუფი"
+              onSelect={(selectedGroup) => {
+                const selectedGroupObj = groups.find(
+                  (group) => group.name === selectedGroup
+                );
+                setFormData((prevData) => ({
+                  ...prevData,
+                  group_id: selectedGroupObj.id, // Set the group_id here
+                }));
+              }}
+            />
           </div>
           <div className="flex justify-between gap-8">
-            <div className="w-full flex flex-col gap-2">
+            {/* <div className="w-full flex flex-col gap-2">
               <label className="text-[#105D8D] font-medium">განრიგი</label>
               <select
                 id="schedule_id"
@@ -403,7 +404,24 @@ const EmployeeCreate = () => {
               {errors.schedule_id && (
                 <p className="text-red-500 text-sm">{errors.schedule_id}</p>
               )}
-            </div>
+            </div> */}
+            <SelectGroup
+              label="განრიგი"
+              options={schedules.map((schedule) => schedule.name)} // Pass the schedule names as options
+              placeholder="აირჩიეთ განრიგი"
+              onSelect={(selectedSchedule) => {
+                const selectedScheduleObj = schedules.find(
+                  (schedule) => schedule.name === selectedSchedule
+                );
+                setFormData((prevData) => ({
+                  ...prevData,
+                  schedule_id: selectedScheduleObj.id, // Set the selected schedule ID in formData
+                }));
+              }}
+            />
+            {errors.schedule_id && (
+              <p className="text-red-500 text-sm">{errors.schedule_id}</p>
+            )}
             <InputGroup
               label="საპატიო წუთები"
               name="honorable_minutes_per_day"
@@ -414,7 +432,7 @@ const EmployeeCreate = () => {
             />
           </div>
           <div className="flex justify-between gap-8">
-            <div className="w-full flex flex-col gap-2">
+            {/* <div className="w-full flex flex-col gap-2">
               <label className="text-[#105D8D] font-medium">
                 აირჩიე მოწყობილობა
               </label>
@@ -434,7 +452,25 @@ const EmployeeCreate = () => {
               {errors.device_id && (
                 <p className="text-red-500 text-sm">{errors.device_id}</p>
               )}
-            </div>
+            </div> */}
+            <SelectGroup
+              label="აირჩიე მოწყობილობა"
+              options={devices.map((device) => device.name)} // Pass the device names as options
+              placeholder="აირჩიე მოწყობილობა"
+              onSelect={(selectedDeviceName) => {
+                const selectedDeviceObj = devices.find(
+                  (device) => device.name === selectedDeviceName
+                );
+                setSelectedDevice(selectedDeviceObj.id); // Set the selected device in state
+                setFormData((prevData) => ({
+                  ...prevData,
+                  device_id: selectedDeviceObj.id, // Update formData with the selected device ID
+                }));
+              }}
+            />
+            {errors.device_id && (
+              <p className="text-red-500 text-sm">{errors.device_id}</p>
+            )}
             <div className="w-full flex gap-3 items-center">
               <InputGroup
                 label="ბარათის ნომერი"
