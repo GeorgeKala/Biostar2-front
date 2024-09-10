@@ -15,6 +15,7 @@ import { useFilterAndSort } from "../../../hooks/useFilterAndSort";
 import SearchIcon from "../../../assets/search.png";
 import reportService from "../../../services/report";
 import ExcelJS from "exceljs";
+import { useFormData } from "../../../hooks/useFormData";
 
 
 const GeneralReport = () => {
@@ -36,7 +37,15 @@ const GeneralReport = () => {
   const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
   const [currentFilterField, setCurrentFilterField] = useState("");
 
-  const [formData, setFormData] = useState({
+  // const [formData, setFormData] = useState({
+  //   start_date: "",
+  //   end_date: "",
+  //   department_id: user?.user_type?.has_full_access ? "" : user?.department?.id,
+  //   employee: "",
+  // });
+
+
+  const { formData, handleFormDataChange, setFormData } = useFormData({
     start_date: "",
     end_date: "",
     department_id: user?.user_type?.has_full_access ? "" : user?.department?.id,

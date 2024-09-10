@@ -11,15 +11,22 @@ import {
   deleteGroup,
 } from "../../redux/groupSlice";
 import ExcelJS from "exceljs";
+import { useFormData } from "../../hooks/useFormData"; // Import the custom hook
 
 const Group = () => {
   const user = useSelector((state) => state.user.user);
   const dispatch = useDispatch();
   const groupItems = useSelector((state) => state.groups.items);
   const groupStatus = useSelector((state) => state.groups.status);
+
+  // Use form data hook to manage search term and modal data
+  const { formData, handleFormDataChange, setFormData } = useFormData({
+    searchTerm: "",
+    name: "",
+  });
+
   const [modalOpen, setModalOpen] = useState(false);
   const [editItemId, setEditItemId] = useState(null);
-  const [searchTerm, setSearchTerm] = useState(""); // Search term state
 
   useEffect(() => {
     if (groupStatus === "idle") {
@@ -29,6 +36,8 @@ const Group = () => {
 
   const openModal = (id) => {
     setEditItemId(id);
+    const item = groupItems.find((item) => item.id === id);
+    setFormData({ ...formData, name: item ? item.name : "" });
     setModalOpen(true);
   };
 
@@ -91,7 +100,7 @@ const Group = () => {
 
   // Filter the group list based on the search term
   const filteredGroupItems = groupItems.filter((group) =>
-    group.name.toLowerCase().includes(searchTerm.toLowerCase())
+    group.name.toLowerCase().includes(formData.searchTerm.toLowerCase())
   );
 
   return (
@@ -122,9 +131,10 @@ const Group = () => {
         <div className="relative">
           <input
             type="text"
+            name="searchTerm"
             placeholder="ძებნა ჯგუფის მიხედვით"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            value={formData.searchTerm}
+            onChange={handleFormDataChange}
             className="w-full p-3 border border-gray-300 rounded-md focus:outline-none"
           />
           <svg
@@ -144,7 +154,7 @@ const Group = () => {
         </div>
 
         {/* Group List */}
-        <div >
+        <div>
           {filteredGroupItems.length > 0 ? (
             filteredGroupItems.map((item) => (
               <div
@@ -176,13 +186,9 @@ const Group = () => {
       <Modal
         isOpen={modalOpen}
         onClose={closeModal}
-        onSave={handleSaveGroup}
+        onSave={() => handleSaveGroup(formData.name)}
         title={editItemId ? "შეცვალე ჯგუფი" : "დაამატე ჯგუფი"}
-        initialValue={
-          editItemId
-            ? groupItems.find((item) => item.id === editItemId)?.name
-            : ""
-        }
+        initialValue={formData.name}
       />
     </AuthenticatedLayout>
   );

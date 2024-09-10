@@ -10,6 +10,7 @@ import {
 import departmentService from "../../services/department";
 import ExcelJS from "exceljs";
 import CustomSelect from "../../components/CustomSelect";
+import { useFormData } from "../../hooks/useFormData";
 
 const Department = () => {
   const user = useSelector((state) => state.user.user);
@@ -17,7 +18,13 @@ const Department = () => {
   const { nestedDepartments, departments } = useSelector(
     (state) => state.departments
   );
-  const [formData, setFormData] = useState({ name: "", parent_id: null });
+
+  // Initialize formData using useFormData hook
+  const { formData, handleFormDataChange, setFormData } = useFormData({
+    name: "",
+    parent_id: null,
+  });
+
   const [selectedDepartmentId, setSelectedDepartmentId] = useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("create");
@@ -48,7 +55,6 @@ const Department = () => {
       setFilteredDepartments(nestedDepartments);
     }
   }, [searchTerm, nestedDepartments]);
-
 
   useEffect(() => {
     dispatch(fetchNestedDepartments());
@@ -115,32 +121,21 @@ const Department = () => {
     }
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  };
-
   const exportToExcel = async () => {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Departments");
 
-    // Define columns
     worksheet.columns = [
       { header: "ID", key: "ID", width: 10 },
       { header: "Name", key: "Name", width: 50 },
     ];
 
-    // Add header styling
     worksheet.getRow(1).font = { bold: true };
     worksheet.getRow(1).alignment = {
       horizontal: "center",
       vertical: "center",
     };
 
-    // Function to flatten the department data
     const flattenData = (departments, parentName = "") => {
       departments.forEach((department) => {
         const fullName = parentName
@@ -157,7 +152,6 @@ const Department = () => {
       });
     };
 
-    // Flatten the nested department structure
     flattenData(nestedDepartments);
 
     const buffer = await workbook.xlsx.writeBuffer();
@@ -205,10 +199,10 @@ const Department = () => {
             {user.user_type.name === "ადმინისტრატორი" && (
               <div className="flex space-x-2">
                 <button onClick={() => openUpdateModal(subItem)}>
-                  <img src={CreateIcon} alt="Edit Icon"  />
+                  <img src={CreateIcon} alt="Edit Icon" />
                 </button>
                 <button onClick={() => handleDelete(subItem.id)}>
-                  <img src={DeleteIcon} alt="Delete Icon"  />
+                  <img src={DeleteIcon} alt="Delete Icon" />
                 </button>
               </div>
             )}
@@ -349,7 +343,7 @@ const Department = () => {
                   name="name"
                   className="mt-1 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
                   value={formData.name}
-                  onChange={handleChange}
+                  onChange={handleFormDataChange}
                   required
                 />
               </div>
@@ -360,21 +354,6 @@ const Department = () => {
                 >
                   დაქვემდებარებული:
                 </label>
-                {/* <select
-                  id="parent_id"
-                  name="parent_id"
-                  className="mt-1 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                  value={formData.parent_id || ""}
-                  onChange={handleChange}
-                >
-                  <option value="">აირჩიე დეპარტამენტი</option>
-                  {departments &&
-                    departments.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.name}
-                      </option>
-                    ))}
-                </select> */}
                 <CustomSelect
                   options={departments.map((item) => ({
                     id: item.id,
