@@ -27,8 +27,8 @@ export const updateEmployee = createAsyncThunk(
 
 export const deleteEmployee = createAsyncThunk(
   "employees/deleteEmployee",
-  async (id) => {
-    await employeeService.deleteEmployee(id);
+  async ({ id, expiryDatetime }) => {
+    await employeeService.deleteEmployee(id, expiryDatetime); 
     return id;
   }
 );

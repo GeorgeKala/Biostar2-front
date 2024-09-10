@@ -42,13 +42,30 @@ const employeeService = {
     }
   },
 
-  deleteEmployee: async (id) => {
+  // deleteEmployee: async (id) => {
+  //   try {
+  //     const response = await axiosInstance.delete(`/employees/${id}`, {
+  //       headers: {
+  //         "bs-session-id": sessionStorage.getItem("sessionToken"),
+  //       },
+  //     });
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // },
+
+  deleteEmployee: async (id, expiryDatetime) => {
     try {
-      const response = await axiosInstance.delete(`/employees/${id}`, {
-        headers: {
-          "bs-session-id": sessionStorage.getItem("sessionToken"),
-        },
-      });
+      const response = await axiosInstance.put(
+        `/employees/${id}/update-expiry`, 
+        { expiry_datetime: expiryDatetime },
+        {
+          headers: {
+            "bs-session-id": sessionStorage.getItem("sessionToken"),
+          },
+        }
+      );
+      return response.data;
     } catch (error) {
       throw error;
     }
@@ -68,7 +85,7 @@ const employeeService = {
       const params = {};
       if (employee_id) params.employee_id = employee_id;
       if (building_id) params.building_id = building_id;
-      
+
       const response = await axiosInstance.get("/employees/buildings", {
         headers: {
           "bs-session-id": sessionStorage.getItem("sessionToken"),
@@ -118,7 +135,6 @@ const employeeService = {
       throw error;
     }
   },
-  
 };
 
 

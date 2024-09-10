@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchEmployees, deleteEmployee } from "../../../redux/employeeSlice";
+import { fetchEmployees } from "../../../redux/employeeSlice";
 import AuthenticatedLayout from "../../../Layouts/AuthenticatedLayout";
 import EmployeeEditModal from "../../../components/EmployeeEditModal";
 import EmployeeStatusModal from "../../../components/EmployeeStatusModal";
@@ -12,7 +12,8 @@ import DeleteIcon from "../../../assets/delete.png";
 import EditIcon from "../../../assets/edit.png";
 import { useFilterAndSort } from "../../../hooks/useFilterAndSort";
 import ExcelJS from "exceljs";
-
+import DeleteEmployeeModal from "../../../components/employee/DeleteEmployeeModal";
+import employeeService from "../../../services/employee";
 
 const CreatedEmployees = () => {
   const dispatch = useDispatch();
@@ -25,6 +26,7 @@ const CreatedEmployees = () => {
   const [filterableData, setFilterableData] = useState([]);
   const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
   const [currentFilterField, setCurrentFilterField] = useState("");
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false); // Modal state for delete
 
   const {
     filteredAndSortedData,
@@ -117,14 +119,31 @@ const CreatedEmployees = () => {
     URL.revokeObjectURL(url);
   };
 
-
-
   const handleOpenFilterModal = (data, fieldName, rect) => {
     setFilterableData(data);
     setIsFilterModalOpen(true);
     setModalPosition({ top: rect.bottom, left: rect.left - 240 });
     setCurrentFilterField(fieldName);
   };
+
+  const handleDeleteEmployee = async (expiryDatetime) => {
+    if (selectedEmployee) {
+      try {
+        await employeeService.deleteEmployee(
+          selectedEmployee.id,
+          expiryDatetime
+        );
+        console.log(
+          `Employee ${selectedEmployee.id} expiry date updated to ${expiryDatetime}`
+        );
+
+        dispatch(fetchEmployees()); 
+      } catch (error) {
+        console.error("Error deleting (updating expiry) employee:", error);
+      }
+    }
+  };
+
 
   const employeeHeaders = [
     {
@@ -176,17 +195,6 @@ const CreatedEmployees = () => {
     },
   ];
 
-
-  const handleDeleteEmployee = (employeeId) => {
-    if (window.confirm("დარწმუნებული ხართ რომ გსურთ თანამშრომლის წაშლა?")) {
-      dispatch(deleteEmployee(employeeId)).then(() => {
-        dispatch(fetchEmployees());
-        setSelectedEmployee(null); 
-      });
-    }
-  };
-
-
   return (
     <AuthenticatedLayout>
       <div className="w-full px-10 py-4 flex flex-col gap-8 2xl:px-20">
@@ -213,7 +221,7 @@ const CreatedEmployees = () => {
                   შეცვლა
                 </button>
                 <button
-                  onClick={() => handleDeleteEmployee(selectedEmployee?.id)}
+                  onClick={() => setDeleteModalOpen(true)} // Open delete modal
                   className="bg-[#D9534F] text-white px-4 py-4 rounded-md flex items-center gap-2"
                 >
                   <img src={DeleteIcon} alt="Delete" />
@@ -282,6 +290,12 @@ const CreatedEmployees = () => {
           applyModalFilters(currentFilterField, selectedFilters)
         }
         position={modalPosition}
+      />
+      <DeleteEmployeeModal
+        isOpen={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onDelete={handleDeleteEmployee}
+        employee={selectedEmployee}
       />
     </AuthenticatedLayout>
   );
