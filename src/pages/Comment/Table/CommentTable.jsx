@@ -19,7 +19,6 @@ import reportService from "../../../services/report";
 import ExcelJS from "exceljs";
 import CustomSelect from "../../../components/CustomSelect";
 
-
 const CommentTable = () => {
   const user = useSelector((state) => state.user.user);
   const commentedDetails = useSelector(
@@ -56,6 +55,7 @@ const CommentTable = () => {
     user: { text: "", selected: [] },
     created_at: { text: "", selected: [] },
     comment: { text: "", selected: [] },
+    date: { text: "", selected: [] },  // Added date to initial filters
   };
 
   const {
@@ -118,12 +118,12 @@ const CommentTable = () => {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Comments");
 
-    // Set a uniform width for all columns
     const uniformWidth = 30;
 
     worksheet.columns = [
       { header: "თანამშრომელი", key: "employee", width: uniformWidth },
       { header: "დეპარტამენტი", key: "department", width: uniformWidth },
+      { header: "პატიების თარიღი", key: "date", width: uniformWidth },  // Added date column
       { header: "პატიების ტიპი", key: "forgive_type", width: uniformWidth },
       { header: "მომხმარებელი", key: "user", width: uniformWidth },
       { header: "ჩაწერის თარიღი", key: "created_at", width: uniformWidth },
@@ -137,6 +137,7 @@ const CommentTable = () => {
       worksheet.addRow({
         employee: comment.employee,
         department: comment.department,
+        date: comment.date,  // Adding date to Excel rows
         forgive_type: comment.forgive_type,
         user: comment.user,
         created_at: comment.created_at,
@@ -171,6 +172,11 @@ const CommentTable = () => {
       label: "დეპარტამენტი",
       key: "department",
       extractValue: (comment) => comment.department,
+    },
+    {
+      label: "პატიების თარიღი",  // Added date header for table
+      key: "date",
+      extractValue: (comment) => comment.date,
     },
     {
       label: "პატიების ტიპი",
@@ -237,26 +243,6 @@ const CommentTable = () => {
             onClear={() => handleClear("department_id")}
             onSearchClick={() => setOpenNestedDropdown(true)}
           />
-          {/* <select
-            id="forgive_type_id"
-            name="forgive_type_id"
-            value={formData.forgive_type_id}
-            onChange={(e) =>
-              setFormData((prev) => ({
-                ...prev,
-                forgive_type_id: e.target.value,
-              }))
-            }
-            className="bg-white border border-[#105D8D] outline-none rounded-md py-3 px-4 w-full"
-          >
-            <option value="">აირჩიეთ პატიების ტიპი</option>
-            {forgiveTypeItems &&
-              forgiveTypeItems.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.name}
-                </option>
-              ))}
-          </select> */}
           <CustomSelect
             options={forgiveTypeItems}
             selectedValue={
@@ -314,6 +300,7 @@ const CommentTable = () => {
             "user",
             "created_at",
             "comment",
+            "date",  // Added date to filterable fields
           ]}
         />
 

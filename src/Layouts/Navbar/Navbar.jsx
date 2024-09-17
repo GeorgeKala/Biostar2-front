@@ -62,17 +62,14 @@ const Navbar = () => {
   };
 
   const handleDelete = (route) => {
-    // Remove filter, sort configurations, and formData from localStorage
     localStorage.removeItem(`${route}-filters`);
     localStorage.removeItem(`${route}-sortConfig`);
     localStorage.removeItem(`${route}-formData`);
 
-    // Update the history
     const updatedHistory = history.filter((item) => item !== route);
     setHistory(updatedHistory);
     sessionStorage.setItem("navHistory", JSON.stringify(updatedHistory));
 
-    // Navigate to the previous tab in the history
     const currentIndex = updatedHistory.indexOf(location.pathname);
     if (currentIndex > 0) {
       navigate(updatedHistory[currentIndex - 1]);

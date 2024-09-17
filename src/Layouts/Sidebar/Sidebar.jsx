@@ -193,24 +193,6 @@ const Sidebar = () => {
           </div>
           {sections.employees && (
             <div className="pl-4 flex flex-col gap-4 mt-4">
-              <Link
-                to="/reports/general"
-                className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === "/reports/general" ? "font-bold" : ""
-                }`}
-              >
-                <img src={ArrowRight} alt="Arrow Right Icon" />
-                პერიოდის რეპორტი
-              </Link>
-              <Link
-                to="/records/full"
-                className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === "/records/full" ? "font-bold" : ""
-                }`}
-              >
-                <img src={ArrowRight} alt="Arrow Right Icon" />
-                სრული ჩანაწერები
-              </Link>
               {canAccessPage([
                 "ადმინისტრატორი",
                 "HR",
@@ -228,6 +210,26 @@ const Sidebar = () => {
                   თანამშრომლის დამატება
                 </Link>
               )}
+              <Link
+                to="/records/full"
+                className={`flex items-center gap-3 text-white text-[14px] ${
+                  location.pathname === "/records/full" ? "font-bold" : ""
+                }`}
+              >
+                <img src={ArrowRight} alt="Arrow Right Icon" />
+                სრული ჩანაწერები
+              </Link>
+              <Link
+                to="/reports/general"
+                className={`flex items-center gap-3 text-white text-[14px] ${
+                  location.pathname === "/reports/general" ? "font-bold" : ""
+                }`}
+              >
+                <img src={ArrowRight} alt="Arrow Right Icon" />
+                პერიოდის რეპორტი
+              </Link>
+              
+              
               {canAccessPage(["ადმინისტრატორი", "HR", "IT", "მენეჯერი 1"]) && (
                 <Link
                   to="/comments/table"
@@ -239,16 +241,6 @@ const Sidebar = () => {
                   კომენტარების ცხრილი
                 </Link>
               )}
-
-              <Link
-                to="/comments/analyze"
-                className={`flex items-center gap-3 text-white text-[14px] ${
-                  location.pathname === "/comments/analyze" ? "font-bold" : ""
-                }`}
-              >
-                <img src={ArrowRight} alt="Arrow Right Icon" />
-                კომენტარების ანალიზი
-              </Link>
               <Link
                 to="/orders"
                 className={`flex items-center gap-3 text-white text-[14px] ${
@@ -257,6 +249,15 @@ const Sidebar = () => {
               >
                 <img src={ArrowRight} alt="Arrow Right Icon" />
                 ბრძანებები
+              </Link>
+              <Link
+                to="/comments/analyze"
+                className={`flex items-center gap-3 text-white text-[14px] ${
+                  location.pathname === "/comments/analyze" ? "font-bold" : ""
+                }`}
+              >
+                <img src={ArrowRight} alt="Arrow Right Icon" />
+                კომენტარების ანალიზი
               </Link>
             </div>
           )}

@@ -23,8 +23,8 @@ const EmployeeEditModal = ({ employee, isOpen, onClose }) => {
     personal_id: employee.personal_id || "",
     phone_number: employee.phone_number || "",
     department_id: user?.user_type?.has_full_access ? employee.department.id : user?.department?.id || "",
-    start_datetime: employee.start_datetime || "",
-    expiry_datetime: employee.expiry_datetime || "",
+    start_datetime: employee.start_datetime ? new Date(employee.start_datetime).toISOString().slice(0, 10) : "",
+    expiry_datetime: employee.expiry_datetime ? new Date(employee.expiry_datetime).toISOString().slice(0, 10) : "",
     position: employee.position || "",
     group_id: employee.group.id || "",
     schedule_id: employee.schedule.id || "",
@@ -36,7 +36,6 @@ const EmployeeEditModal = ({ employee, isOpen, onClose }) => {
     holidays: employee.holidays.map(holiday => holiday.id) || []
   });
 
-  const [errors, setErrors] = useState({});
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const dispatch = useDispatch();
   const holidays = useSelector(selectHolidays);
@@ -87,90 +86,18 @@ const EmployeeEditModal = ({ employee, isOpen, onClose }) => {
       ...prevData,
       [name]: value,
     }));
-
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      [name]: "",
-    }));
-  };
-
-  const validateField = (name, value) => {
-    let error = "";
-    if (name === "fullname" && !value) {
-      error = "სახელი/გვარი აუცილებელია";
-    } else if (name === "personal_id" && !value) {
-      error = "პირადი ნომერი აუცილებელია";
-    } else if (name === "phone_number" && !value) {
-      error = "ტელეფონის ნომერი აუცილებელია";
-    } else if (name === "checksum" && !value) {
-      error = "საკონტროლო ჯამი აუცილებელია";
-    } else if (name === "card_number" && !value) {
-      error = "ბარათის ნომერი აუცილებელია";
-    }
-
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      [name]: error,
-    }));
   };
 
   const handleSubmit = async () => {
-    const newErrors = {};
-
-    Object.keys(formData).forEach((field) => {
-      validateField(field, formData[field]);
-      if (
-        !formData[field] &&
-        field !== "expiry_datetime" &&
-        field !== "checksum" &&
-        field !== "honorable_minutes_per_day"
-      ) {
-        newErrors[field] = `${georgianLabels[field]} მითითება აუცილებელია`;
-      }
-    });
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
     setIsLoading(true);
     try {
       await employeeService.updateEmployee(employee.id, formData);
       setShowSuccessPopup(true);
     } catch (error) {
-      if (error.response && error.response.data.errors) {
-        const apiErrors = error.response.data.errors;
-        Object.keys(apiErrors).forEach((field) => {
-          if (field === "personal_id" && apiErrors[field].length > 0) {
-            newErrors[field] = "ასეთი პირადი ნომრით თანამშრომელი უკვე არსებობს";
-          } else {
-            newErrors[field] = apiErrors[field][0];
-          }
-        });
-        setErrors(newErrors);
-      } else {
-        console.error("Error updating employee:", error);
-      }
+      console.error("Error updating employee:", error);
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const georgianLabels = {
-    fullname: "სახელი/გვარი",
-    personal_id: "პირადი ნომერი",
-    phone_number: "ტელეფონის ნომერი",
-    department_id: "დეპარტამენტი",
-    start_datetime: "დაწყების დრო",
-    expiry_datetime: "გათავისუფლების დრო",
-    position: "პოზიცია",
-    group_id: "ჯგუფი",
-    schedule_id: "განრიგი",
-    honorable_minutes_per_day: "საპატიო წუთები",
-    device: "მოწყობილობა",
-    card_number: "ბარათის ნომერი",
-    checksum: "საკონტროლო ჯამი",
   };
 
   const handleDeviceSelect = (e) => {
@@ -233,7 +160,7 @@ const EmployeeEditModal = ({ employee, isOpen, onClose }) => {
 
   return (
     <div className={`fixed inset-0 bg-black bg-opacity-50 z-50 ${isOpen ? "block" : "hidden"}`}>
-      <div className="bg-white w-1/2 p-4 rounded-md absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+      <div className="bg-white w-1/2 h-[80%] p-4 rounded-md absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 overflow-hidden">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-[#1976D2] font-medium text-[23px]">თანამშრომლის ცვლილება</h2>
           <button onClick={onClose}>
@@ -242,213 +169,197 @@ const EmployeeEditModal = ({ employee, isOpen, onClose }) => {
             </svg>
           </button>
         </div>
-        <div className="flex flex-col gap-4">
-          <div className="flex justify-between gap-8">
-            <InputGroup
-              label="სახელი/გვარი"
-              name="fullname"
-              value={formData.fullname}
-              onChange={handleInput}
-              error={errors.fullname}
-            />
-            <InputGroup
-              label="პირადი ნომერი"
-              name="personal_id"
-              value={formData.personal_id}
-              onChange={handleInput}
-              error={errors.personal_id}
-            />
-          </div>
-          <div className="flex justify-between gap-8">
-            <InputGroup
-              label="ტელეფონის ნომერი"
-              name="phone_number"
-              value={formData.phone_number}
-              onChange={handleInput}
-              error={errors.phone_number}
-            />
-            <div className="w-full flex flex-col gap-2 relative">
-              <label className="text-[#105D8D] font-medium">დეპარტამენტი</label>
-              <div className="flex">
-                <input 
-                  className="bg-white border border-[#105D8D] outline-none rounded-l-2xl py-3 px-4 w-full pr-10"
-                  placeholder="დეპარტამენტი"
-                  value={departments.find((d) => d.id === formData.department_id)?.name || ""}
-                  readOnly
+        <div className="overflow-y-auto h-[85%] pr-2"> {/* Scrollable content */}
+          <div className="flex flex-col gap-4">
+            <div className="flex justify-between gap-8">
+              <InputGroup
+                label="სახელი/გვარი"
+                name="fullname"
+                value={formData.fullname}
+                onChange={handleInput}
+              />
+              <InputGroup
+                label="პირადი ნომერი"
+                name="personal_id"
+                value={formData.personal_id}
+                onChange={handleInput}
+              />
+            </div>
+            <div className="flex justify-between gap-8">
+              <InputGroup
+                label="ტელეფონის ნომერი"
+                name="phone_number"
+                value={formData.phone_number}
+                onChange={handleInput}
+              />
+              <div className="w-full flex flex-col gap-2 relative">
+                <label className="text-[#105D8D] font-medium">დეპარტამენტი</label>
+                <div className="flex">
+                  <input 
+                    className="bg-white border border-[#105D8D] outline-none rounded-l-2xl py-3 px-4 w-full pr-10"
+                    placeholder="დეპარტამენტი"
+                    value={departments.find((d) => d.id === formData.department_id)?.name || ""}
+                    readOnly
+                  />
+                  {formData.department_id && (
+                    <button
+                      type="button"
+                      onClick={handleClearDepartment}
+                      className="absolute right-12 top-[70%] transform -translate-y-1/2 mr-4"
+                    >
+                      <svg className="w-6 h-6" fill="none" stroke="black" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                      </svg>
+                    </button>
+                  )}
+                  <button onClick={() => setOpenNestedDropdown(true)} className="bg-[#105D8D] px-4 rounded-r-2xl">
+                    <img className="w-[20px]" src={SearchIcon} alt="" />
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-between gap-8">
+              <InputGroup
+                label="დაწყების დრო"
+                name="start_datetime"
+                placeholder="დაწყების დრო"
+                type="date"
+                value={formData.start_datetime}
+                onChange={handleInput}
+              />
+              <InputGroup
+                label="გათავისუფლების დრო"
+                name="expiry_datetime"
+                placeholder="გათავისუფლების დრო"
+                type="date"
+                value={formData.expiry_datetime}
+                onChange={handleInput}
+              />
+            </div>
+            <div className="flex justify-between gap-8">
+              <InputGroup
+                label="პოზიცია"
+                name="position"
+                value={formData.position}
+                onChange={handleInput}
+              />
+              <div className="w-full flex flex-col gap-2">
+                <label className="text-[#105D8D] font-medium">ჯგუფი</label>
+                <select
+                  id="group_id"
+                  name="group_id"
+                  value={formData.group_id}
+                  onChange={handleInput}
+                  className="bg-white border border-[#105D8D] outline-none rounded-xl py-3 px-4 w-full"
+                >
+                  <option value="">აირჩიეთ ჯგუფი</option>
+                  {groups &&
+                    groups.map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            </div>
+            <div className="flex justify-between gap-8">
+              <InputGroup
+                label="საპატიო წუთები"
+                name="honorable_minutes_per_day"
+                value={formData.honorable_minutes_per_day}
+                onChange={handleInput}
+              />
+              <div className="w-full flex flex-col gap-2">
+                <label className="text-[#105D8D] font-medium">გრაფიკი</label>
+                <select
+                  id="schedule_id"
+                  name="schedule_id"
+                  value={formData.schedule_id}
+                  onChange={handleInput}
+                  className="bg-white border border-[#105D8D] outline-none rounded-xl py-3 px-4 w-full"
+                >
+                  <option value="">აირჩიეთ გრაფიკი</option>
+                  {schedules &&
+                    schedules.map((schedule) => (
+                      <option key={schedule.id} value={schedule.id}>
+                        {schedule.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            </div>
+            <div className="flex justify-between gap-8">
+              <div className="w-full flex flex-col gap-2">
+                <label className="text-[#105D8D] font-medium">
+                  აირჩიე მოწყობილობა
+                </label>
+                <select
+                  value={selectedDevice}
+                  onChange={handleDeviceSelect}
+                  className="bg-white border border-[#105D8D] outline-none rounded-xl py-3  px-4 w-full"
+                >
+                  <option value="">აირჩიე მოწყობილობა</option>
+                  {devices &&
+                    devices.map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+              <div className="w-full flex gap-3 items-center">
+                <InputGroup
+                  label="ბარათის ნომერი"
+                  name="card_number"
+                  placeholder="ბარათის ნომერი"
+                  type="text"
+                  value={formData.card_number}
+                  onChange={handleInput}
                 />
-                {formData.department_id && (
+                <button
+                  className="bg-[#5CB85C] mt-4 text-white rounded-lg py-2"
+                  onClick={handleScanCard}
+                >
+                  + ბარათის დამატება
+                </button>
+              </div>
+            </div>
+            <div className="flex justify-between gap-8">
+              <InputGroup
+                label="საკონტროლო ჯამი"
+                name="checksum"
+                value={formData.checksum}
+                onChange={handleInput}
+              />
+              <div className="w-full flex flex-col gap-2">
+                <label className="text-[#105D8D] font-medium">
+                  დასვენების დღეები
+                </label>
+                <div className="relative">
                   <button
                     type="button"
-                    onClick={handleClearDepartment}
-                    className="absolute right-12 top-[70%] transform -translate-y-1/2 mr-4"
+                    className="w-full flex justify-between items-center relative bg-white border border-[#105D8D] outline-none rounded-xl py-3 px-4"
+                    onClick={toggleDropdown}
                   >
-                    <svg className="w-6 h-6" fill="none" stroke="black" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                    აირჩიე დასვენების დღეები
+                    <svg
+                      className="-mr-1 ml-2 h-5 w-5"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <select name=""></select>
                     </svg>
                   </button>
-                )}
-                <button onClick={() => setOpenNestedDropdown(true)} className="bg-[#105D8D] px-4 rounded-r-2xl">
-                  <img className="w-[20px]" src={SearchIcon} alt="" />
-                </button>
-              </div>
-            </div>
-          </div>
-          <div className="flex justify-between gap-8">
-            <InputGroup
-              label="დაწყების დრო"
-              name="start_datetime"
-              placeholder="დაწყების დრო"
-              type="date"
-              value={formData.start_datetime}
-              onChange={handleInput}
-              error={errors.start_datetime}
-            />
-            <InputGroup
-              label="გათავისუფლების დრო"
-              name="expiry_datetime"
-              placeholder="გათავისუფლების დრო"
-              type="date"
-              value={formData.expiry_datetime}
-              onChange={handleInput}
-              error={errors.expiry_datetime}
-            />
-          </div>
-          <div className="flex justify-between gap-8">
-            <InputGroup
-              label="პოზიცია"
-              name="position"
-              value={formData.position}
-              onChange={handleInput}
-              error={errors.position}
-            />
-            <div className="w-full flex flex-col gap-2">
-              <label className="text-[#105D8D] font-medium">ჯგუფი</label>
-              <select
-                id="group_id"
-                name="group_id"
-                value={formData.group_id}
-                onChange={handleInput}
-                className="bg-white border border-[#105D8D] outline-none rounded-xl py-3 px-4 w-full"
-              >
-                <option value="">აირჩიეთ ჯგუფი</option>
-                {groups &&
-                  groups.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.name}
-                    </option>
-                  ))}
-              </select>
-              {errors.group_id && (
-                <p className="text-red-500 text-sm">{errors.group_id}</p>
-              )}
-            </div>
-          </div>
-          <div className="flex justify-between gap-8">
-            <InputGroup
-              label="საპატიო წუთები"
-              name="honorable_minutes_per_day"
-              value={formData.honorable_minutes_per_day}
-              onChange={handleInput}
-              error={errors.honorable_minutes_per_day}
-            />
-            <div className="w-full flex flex-col gap-2">
-              <label className="text-[#105D8D] font-medium">გრაფიკი</label>
-              <select
-                id="schedule_id"
-                name="schedule_id"
-                value={formData.schedule_id}
-                onChange={handleInput}
-                className="bg-white border border-[#105D8D] outline-none rounded-xl py-3 px-4 w-full"
-              >
-                <option value="">აირჩიეთ გრაფიკი</option>
-                {schedules &&
-                  schedules.map((schedule) => (
-                    <option key={schedule.id} value={schedule.id}>
-                      {schedule.name}
-                    </option>
-                  ))}
-              </select>
-              {errors.schedule_id && (
-                <p className="text-red-500 text-sm">{errors.schedule_id}</p>
-              )}
-            </div>
-          </div>
-          <div className="flex justify-between gap-8">
-            <div className="w-full flex flex-col gap-2">
-              <label className="text-[#105D8D] font-medium">
-                აირჩიე მოწყობილობა
-              </label>
-              <select
-                value={selectedDevice}
-                onChange={handleDeviceSelect}
-                className="bg-white border border-[#105D8D] outline-none rounded-xl py-3  px-4 w-full"
-              >
-                <option value="">აირჩიე მოწყობილობა</option>
-                {devices &&
-                  devices.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.name}
-                    </option>
-                  ))}
-              </select>
-              {errors.device_id && (
-                <p className="text-red-500 text-sm">{errors.device_id}</p>
-              )}
-            </div>
-            <div className="w-full flex gap-3 items-center">
-              <InputGroup
-                label="ბარათის ნომერი"
-                name="card_number"
-                placeholder="ბარათის ნომერი"
-                type="text"
-                value={formData.card_number}
-                onChange={handleInput}
-                error={errors.card_number}
-              />
-              <button
-                className="bg-[#5CB85C] mt-4 text-white rounded-lg py-2"
-                onClick={handleScanCard}
-              >
-                + ბარათის დამატება
-              </button>
-            </div>
-          </div>
-          <div className="flex justify-between gap-8">
-            <InputGroup
-              label="საკონტროლო ჯამი"
-              name="checksum"
-              value={formData.checksum}
-              onChange={handleInput}
-              error={errors.checksum}
-            />
-            <div className="w-full flex flex-col gap-2">
-              <label className="text-[#105D8D] font-medium">
-                დასვენების დღეები
-              </label>
-              <div className="relative">
-                <button
-                  type="button"
-                  className="w-full flex justify-between items-center relative bg-white border border-[#105D8D] outline-none rounded-xl py-3 px-4"
-                  onClick={toggleDropdown}
-                >
-                  აირჩიე დასვენების დღეები
-                  <svg
-                    className="-mr-1 ml-2 h-5 w-5"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <select name=""></select>
-                  </svg>
-                </button>
-              </div>
-              {isOpenDropdown && (
-                <div className="w-full rounded-md bg-white shadow-lg">
-                  <div className="flex flex-col flex-wrap p-2">
-                    {renderHolidays()}
-                  </div>
                 </div>
-              )}
+                {isOpenDropdown && (
+                  <div className="w-full rounded-md bg-white shadow-lg">
+                    <div className="flex flex-col flex-wrap p-2">
+                      {renderHolidays()}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
