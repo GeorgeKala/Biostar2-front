@@ -30,7 +30,6 @@ const NestedDropdownModal = ({
 
   const searchItems = (items, term) => {
     return items.reduce((acc, item) => {
-      // Check if the current item or any of its children match the search term
       if (
         item.name.toLowerCase().includes(term.toLowerCase()) ||
         (item.children && searchItems(item.children, term).length > 0)
@@ -74,7 +73,7 @@ const NestedDropdownModal = ({
               <p className="text-gray-700 font-medium">{subItem.name}</p>
             </div>
           </div>
-          {subItem?.children && openSubmenus[subItem.id] && renderSubMenu(subItem?.children)}
+          {subItem?.children && openSubmenus[subItem.id] && renderSubMenu(subItem.children)}
         </li>
       ))}
     </ul>
@@ -180,7 +179,7 @@ const NestedDropdownModal = ({
                       {item?.children?.length > 0 && (
                         <button
                           onClick={(e) => toggleSubMenu(e, item.id)}
-                          className="bg-[#00C7BE] text-white px-1 rounded w-[20px] z-100"
+                          className="bg-[#00C7BE] text-white px-1 rounded w-[20px]"
                         >
                           {openSubmenus[item.id] ? "-" : "+"}
                         </button>
