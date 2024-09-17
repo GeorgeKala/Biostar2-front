@@ -277,7 +277,7 @@ const Schedule = () => {
                   )
                 )
               }
-              className="bg-[#1976D2] text-white px-4 py-4 rounded-md flex items-center gap-2"
+              className="bg-[#5CB85C] text-white px-4 py-4 rounded-md flex items-center gap-2"
             >
               <img src={EditIcon} alt="Edit" />
               შეცვლა

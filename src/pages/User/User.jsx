@@ -254,7 +254,7 @@ const User = () => {
           </h1>
           <div className="flex items-center gap-8">
             <button
-              className="bg-[#1976D2] text-white px-4 py-4 rounded-md flex items-center gap-2"
+              className="bg-[#5CB85C] text-white px-4 py-4 rounded-md flex items-center gap-2"
               onClick={openAddModal}
             >
               <img src={NewIcon} alt="New" />

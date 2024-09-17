@@ -4,7 +4,6 @@ import GeneralInputGroup from "../../../components/GeneralInputGroup";
 import SearchIcon from "../../../assets/search.png";
 import commentService from "../../../services/comment";
 import EmployeeModal from "../../../components/employee/EmployeeModal";
-  import ExcelJS from "exceljs";
 import { useSelector } from "react-redux";
 import NestedDropdownModal from "../../../components/NestedDropdownModal";
 import DepartmentInput from "../../../components/DepartmentInput";
@@ -12,15 +11,11 @@ import EmployeeInput from "../../../components/employee/EmployeeInput";
 import CustomSelect from "../../../components/CustomSelect";
 
 const CommentAnalyze = () => {
-  const user = useSelector((state) => state.user.user);
-  const [commentedDetails, setCommentedDetails] = useState([]);
+  const user = useSelector(state => state.user.user);
+  const { departments, nestedDepartments } = useSelector(state => state.departments);
+  const forgiveTypes = useSelector(state => state.forgiveTypes.forgiveTypes);
   const [loading, setLoading] = useState(false);
   const [groupedComments, setGroupedComments] = useState({});
-  const [uniqueDates, setUniqueDates] = useState([]);
-  const { departments, nestedDepartments } = useSelector(
-    (state) => state.departments
-  );
-  const forgiveTypes = useSelector((state) => state.forgiveTypes.forgiveTypes);
   const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
   const [openNestedDropdown, setOpenNestedDropdown] = useState(false);
   const [filters, setFilters] = useState({
@@ -29,62 +24,9 @@ const CommentAnalyze = () => {
     department_id: user?.user_type?.has_full_access ? "" : user?.department?.id,
     forgive_type_id: "",
     employee_id: "",
-    employee_fullname: "",
   });
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFilters({
-      ...filters,
-      [name]: value,
-    });
-  };
-
-  const getAnalyzedComments = async () => {
-    setLoading(true);
-    try {
-      const data = await commentService.fetchAnalyzedComments(filters);
-      const { groupedData, uniqueDates } = transformData(data);
-      setCommentedDetails(data);
-      setGroupedComments(groupedData);
-      setUniqueDates(uniqueDates);
-    } catch (error) {
-      console.error("Error fetching analyzed comments:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    getAnalyzedComments();
-  };
-
-  useEffect(() => {
-    getAnalyzedComments();
-  }, []);
-
-  const transformData = (data) => {
-    const groupedData = {};
-    const uniqueDates = new Set();
-
-    data.forEach((item) => {
-      const date = new Date(item.date).getDate();
-      uniqueDates.add(date);
-      if (!groupedData[item.employee_fullname]) {
-        groupedData[item.employee_fullname] = { times: {}, total: 0 };
-      }
-      groupedData[item.employee_fullname].times[date] =
-        item.final_penalized_time;
-      groupedData[item.employee_fullname].total += item.final_penalized_time;
-    });
-
-    return {
-      groupedData,
-      uniqueDates: Array.from(uniqueDates).sort((a, b) => a - b),
-    };
-  };
-
+  // Georgian month names
   const monthNamesGeorgian = {
     January: "იანვარი",
     February: "თებერვალი",
@@ -110,177 +52,82 @@ const CommentAnalyze = () => {
     ? getMonthName(filters.start_date)
     : "თვე";
 
-  const handleEmployeeSelect = (employee) => {
-    setFilters({
-      ...filters,
-      employee_id: employee.id,
-      employee_fullname: employee.fullname,
-    });
+  // useEffect(() => {
+  //   getAnalyzedComments();
+  // }, []);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFilters(prev => ({ ...prev, [name]: value }));
   };
 
-
-  const exportToExcel = async () => {
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet("Comments Analysis");
-
-    // Define the columns and add styles to the header
-    worksheet.columns = [
-      { header: "თანამშრომელი", key: "employee", width: 30 },
-      ...uniqueDates.map((date) => ({
-        header: date.toString(),
-        key: `date_${date}`,
-        width: 15,
-      })),
-      { header: monthName, key: "total", width: 15 },
-    ];
-
-    // Style for the header row
-    worksheet.getRow(1).font = { bold: true };
-    worksheet.getRow(1).alignment = {
-      vertical: "middle",
-      horizontal: "center",
-    };
-    worksheet.getRow(1).border = {
-      top: { style: "thin" },
-      left: { style: "thin" },
-      bottom: { style: "thin" },
-      right: { style: "thin" },
-    };
-
-    // Adding data rows
-    Object.keys(groupedComments).forEach((employeeFullname) => {
-      const rowValues = {
-        employee: employeeFullname,
-        total: groupedComments[employeeFullname].total,
-      };
-
-      uniqueDates.forEach((date) => {
-        rowValues[`date_${date}`] =
-          groupedComments[employeeFullname].times[date] || "";
-      });
-
-      worksheet.addRow(rowValues);
-    });
-
-    // Style all data rows
-    worksheet.eachRow({ includeEmpty: false }, function (row, rowNumber) {
-      row.eachCell({ includeEmpty: true }, function (cell) {
-        cell.border = {
-          top: { style: "thin" },
-          left: { style: "thin" },
-          bottom: { style: "thin" },
-          right: { style: "thin" },
-        };
-        cell.alignment = { vertical: "middle", horizontal: "center" };
-      });
-    });
-
-    // Write to Excel file and trigger download
-    const buffer = await workbook.xlsx.writeBuffer();
-    const blob = new Blob([buffer], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "Comments_Analysis.xlsx";
-    link.click();
+  const getAnalyzedComments = async () => {
+    setLoading(true);
+    try {
+      const data = await commentService.fetchAnalyzedComments(filters);
+      const groupedData = transformData(data);
+      setGroupedComments(groupedData);
+    } catch (error) {
+      console.error("Failed to fetch analyzed comments:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-
-  const handleDepartmentSelect = (departmentId) => {
-    setFilters((prevData) => ({
-      ...prevData,
-      department_id: departmentId,
-    }));
-    setOpenNestedDropdown(false);
+  const transformData = (data) => {
+    const groupedData = {};
+    data.forEach(item => {
+      const employee = item.employee_fullname;
+      if (!groupedData[employee]) {
+        groupedData[employee] = { count: 0, total: 0 };
+      }
+      groupedData[employee].count += 1;
+      groupedData[employee].total += item.final_penalized_time;
+    });
+    return groupedData;
   };
 
-  const handleClear = (field) => {
-    setFilters((prevData) => ({
-      ...prevData,
-      [field]: "",
-    }));
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    getAnalyzedComments();
   };
 
-  const filteredNestedDepartments = user?.user_type?.has_full_access
-    ? nestedDepartments
-    : nestedDepartments.filter(
-        (dept) =>
-          dept.id === user?.department?.id ||
-          dept.parent_id === user?.department?.id
-      );
-
-
-    const handleForgiveTypeSelect = (option) => {
-      setFilters({
-        ...filters,
-        forgive_type_id: option.id,
-      });
-    };
-      
+  const totalCounts = Object.values(groupedComments).reduce((acc, details) => acc + details.count, 0);
+  const totalMinutes = Object.values(groupedComments).reduce((acc, details) => acc + details.total, 0);
 
   return (
     <AuthenticatedLayout>
       <div className="w-full px-20 py-4 flex flex-col gap-8">
         <div className="flex justify-between w-full">
-          <h1 className="text-[#1976D2] font-medium text-[23px]">
-            კომენტარების ანალიზი
-          </h1>
-          <button
-            className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative"
-            onClick={exportToExcel}
-          >
-            ჩამოტვირთვა
-            <span className="absolute inset-0 border border-white border-dashed rounded"></span>
-          </button>
+          <h1 className="text-[#1976D2] font-medium text-[23px]">კომენტარების ანალიზი</h1>
         </div>
         <form className="flex items-center gap-4" onSubmit={handleSubmit}>
           <GeneralInputGroup
             name="start_date"
-            placeholder="Start Date"
+            placeholder="დაწყების თარიღი"
             type="date"
             value={filters.start_date}
             onChange={handleInputChange}
           />
           <GeneralInputGroup
             name="end_date"
-            placeholder="End Date"
+            placeholder="დასრულების თარიღი"
             type="date"
             value={filters.end_date}
             onChange={handleInputChange}
           />
           <DepartmentInput
-            value={
-              departments.find((d) => d.id === filters.department_id)?.name ||
-              ""
-            }
+            value={departments.find(d => d.id === filters.department_id)?.name || ""}
             onClear={() => handleClear("department_id")}
             onSearchClick={() => setOpenNestedDropdown(true)}
           />
-          {/* <div className="w-full flex flex-col gap-2">
-            <select
-              id="forgive_type_id"
-              name="forgive_type_id"
-              value={filters.forgive_type_id}
-              onChange={handleInputChange}
-              className="bg-white border border-[#105D8D] outline-none rounded-md py-3 px-4 w-full"
-            >
-              <option value="">აირჩიეთ პატიების ტიპი</option>
-              {forgiveTypes &&
-                forgiveTypes.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.name}
-                  </option>
-                ))}
-            </select>
-          </div> */}
           <CustomSelect
             options={forgiveTypes}
-            selectedValue={
-              forgiveTypes.find((item) => item.id === filters.forgive_type_id)
-                ?.name || "აირჩიეთ პატიების ტიპი"
-            }
-            onSelect={handleForgiveTypeSelect}
+            selectedValue={forgiveTypes.find(item => item.id === filters.forgive_type_id)?.name || ""}
+            onSelect={(option) => setFilters(prev => ({
+              ...prev,
+              forgive_type_id: option.id
+            }))}
             placeholder="აირჩიეთ პატიების ტიპი"
           />
           <EmployeeInput
@@ -289,83 +136,58 @@ const CommentAnalyze = () => {
             onSearchClick={() => setIsEmployeeModalOpen(true)}
             placeholder="თანამშრომელი"
           />
-          <button className="bg-[#1AB7C1] rounded-lg min-w-[75px] flex items-center justify-center py-2">
-            <img src={SearchIcon} alt="Search Icon" />
+          <button type="submit" className="bg-[#1AB7C1] rounded-lg min-w-[75px] flex items-center justify-center py-2">
+            <img src={SearchIcon} alt="ძიების ხატულა" />
           </button>
         </form>
-        <div className="container mx-auto mt-10 overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 border-collapse border border-gray-200">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200 border-collapse border border-gray-200 text-sm">
+            {forgiveTypes.find(type => type.id === filters.forgive_type_id)?.name && (
+              <thead className="bg-[#1976D2] text-white">
+                <tr>
+                  <th className=" px-4 py-2 text-center"></th>
+                  <th colSpan={2} className="border-r border-gray-200 px-4 py-2 text-center">
+                    {forgiveTypes.find(type => type.id === filters.forgive_type_id)?.name}
+                  </th>
+                </tr>
+              </thead>
+            )}
+            {filters.start_date && (
+              <thead className="bg-[#1976D2] text-white">
+                <tr>
+                <th className=" px-4 py-2 text-center"></th>
+                  <th colSpan={2} className="border border-gray-200 px-4 py-2 text-center">
+                    {monthName}
+                  </th>
+                </tr>
+              </thead>
+            )}
             <thead className="bg-[#1976D2] text-white">
               <tr>
-                {/* Employee Names */}
-                <th className="border border-gray-200 px-3" rowSpan={2}>
-                  თანამშრომელი {/* Employee names */}
-                </th>
-                {/* Month Header */}
-                <th
-                  className="border text-center border-gray-200"
-                  colSpan={uniqueDates.length}
-                >
-                  {monthName} {/* Month */}
-                </th>
-                {/* Sum of Penalized Minutes */}
-                <th className="border text-center border-gray-200" rowSpan={2}>
-                  გაცდენილი წუთები {/* Sum of penalized minutes */}
-                </th>
-              </tr>
-              <tr>
-                {/* Dates under the month */}
-                {uniqueDates.map((date) => (
-                  <th key={date} className="border text-center border-gray-200">
-                    {date}
-                  </th>
-                ))}
+                <th className="px-2"></th>
+                <th className="border border-gray-200 px-4 py-2">რაოდენობა</th>
+                <th className="border border-gray-200 px-4 py-2">გაცდენილი წუთები</th>
               </tr>
             </thead>
             <tbody>
-              {Object.keys(groupedComments).map((employeeFullname) => (
-                <tr key={employeeFullname}>
-                  {/* Employee Names */}
-                  <td className="border text-center border-gray-200">
-                    {employeeFullname}
-                  </td>
-                  {/* Penalized time per date */}
-                  {uniqueDates.map((date) => (
-                    <td
-                      key={date}
-                      className="border text-center border-gray-200"
-                    >
-                      {groupedComments[employeeFullname].times[date] !==
-                      undefined
-                        ? groupedComments[employeeFullname].times[date]
-                        : ""}
-                    </td>
-                  ))}
-                  {/* Total sum of penalized minutes */}
-                  <td className="border text-center border-gray-200 font-bold text-red-600">
-                    {groupedComments[employeeFullname].total}
-                  </td>
+              {Object.entries(groupedComments).map(([employee, details]) => (
+                <tr key={employee}>
+                  <td className="border text-center border-gray-200">{employee}</td>
+                  <td className="border text-center border-gray-200">{details.count}</td>
+                  <td className="border text-center border-gray-200">{details.total}</td>
                 </tr>
               ))}
+              <tr className="bg-gray-100">
+                <td className="border text-center border-gray-200 font-bold">ჯამი</td>
+                <td className="border text-center border-gray-200 font-bold">{totalCounts}</td>
+                <td className="border text-center border-gray-200 font-bold">{totalMinutes}</td>
+              </tr>
             </tbody>
           </table>
         </div>
       </div>
-      {openNestedDropdown && (
-        <NestedDropdownModal
-          header="დეპარტამენტები"
-          isOpen={openNestedDropdown}
-          onClose={() => setOpenNestedDropdown(false)}
-          onSelect={handleDepartmentSelect}
-          data={filteredNestedDepartments}
-          link={"/departments"}
-        />
-      )}
-      <EmployeeModal
-        isOpen={isEmployeeModalOpen}
-        onClose={() => setIsEmployeeModalOpen(false)}
-        onSelectEmployee={handleEmployeeSelect}
-      />
+      {isEmployeeModalOpen && <EmployeeModal isOpen={isEmployeeModalOpen} onClose={() => setIsEmployeeModalOpen(false)} onSelectEmployee={(employee) => setFilters({ ...filters, employee_id: employee.id, employee_fullname: employee.fullname })} />}
+      {openNestedDropdown && <NestedDropdownModal header="დეპარტამენტები" isOpen={openNestedDropdown} onClose={() => setOpenNestedDropdown(false)} onSelect={handleDepartmentSelect} data={nestedDepartments} link={"/departments"} />}
     </AuthenticatedLayout>
   );
 };
