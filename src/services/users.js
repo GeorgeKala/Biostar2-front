@@ -44,6 +44,16 @@ const userService = {
       throw error;
     }
   },
+
+  startImpersonation: async (userId) => {
+    try {
+        const response = await axiosInstance.post(`/impersonate/${userId}`);
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || error;
+    }
+},
+
 };
 
 export default userService;

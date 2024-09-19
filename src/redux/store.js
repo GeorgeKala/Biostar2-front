@@ -12,6 +12,7 @@ import forgiveTypesReducer from './forgiveTypeSlice';
 import reportReducer from './reportSlice';
 import commentReducer from './commentSlice'
 import orderReducer from "./orderSlice";
+import modalReducer from './modalSlice';
 
 export const store = configureStore({
   reducer: {
@@ -27,6 +28,7 @@ export const store = configureStore({
     forgiveTypes: forgiveTypesReducer,
     reports: reportReducer,
     comments: commentReducer,
-    orders: orderReducer
+    orders: orderReducer,
+    modal: modalReducer,
   },
 });

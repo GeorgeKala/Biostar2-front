@@ -2,8 +2,8 @@ import { useState, useMemo, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
 export const useFilterAndSort = (data, initialFilters, initialSortConfig) => {
-  const location = useLocation(); // Get the current route
-  const pageKey = location.pathname; // Use the current route as a key
+  const location = useLocation();
+  const pageKey = location.pathname;
 
   const getStoredFilters = () => {
     const storedFilters = localStorage.getItem(`${pageKey}-filters`);
@@ -34,31 +34,43 @@ export const useFilterAndSort = (data, initialFilters, initialSortConfig) => {
           const fieldValue =
             key
               .split(".")
-              .reduce((o, i) => (o ? o[i] : ""), item)
-              ?.toString()
-              .toLowerCase() || "";
+              .reduce((o, i) => (o ? o[i] : ""), item) || "";
+
+          // Convert fieldValue to string and lowercase if necessary
+          const fieldValueStr =
+            typeof fieldValue === "string"
+              ? fieldValue.toLowerCase()
+              : fieldValue.toString();
+
           return (
-            (!text || fieldValue.includes(text.toLowerCase())) &&
+            (!text || fieldValueStr.includes(text.toLowerCase())) &&
             (!selected.length ||
-              selected.some((val) => fieldValue.includes(val.toLowerCase())))
+              selected.some((val) =>
+                fieldValueStr.includes(val.toString().toLowerCase())
+              ))
           );
         })
       )
       .sort((a, b) => {
         if (!sortConfig.key) return 0;
-        const aValue = sortConfig.key
-          .split(".")
-          .reduce((o, i) => (o ? o[i] : ""), a)
-          ?.toString()
-          .toLowerCase();
-        const bValue = sortConfig.key
-          .split(".")
-          .reduce((o, i) => (o ? o[i] : ""), b)
-          ?.toString()
-          .toLowerCase();
-        if (aValue < bValue)
+        const aValue =
+          sortConfig.key
+            .split(".")
+            .reduce((o, i) => (o ? o[i] : ""), a) || "";
+        const bValue =
+          sortConfig.key
+            .split(".")
+            .reduce((o, i) => (o ? o[i] : ""), b) || "";
+
+        // Convert values to string and lowercase for comparison
+        const aValueStr =
+          typeof aValue === "string" ? aValue.toLowerCase() : aValue.toString();
+        const bValueStr =
+          typeof bValue === "string" ? bValue.toLowerCase() : bValue.toString();
+
+        if (aValueStr < bValueStr)
           return sortConfig.direction === "ascending" ? -1 : 1;
-        if (aValue > bValue)
+        if (aValueStr > bValueStr)
           return sortConfig.direction === "ascending" ? 1 : -1;
         return 0;
       });

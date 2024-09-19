@@ -60,7 +60,6 @@ const CustomSelect = ({ options, selectedValue, onSelect, placeholder, className
         } border border-gray-300 rounded-md cursor-pointer py-3 px-4 flex items-center justify-between`}
         onClick={() => setIsOpen(!isOpen)}
       >
-        {/* Truncate long text and keep icon aligned */}
         <span className="truncate">
           {selectedValue ? selectedValue : placeholder}
         </span>

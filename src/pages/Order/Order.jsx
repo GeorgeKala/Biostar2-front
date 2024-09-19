@@ -34,6 +34,7 @@ const Order = () => {
     end_date: "",
     day_type_id: "",
   });
+  
   const [dayTypes, setDayTypes] = useState([]);
   const [modalMode, setModalMode] = useState("create");
   const [openModal, setOpenModal] = useState(false);
@@ -214,8 +215,6 @@ const Order = () => {
   const exportToExcel = async () => {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Orders");
-
-    // Set uniform width for all columns
     const uniformWidth = 30;
 
     worksheet.columns = [
@@ -301,6 +300,13 @@ const Order = () => {
 
   console.log(formData);
   
+
+  const handleClear = (field) => {
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [field]: "",
+    }));
+  };
 
   return (
     <AuthenticatedLayout>

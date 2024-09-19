@@ -70,5 +70,14 @@ export const changePassword = async (
     return response.data;
   } catch (error) {
     throw error.response.data;
-  }
+  };
+
+
+
+  
+
+  
+
+
+  
 };

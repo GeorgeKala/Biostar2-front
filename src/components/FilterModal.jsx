@@ -32,9 +32,16 @@ const FilterModal = ({
     onClose();
   };
 
-  const filteredData = filterableData.filter((item) =>
-    item.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredData = filterableData.filter((item) => {
+    if (typeof item === "number") {
+      return item.toString().includes(searchTerm);
+    }
+    if (typeof item === "string") {
+      return item.toLowerCase().includes(searchTerm.toLowerCase());
+    }
+    return false;
+  });
+  
 
   return isOpen ? (
     <div

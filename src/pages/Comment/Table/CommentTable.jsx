@@ -18,6 +18,7 @@ import FilterModal from "../../../components/FilterModal";
 import reportService from "../../../services/report";
 import ExcelJS from "exceljs";
 import CustomSelect from "../../../components/CustomSelect";
+import { useFormData } from "../../../hooks/useFormData";
 
 const CommentTable = () => {
   const user = useSelector((state) => state.user.user);
@@ -40,7 +41,16 @@ const CommentTable = () => {
   const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
   const [currentFilterField, setCurrentFilterField] = useState("");
 
-  const [formData, setFormData] = useState({
+  // const [formData, setFormData] = useState({
+  //   start_date: "",
+  //   end_date: "",
+  //   department_id: user?.user_type?.has_full_access ? "" : user?.department?.id,
+  //   forgive_type_id: "",
+  //   employee_id: "",
+  // });
+
+
+  const { formData, setFormData } = useFormData({
     start_date: "",
     end_date: "",
     department_id: user?.user_type?.has_full_access ? "" : user?.department?.id,
@@ -123,7 +133,7 @@ const CommentTable = () => {
     worksheet.columns = [
       { header: "თანამშრომელი", key: "employee", width: uniformWidth },
       { header: "დეპარტამენტი", key: "department", width: uniformWidth },
-      { header: "პატიების თარიღი", key: "date", width: uniformWidth },  // Added date column
+      { header: "პატიების თარიღი", key: "date", width: uniformWidth },  
       { header: "პატიების ტიპი", key: "forgive_type", width: uniformWidth },
       { header: "მომხმარებელი", key: "user", width: uniformWidth },
       { header: "ჩაწერის თარიღი", key: "created_at", width: uniformWidth },
@@ -137,7 +147,7 @@ const CommentTable = () => {
       worksheet.addRow({
         employee: comment.employee,
         department: comment.department,
-        date: comment.date,  // Adding date to Excel rows
+        date: comment.date,  
         forgive_type: comment.forgive_type,
         user: comment.user,
         created_at: comment.created_at,
@@ -174,7 +184,7 @@ const CommentTable = () => {
       extractValue: (comment) => comment.department,
     },
     {
-      label: "პატიების თარიღი",  // Added date header for table
+      label: "პატიების თარიღი",  
       key: "date",
       extractValue: (comment) => comment.date,
     },
@@ -250,10 +260,10 @@ const CommentTable = () => {
                 (item) => item.id === formData.forgive_type_id
               )?.name || "აირჩიეთ პატიების ტიპი"
             }
-            onSelect={(e) =>
+            onSelect={(selectedValue) =>
               setFormData((prev) => ({
                 ...prev,
-                forgive_type_id: e.target.value,
+                forgive_type_id: selectedValue.id,
               }))
             }
             placeholder="აირჩიეთ პატიების ტიპი"

@@ -7,6 +7,8 @@ import ArrowRight from "../../assets/arrow-right.png";
 import { logout } from "../../services/auth";
 import useAuth from "../../hooks/useAuth";
 import GorgiaLogo from "../../assets/gorgia-jobs-cover.png";
+import { useDispatch } from "react-redux";
+import { openModal } from "../../redux/modalSlice";
 
 const Sidebar = () => {
   const location = useLocation();
@@ -16,9 +18,10 @@ const Sidebar = () => {
     reports: false,
     comments: false,
     settings: false,
-    kitchenReport: false, // Added kitchenReport section state
+    kitchenReport: false,
   });
   const { user } = useAuth();
+  const dispatch = useDispatch();
 
   const canAccessPage = (allowedUserTypes) => {
     return allowedUserTypes.includes(user?.user?.user_type.name);
@@ -35,10 +38,15 @@ const Sidebar = () => {
     try {
       await logout();
       navigate("/");
+      
     } catch (error) {
       console.error("Logout error:", error);
     }
   };
+
+  const handleModalOpen = () => {
+    dispatch(openModal('userModal'))
+  }
 
   return (
     <div className="bg-[#1976D2] min-w-[18%] flex flex-col gap-8">
@@ -92,6 +100,7 @@ const Sidebar = () => {
                 "ადმინისტრატორი",
                 "HR",
                 "IT",
+                "მენეჯერი 1",
                 "მენეჯერი-რეგიონები",
               ]) && (
                 <Link
@@ -336,6 +345,7 @@ const Sidebar = () => {
                   თანამშრომლის დაშვება
                 </Link>
               )}
+
               {canAccessPage(["ადმინისტრატორი", "IT"]) && (
                 <Link
                   to="/direct"
@@ -356,12 +366,19 @@ const Sidebar = () => {
                 <img src={ArrowRight} alt="Arrow Right Icon" />
                 პაროლის შეცვლა
               </Link>
+                {canAccessPage(["ადმინისტრატორი"]) && (
+                <button onClick={handleModalOpen} className={`flex items-center gap-3 text-white text-[14px] `}>
+                   <img src={ArrowRight} alt="Arrow Right Icon" />
+                  შესვლა როგორც
+                </button>
+              )}
             </div>
           )}
         </div>
 
         {/* Kitchen Report Section */}
-        <div>
+        {canAccessPage(["ადმინისტრატორი"]) && (
+          <div>
           <div
             className="flex items-center gap-3 text-white text-[14px] cursor-pointer"
             onClick={() => toggleSection("kitchenReport")}
@@ -389,6 +406,8 @@ const Sidebar = () => {
             </div>
           )}
         </div>
+        )}
+        
       </div>
       <div className="flex gap-2 items-center justify-center pb-2">
         <button onClick={handleLogout} className="text-white flex gap-2">

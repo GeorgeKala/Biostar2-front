@@ -48,7 +48,7 @@ const GeneralReport = () => {
   const { formData, handleFormDataChange, setFormData } = useFormData({
     start_date: "",
     end_date: "",
-    department_id: user?.user_type?.has_full_access ? "" : user?.department?.id,
+    department_id: user?.user_type?.has_full_access == 1 ? "" : user?.department?.id,
     employee: "",
   });
 
@@ -408,10 +408,14 @@ const GeneralReport = () => {
     setCurrentFilterField(fieldName);
     setIsFilterModalOpen(true);
   };
-
-  console.log(reports);
   
-
+  const handleClear = (fieldName) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [fieldName]: fieldName === 'department_id' ? '' : fieldName === 'employee_id' ? '' : prevData[fieldName],
+    }));
+  };
+  
   return (
     <AuthenticatedLayout>
       <div className="w-full px-10 py-4 flex flex-col gap-8 2xl:px-20">

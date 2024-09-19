@@ -19,17 +19,17 @@ const Department = () => {
     (state) => state.departments
   );
 
-  // Initialize formData using useFormData hook
+  // UseFormData for both form and filter states
   const { formData, handleFormDataChange, setFormData } = useFormData({
     name: "",
     parent_id: null,
+    searchTerm: "",
   });
 
   const [selectedDepartmentId, setSelectedDepartmentId] = useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("create");
   const [openSubmenus, setOpenSubmenus] = useState({});
-  const [searchTerm, setSearchTerm] = useState("");
   const [filteredDepartments, setFilteredDepartments] =
     useState(nestedDepartments);
 
@@ -49,12 +49,12 @@ const Department = () => {
   };
 
   useEffect(() => {
-    if (searchTerm) {
-      setFilteredDepartments(searchItems(nestedDepartments, searchTerm));
+    if (formData.searchTerm) {
+      setFilteredDepartments(searchItems(nestedDepartments, formData.searchTerm));
     } else {
       setFilteredDepartments(nestedDepartments);
     }
-  }, [searchTerm, nestedDepartments]);
+  }, [formData.searchTerm, nestedDepartments]);
 
   useEffect(() => {
     dispatch(fetchNestedDepartments());
@@ -244,8 +244,9 @@ const Department = () => {
           <input
             type="text"
             placeholder="ძებნა დეპარტამენტის მიხედვით"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            name="searchTerm"
+            value={formData.searchTerm}
+            onChange={handleFormDataChange}
             className="w-full p-3 border border-gray-300 rounded-md focus:outline-none"
           />
           <svg

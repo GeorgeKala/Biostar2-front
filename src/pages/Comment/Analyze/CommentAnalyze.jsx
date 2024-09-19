@@ -9,6 +9,8 @@ import NestedDropdownModal from "../../../components/NestedDropdownModal";
 import DepartmentInput from "../../../components/DepartmentInput";
 import EmployeeInput from "../../../components/employee/EmployeeInput";
 import CustomSelect from "../../../components/CustomSelect";
+import ExcelJS from "exceljs";
+
 
 const CommentAnalyze = () => {
   const user = useSelector(state => state.user.user);
@@ -95,11 +97,91 @@ const CommentAnalyze = () => {
   const totalCounts = Object.values(groupedComments).reduce((acc, details) => acc + details.count, 0);
   const totalMinutes = Object.values(groupedComments).reduce((acc, details) => acc + details.total, 0);
 
+  const handleDepartmentSelect = (department) => {
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      department_id: department.id,
+    }));
+    setOpenNestedDropdown(false);
+  };
+
+  const handleClear = (field) => {
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [field]: "",
+    }));
+  };
+
+  const handleExportToExcel = async () => {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Comments Analysis");
+  
+    // Define the columns for the Excel sheet
+    const columns = [
+      { header: "თანამშრომელი", key: "employee", width: 30 },
+      { header: "რაოდენობა", key: "count", width: 20 },
+      { header: "გაცდენილი წუთები", key: "total", width: 20 },
+    ];
+  
+    worksheet.columns = columns;
+  
+    // Style the header row
+    worksheet.getRow(1).font = { bold: true };
+    worksheet.getRow(1).alignment = {
+      horizontal: "center",
+      vertical: "middle",
+    };
+  
+    // Populate rows with comment data
+    Object.entries(groupedComments).forEach(([employee, details]) => {
+      worksheet.addRow({
+        employee: employee,
+        count: details.count,
+        total: details.total,
+      });
+    });
+  
+    // Add a summary row at the end
+    worksheet.addRow({
+      employee: "ჯამი",
+      count: totalCounts,
+      total: totalMinutes,
+    }).font = { bold: true };
+  
+    // Make the summary row bold
+    worksheet.getRow(worksheet.rowCount).font = { bold: true };
+  
+    // Generate Excel file and trigger download
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "Comments_Analysis.xlsx";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+  
+  
+  
+
   return (
     <AuthenticatedLayout>
       <div className="w-full px-20 py-4 flex flex-col gap-8">
         <div className="flex justify-between w-full">
           <h1 className="text-[#1976D2] font-medium text-[23px]">კომენტარების ანალიზი</h1>
+          <button
+              onClick={handleExportToExcel}
+              className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative"
+            >
+              ჩამოტვირთვა
+              <span className="absolute inset-0 border border-white border-dashed rounded"></span>
+            </button>
         </div>
         <form className="flex items-center gap-4" onSubmit={handleSubmit}>
           <GeneralInputGroup

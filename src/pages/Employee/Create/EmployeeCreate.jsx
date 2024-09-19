@@ -248,10 +248,6 @@ const EmployeeCreate = () => {
     .map((holiday) => holiday.name)
     .join(", ");
 
-
-    console.log(formData);
-
-    console.log(selectedDevice);
     
     
 

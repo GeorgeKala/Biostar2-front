@@ -7,7 +7,7 @@ import { useEffect } from 'react';
 import { fetchGroups } from '../redux/groupSlice';
 import { fetchForgiveTypes } from '../redux/forgiveTypeSlice';
 import { fetchBuildings } from '../redux/buildingSlice';
-import { fetchAsyncUser } from '../redux/userDataSlice';
+import { fetchAsyncUser, fetchUsers } from '../redux/userDataSlice';
 
 const DataProvider = ({ children }) => {
   const dispatch = useDispatch();
@@ -20,6 +20,7 @@ const DataProvider = ({ children }) => {
       dispatch(fetchGroups());
       dispatch(fetchForgiveTypes());
       dispatch(fetchBuildings());
+      dispatch(fetchUsers());
     };
     fetchData();
   }, [dispatch]);

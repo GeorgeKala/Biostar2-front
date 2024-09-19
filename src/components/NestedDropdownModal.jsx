@@ -44,7 +44,7 @@ const NestedDropdownModal = ({
   };
 
   const toggleSubMenu = (e, subItemId) => {
-    e.stopPropagation(); // Prevent parent click event
+    e.stopPropagation(); 
     setOpenSubmenus((prevOpenSubmenus) => ({
       ...prevOpenSubmenus,
       [subItemId]: !prevOpenSubmenus[subItemId],
