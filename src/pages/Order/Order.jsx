@@ -297,8 +297,6 @@ const Order = () => {
     }
   }, [showSuccessPopup]);
 
-
-  console.log(formData);
   
 
   const handleClear = (field) => {

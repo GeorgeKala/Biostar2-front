@@ -18,9 +18,7 @@ const AuthenticatedLayout = ({ children }) => {
   const handleLoginAsUser = async (userId) => {
     try {
       const response = await userService.startImpersonation(userId);
-  
-      console.log(response);
-      
+        
       if (response.status === 200) {
         sessionStorage.setItem('token', response.token);
         sessionStorage.setItem('sessionToken', response['bs-session-id']);

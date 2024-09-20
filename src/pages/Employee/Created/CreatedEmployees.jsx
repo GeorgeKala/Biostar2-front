@@ -221,7 +221,7 @@ const CreatedEmployees = () => {
                   შეცვლა
                 </button>
                 <button
-                  onClick={() => setDeleteModalOpen(true)} // Open delete modal
+                  onClick={() => setDeleteModalOpen(true)} 
                   className="bg-[#D9534F] text-white px-4 py-4 rounded-md flex items-center gap-2"
                 >
                   <img src={DeleteIcon} alt="Delete" />

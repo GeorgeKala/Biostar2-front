@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from "react";
 import InputGroup from "./employee/InputGroup";
-import departmentService from "../services/department";
-import groupService from "../services/group";
-import scheduleService from "../services/schedule";
 import employeeService from "../services/employee";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchHolidays, selectHolidays } from "../redux/holidaySlice";
@@ -12,28 +9,30 @@ import NestedDropdownModal from "./NestedDropdownModal";
 import SearchIcon from "../assets/search.png";
 import CardScanModal from "./CardScanModal";
 
-const EmployeeEditModal = ({ employee, isOpen, onClose }) => {
+const EmployeeEditModal = ({ employee = {}, isOpen, onClose }) => {
+
+  
   const { departments, nestedDepartments } = useSelector((state) => state.departments);
   const user = useSelector((state) => state.user.user);
   const groups = useSelector((state) => state.groups.items);
   const schedules = useSelector((state) => state.schedules.items);
 
   const [formData, setFormData] = useState({
-    fullname: employee.fullname || "",
-    personal_id: employee.personal_id || "",
-    phone_number: employee.phone_number || "",
+    fullname: employee?.fullname || "",
+    personal_id: employee?.personal_id || "",
+    phone_number: employee?.phone_number || "",
     department_id: user?.user_type?.has_full_access ? employee.department.id : user?.department?.id || "",
-    start_datetime: employee.start_datetime ? new Date(employee.start_datetime).toISOString().slice(0, 10) : "",
+    start_datetime: employee?.start_datetime ? new Date(employee.start_datetime).toISOString().slice(0, 10) : "",
     expiry_datetime: employee.expiry_datetime ? new Date(employee.expiry_datetime).toISOString().slice(0, 10) : "",
-    position: employee.position || "",
-    group_id: employee.group.id || "",
-    schedule_id: employee.schedule.id || "",
+    position: employee?.position || "",
+    group_id: employee?.group?.id || "",
+    schedule_id: employee?.schedule?.id || "",
     honorable_minutes_per_day: employee.honorable_minutes_per_day || "",
     device_id: employee?.device?.id || "",
-    card_number: employee.card_number || "",
-    checksum: employee.checksum || "",
+    card_number: employee?.card_number || "",
+    checksum: employee?.checksum || "",
     session_id: sessionStorage.getItem('sessionToken'),
-    holidays: employee.holidays.map(holiday => holiday.id) || []
+    holidays: employee?.holidays?.map(holiday => holiday.id) || []
   });
 
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);

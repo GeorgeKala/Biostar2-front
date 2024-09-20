@@ -34,7 +34,6 @@ const CustomSelect = ({ options, selectedValue, onSelect, placeholder, className
     setIsOpen(false);
   };
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (selectRef.current && !selectRef.current.contains(event.target)) {

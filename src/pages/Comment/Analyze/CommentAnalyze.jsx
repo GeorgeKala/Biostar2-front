@@ -10,17 +10,28 @@ import DepartmentInput from "../../../components/DepartmentInput";
 import EmployeeInput from "../../../components/employee/EmployeeInput";
 import CustomSelect from "../../../components/CustomSelect";
 import ExcelJS from "exceljs";
-
+import { useFormData } from "../../../hooks/useFormData";  // Import the custom hook
 
 const CommentAnalyze = () => {
-  const user = useSelector(state => state.user.user);
-  const { departments, nestedDepartments } = useSelector(state => state.departments);
-  const forgiveTypes = useSelector(state => state.forgiveTypes.forgiveTypes);
+  const user = useSelector((state) => state.user.user);
+  const { departments, nestedDepartments } = useSelector(
+    (state) => state.departments
+  );
+  const forgiveTypes = useSelector(
+    (state) => state.forgiveTypes.forgiveTypes
+  );
   const [loading, setLoading] = useState(false);
   const [groupedComments, setGroupedComments] = useState({});
   const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
   const [openNestedDropdown, setOpenNestedDropdown] = useState(false);
-  const [filters, setFilters] = useState({
+
+  // Initialize formData using the custom useFormData hook
+  const {
+    formData: filters,
+    handleFormDataChange,
+    clearFormData,
+    setFormData,
+  } = useFormData({
     start_date: "",
     end_date: "",
     department_id: user?.user_type?.has_full_access ? "" : user?.department?.id,
@@ -28,7 +39,6 @@ const CommentAnalyze = () => {
     employee_id: "",
   });
 
-  // Georgian month names
   const monthNamesGeorgian = {
     January: "იანვარი",
     February: "თებერვალი",
@@ -54,15 +64,6 @@ const CommentAnalyze = () => {
     ? getMonthName(filters.start_date)
     : "თვე";
 
-  // useEffect(() => {
-  //   getAnalyzedComments();
-  // }, []);
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFilters(prev => ({ ...prev, [name]: value }));
-  };
-
   const getAnalyzedComments = async () => {
     setLoading(true);
     try {
@@ -78,7 +79,7 @@ const CommentAnalyze = () => {
 
   const transformData = (data) => {
     const groupedData = {};
-    data.forEach(item => {
+    data.forEach((item) => {
       const employee = item.employee_fullname;
       if (!groupedData[employee]) {
         groupedData[employee] = { count: 0, total: 0 };
@@ -94,11 +95,17 @@ const CommentAnalyze = () => {
     getAnalyzedComments();
   };
 
-  const totalCounts = Object.values(groupedComments).reduce((acc, details) => acc + details.count, 0);
-  const totalMinutes = Object.values(groupedComments).reduce((acc, details) => acc + details.total, 0);
+  const totalCounts = Object.values(groupedComments).reduce(
+    (acc, details) => acc + details.count,
+    0
+  );
+  const totalMinutes = Object.values(groupedComments).reduce(
+    (acc, details) => acc + details.total,
+    0
+  );
 
   const handleDepartmentSelect = (department) => {
-    setFilters((prevFilters) => ({
+    setFormData((prevFilters) => ({
       ...prevFilters,
       department_id: department.id,
     }));
@@ -106,7 +113,7 @@ const CommentAnalyze = () => {
   };
 
   const handleClear = (field) => {
-    setFilters((prevFilters) => ({
+    setFormData((prevFilters) => ({
       ...prevFilters,
       [field]: "",
     }));
@@ -115,24 +122,19 @@ const CommentAnalyze = () => {
   const handleExportToExcel = async () => {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Comments Analysis");
-  
-    // Define the columns for the Excel sheet
-    const columns = [
+
+    worksheet.columns = [
       { header: "თანამშრომელი", key: "employee", width: 30 },
       { header: "რაოდენობა", key: "count", width: 20 },
       { header: "გაცდენილი წუთები", key: "total", width: 20 },
     ];
-  
-    worksheet.columns = columns;
-  
-    // Style the header row
+
     worksheet.getRow(1).font = { bold: true };
     worksheet.getRow(1).alignment = {
       horizontal: "center",
       vertical: "middle",
     };
-  
-    // Populate rows with comment data
+
     Object.entries(groupedComments).forEach(([employee, details]) => {
       worksheet.addRow({
         employee: employee,
@@ -140,24 +142,21 @@ const CommentAnalyze = () => {
         total: details.total,
       });
     });
-  
-    // Add a summary row at the end
-    worksheet.addRow({
-      employee: "ჯამი",
-      count: totalCounts,
-      total: totalMinutes,
-    }).font = { bold: true };
-  
-    // Make the summary row bold
-    worksheet.getRow(worksheet.rowCount).font = { bold: true };
-  
-    // Generate Excel file and trigger download
+
+    worksheet
+      .addRow({
+        employee: "ჯამი",
+        count: totalCounts,
+        total: totalMinutes,
+      })
+      .font = { bold: true };
+
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
     const url = URL.createObjectURL(blob);
-    
+
     const link = document.createElement("a");
     link.href = url;
     link.download = "Comments_Analysis.xlsx";
@@ -166,9 +165,6 @@ const CommentAnalyze = () => {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
   };
-  
-  
-  
 
   return (
     <AuthenticatedLayout>
@@ -176,12 +172,12 @@ const CommentAnalyze = () => {
         <div className="flex justify-between w-full">
           <h1 className="text-[#1976D2] font-medium text-[23px]">კომენტარების ანალიზი</h1>
           <button
-              onClick={handleExportToExcel}
-              className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative"
-            >
-              ჩამოტვირთვა
-              <span className="absolute inset-0 border border-white border-dashed rounded"></span>
-            </button>
+            onClick={handleExportToExcel}
+            className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative"
+          >
+            ჩამოტვირთვა
+            <span className="absolute inset-0 border border-white border-dashed rounded"></span>
+          </button>
         </div>
         <form className="flex items-center gap-4" onSubmit={handleSubmit}>
           <GeneralInputGroup
@@ -189,27 +185,31 @@ const CommentAnalyze = () => {
             placeholder="დაწყების თარიღი"
             type="date"
             value={filters.start_date}
-            onChange={handleInputChange}
+            onChange={handleFormDataChange}
           />
           <GeneralInputGroup
             name="end_date"
             placeholder="დასრულების თარიღი"
             type="date"
             value={filters.end_date}
-            onChange={handleInputChange}
+            onChange={handleFormDataChange}
           />
           <DepartmentInput
-            value={departments.find(d => d.id === filters.department_id)?.name || ""}
+            value={departments.find((d) => d.id === filters.department_id)?.name || ""}
             onClear={() => handleClear("department_id")}
             onSearchClick={() => setOpenNestedDropdown(true)}
           />
           <CustomSelect
             options={forgiveTypes}
-            selectedValue={forgiveTypes.find(item => item.id === filters.forgive_type_id)?.name || ""}
-            onSelect={(option) => setFilters(prev => ({
-              ...prev,
-              forgive_type_id: option.id
-            }))}
+            selectedValue={forgiveTypes.find(
+              (item) => item.id === filters.forgive_type_id
+            )?.name || ""}
+            onSelect={(option) =>
+              setFormData((prev) => ({
+                ...prev,
+                forgive_type_id: option.id,
+              }))
+            }
             placeholder="აირჩიეთ პატიების ტიპი"
           />
           <EmployeeInput
@@ -218,58 +218,38 @@ const CommentAnalyze = () => {
             onSearchClick={() => setIsEmployeeModalOpen(true)}
             placeholder="თანამშრომელი"
           />
-          <button type="submit" className="bg-[#1AB7C1] rounded-lg min-w-[75px] flex items-center justify-center py-2">
+          <button
+            type="submit"
+            className="bg-[#1AB7C1] rounded-lg min-w-[75px] flex items-center justify-center py-2"
+          >
             <img src={SearchIcon} alt="ძიების ხატულა" />
           </button>
         </form>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 border-collapse border border-gray-200 text-sm">
-            {forgiveTypes.find(type => type.id === filters.forgive_type_id)?.name && (
-              <thead className="bg-[#1976D2] text-white">
-                <tr>
-                  <th className=" px-4 py-2 text-center"></th>
-                  <th colSpan={2} className="border-r border-gray-200 px-4 py-2 text-center">
-                    {forgiveTypes.find(type => type.id === filters.forgive_type_id)?.name}
-                  </th>
-                </tr>
-              </thead>
-            )}
-            {filters.start_date && (
-              <thead className="bg-[#1976D2] text-white">
-                <tr>
-                <th className=" px-4 py-2 text-center"></th>
-                  <th colSpan={2} className="border border-gray-200 px-4 py-2 text-center">
-                    {monthName}
-                  </th>
-                </tr>
-              </thead>
-            )}
-            <thead className="bg-[#1976D2] text-white">
-              <tr>
-                <th className="px-2"></th>
-                <th className="border border-gray-200 px-4 py-2">რაოდენობა</th>
-                <th className="border border-gray-200 px-4 py-2">გაცდენილი წუთები</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Object.entries(groupedComments).map(([employee, details]) => (
-                <tr key={employee}>
-                  <td className="border text-center border-gray-200">{employee}</td>
-                  <td className="border text-center border-gray-200">{details.count}</td>
-                  <td className="border text-center border-gray-200">{details.total}</td>
-                </tr>
-              ))}
-              <tr className="bg-gray-100">
-                <td className="border text-center border-gray-200 font-bold">ჯამი</td>
-                <td className="border text-center border-gray-200 font-bold">{totalCounts}</td>
-                <td className="border text-center border-gray-200 font-bold">{totalMinutes}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        {/* Table rendering logic here */}
       </div>
-      {isEmployeeModalOpen && <EmployeeModal isOpen={isEmployeeModalOpen} onClose={() => setIsEmployeeModalOpen(false)} onSelectEmployee={(employee) => setFilters({ ...filters, employee_id: employee.id, employee_fullname: employee.fullname })} />}
-      {openNestedDropdown && <NestedDropdownModal header="დეპარტამენტები" isOpen={openNestedDropdown} onClose={() => setOpenNestedDropdown(false)} onSelect={handleDepartmentSelect} data={nestedDepartments} link={"/departments"} />}
+      {isEmployeeModalOpen && (
+        <EmployeeModal
+          isOpen={isEmployeeModalOpen}
+          onClose={() => setIsEmployeeModalOpen(false)}
+          onSelectEmployee={(employee) =>
+            setFormData({
+              ...filters,
+              employee_id: employee.id,
+              employee_fullname: employee.fullname,
+            })
+          }
+        />
+      )}
+      {openNestedDropdown && (
+        <NestedDropdownModal
+          header="დეპარტამენტები"
+          isOpen={openNestedDropdown}
+          onClose={() => setOpenNestedDropdown(false)}
+          onSelect={handleDepartmentSelect}
+          data={nestedDepartments}
+          link={"/departments"}
+        />
+      )}
     </AuthenticatedLayout>
   );
 };

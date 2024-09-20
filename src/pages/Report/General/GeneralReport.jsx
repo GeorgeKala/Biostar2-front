@@ -16,6 +16,7 @@ import SearchIcon from "../../../assets/search.png";
 import reportService from "../../../services/report";
 import ExcelJS from "exceljs";
 import { useFormData } from "../../../hooks/useFormData";
+import { login } from "../../../services/auth";
 
 
 const GeneralReport = () => {
@@ -36,13 +37,7 @@ const GeneralReport = () => {
   const [filterableData, setFilterableData] = useState([]);
   const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
   const [currentFilterField, setCurrentFilterField] = useState("");
-
-  // const [formData, setFormData] = useState({
-  //   start_date: "",
-  //   end_date: "",
-  //   department_id: user?.user_type?.has_full_access ? "" : user?.department?.id,
-  //   employee: "",
-  // });
+  const [selectedField, setSelectedField] = useState(null);
 
 
   const { formData, handleFormDataChange, setFormData } = useFormData({
@@ -242,7 +237,6 @@ const GeneralReport = () => {
     dispatch(fetchForgiveTypes());
   }, [dispatch]);
 
-  // Define filteredNestedDepartments based on the user's access level
   const filteredNestedDepartments = user?.user_type?.has_full_access
     ? nestedDepartments
     : nestedDepartments.filter(
@@ -341,6 +335,15 @@ const GeneralReport = () => {
   ];
 
   const getRowClassName = (item) => {
+    
+
+    if (
+      selectedField?.user_id === item.user_id &&
+      new Date(selectedField?.date).getTime() === new Date(item.date).getTime()
+    ) {
+      return "bg-blue-200";
+    }
+    
     if (
       (item.final_penalized_time > 0 &&
         !item.day_type_id &&
@@ -415,7 +418,15 @@ const GeneralReport = () => {
       [fieldName]: fieldName === 'department_id' ? '' : fieldName === 'employee_id' ? '' : prevData[fieldName],
     }));
   };
+
+ 
+
+  const handleRowClick = (item) => {
+    setSelectedField((prevField) => (prevField === item.user_id ? null : item));
+  };
   
+  
+    
   return (
     <AuthenticatedLayout>
       <div className="w-full px-10 py-4 flex flex-col gap-8 2xl:px-20">
@@ -473,6 +484,8 @@ const GeneralReport = () => {
             filters={filters}
             sortConfig={sortConfig}
             onSort={handleSort}
+            onRowClick={(item) => handleRowClick(item)}
+
             onFilterClick={handleOpenFilterModal}
             onFilterChange={handleFilterChange}
             rowClassName={getRowClassName}

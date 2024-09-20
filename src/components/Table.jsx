@@ -182,11 +182,11 @@ const Table = ({
               data.map((item, index) => (
                 <tr
                   key={index}
-                  className={`px-2 py-1 border border-gray-200 w-20 ${rowClassName(
+                  className={`px-2 py-1 border border-gray-200 cursor-default w-20 ${rowClassName(
                     item
                   )}`}
                   onClick={() => onRowClick(item)}
-                  onDoubleClick={() => onRowDoubleClick(item)} // Add double-click handler
+                  onDoubleClick={() => onRowDoubleClick(item)} 
                   onContextMenu={(e) => onContext(e)}
                 >
                   <td className="w-[30px]"></td>
