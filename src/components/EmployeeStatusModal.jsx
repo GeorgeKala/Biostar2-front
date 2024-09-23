@@ -6,6 +6,10 @@ import CloseIcon from "../assets/close.png";
 
 const EmployeeStatusModal = ({ isOpen, onClose, handleSearch }) => {
     
+  const handleClick = (status) => {
+    handleSearch(status);  
+    onClose();             
+  };
   return (
     <>
       {isOpen && (
@@ -40,7 +44,7 @@ const EmployeeStatusModal = ({ isOpen, onClose, handleSearch }) => {
               {/* Active Employees */}
               <div
                 className="flex flex-col items-center group cursor-pointer"
-                onClick={() => handleSearch("active")}
+                onClick={() => handleClick("active")}
               >
                 <div className="flex justify-center p-4 rounded-full transition-all duration-200 transform group-hover:scale-110 group-hover:bg-blue-100">
                   <img
@@ -53,7 +57,7 @@ const EmployeeStatusModal = ({ isOpen, onClose, handleSearch }) => {
               </div>
               <div
                 className="flex flex-col items-center group cursor-pointer"
-                onClick={() => handleSearch("archived")}
+                onClick={() => handleClick("archived")}
               >
                 <div className="flex justify-center p-4 rounded-full transition-all duration-200 transform group-hover:scale-110 group-hover:bg-blue-100">
                   <img
@@ -67,7 +71,7 @@ const EmployeeStatusModal = ({ isOpen, onClose, handleSearch }) => {
               {/* All Employees */}
               <div
                 className="flex flex-col items-center group cursor-pointer"
-                onClick={() => handleSearch("all")}
+                onClick={() => handleClick("all")}
               >
                 <div className="flex justify-center p-4 rounded-full transition-all duration-200 transform group-hover:scale-110 group-hover:bg-blue-100">
                   <img

@@ -7,6 +7,7 @@ const DeleteEmployeeModal = ({ isOpen, onClose, onDelete, employee }) => {
     if (expiryDatetime) {
       onDelete(expiryDatetime); 
     }
+    onClose();
   };
 
   if (!isOpen) return null; 
