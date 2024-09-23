@@ -18,10 +18,11 @@ const AuthenticatedLayout = ({ children }) => {
   const handleLoginAsUser = async (userId) => {
     try {
       const response = await userService.startImpersonation(userId);
-        
+      sessionStorage.setItem('isAdminLogged', false)
       if (response.status === 200) {
         sessionStorage.setItem('token', response.token);
         sessionStorage.setItem('sessionToken', response['bs-session-id']);
+        sessionStorage.setItem('isAdminLogged', true)
         setIsAuthenticated(true);
         dispatch(closeModal());
         navigate('/reports/general');

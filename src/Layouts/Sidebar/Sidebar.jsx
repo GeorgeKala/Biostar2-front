@@ -48,6 +48,7 @@ const Sidebar = () => {
     dispatch(openModal('userModal'))
   }
 
+  const isAdminLogged = sessionStorage.getItem('isAdminLogged');
   return (
     <div className="bg-[#1976D2] min-w-[18%] flex flex-col gap-8">
       <div className="flex flex-col items-center w-full">
@@ -366,12 +367,12 @@ const Sidebar = () => {
                 <img src={ArrowRight} alt="Arrow Right Icon" />
                 პაროლის შეცვლა
               </Link>
-                {canAccessPage(["ადმინისტრატორი"]) && (
-                <button onClick={handleModalOpen} className={`flex items-center gap-3 text-white text-[14px] `}>
-                   <img src={ArrowRight} alt="Arrow Right Icon" />
-                  შესვლა როგორც
-                </button>
-              )}
+              {(canAccessPage(["ადმინისტრატორი"]) || isAdminLogged === "true") && (
+                  <button onClick={handleModalOpen} className="flex items-center gap-3 text-white text-[14px]">
+                    <img src={ArrowRight} alt="Arrow Right Icon" />
+                    შესვლა როგორც
+                  </button>
+                )}
             </div>
           )}
         </div>

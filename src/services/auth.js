@@ -29,6 +29,8 @@ export const logout = async () => {
     sessionStorage.removeItem("token");
     sessionStorage.removeItem("sessionToken");
     sessionStorage.removeItem("bs_id_token");
+    sessionStorage.removeItem('isAdminLogged'); // Clear the isAdminLogged flag on logout
+
   } catch (error) {
     console.error("Logout error:", error);
     throw error.response.data;
