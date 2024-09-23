@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import AuthenticatedLayout from "../../../Layouts/AuthenticatedLayout";
 import GeneralInputGroup from "../../../components/GeneralInputGroup";
 import { useDispatch, useSelector } from "react-redux";
@@ -25,7 +25,7 @@ const GeneralReport = () => {
   const { departments, nestedDepartments } = useSelector(
     (state) => state.departments
   );
-  const { reports } = useSelector((state) => state.reports);
+  const { reports, status, hasMore } = useSelector((state) => state.reports); // Include hasMore
   const forgiveTypeItems = useSelector(
     (state) => state.forgiveTypes.forgiveTypes
   );
@@ -425,7 +425,25 @@ const GeneralReport = () => {
     setSelectedField((prevField) => (prevField === item.user_id ? null : item));
   };
   
-  
+  const observer = useRef();
+
+const lastReportElementRef = useCallback(node => {
+  if (status === "loading" || !hasMore) return;
+
+  if (observer.current) observer.current.disconnect();
+
+  observer.current = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting && hasMore) {
+      console.log('Loading more reports...');
+      dispatch(fetchReports({ ...formData }));
+    }
+  });
+
+  if (node) observer.current.observe(node);
+}, [status, hasMore, dispatch, formData]);
+
+
+
     
   return (
     <AuthenticatedLayout>
@@ -485,7 +503,7 @@ const GeneralReport = () => {
             sortConfig={sortConfig}
             onSort={handleSort}
             onRowClick={(item) => handleRowClick(item)}
-
+            lastReportRef={lastReportElementRef}
             onFilterClick={handleOpenFilterModal}
             onFilterChange={handleFilterChange}
             rowClassName={getRowClassName}

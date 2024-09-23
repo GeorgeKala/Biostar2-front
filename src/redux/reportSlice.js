@@ -8,11 +8,14 @@ const reportSlice = createSlice({
     fullRecords: [],
     status: "idle",
     error: null,
+    hasMore: true, // New property to track if there are more reports
   },
   reducers: {
     setReports(state, action) {
-      state.reports = action.payload;
+      // Append new reports to existing ones
+      state.reports = [...state.reports, ...action.payload.data];
       state.status = "succeeded";
+      state.hasMore = action.payload.hasMore; // Set hasMore based on the response
     },
     setFullRecords(state, action) {
       state.fullRecords = action.payload;
@@ -30,12 +33,11 @@ const reportSlice = createSlice({
       state.fullRecords = [];
       state.status = "idle";
       state.error = null;
+      state.hasMore = true; // Reset hasMore on clear
     },
-
     updateOrAddReport(state, action) {
       const { employee_id, date } = action.payload;
 
-      // Find the index of the report that matches the employee_id and date
       const reportIndex = state.reports.findIndex(
         (report) => report.user_id === employee_id && report.date === date
       );
@@ -46,22 +48,31 @@ const reportSlice = createSlice({
           ...action.payload,
         };
       } else {
-        // If no matching report exists, add it to the state
         state.reports.push(action.payload);
       }
     },
   },
 });
 
-export const fetchReports = (filters) => async (dispatch) => {
+export const fetchReports = (filters) => async (dispatch, getState) => {
+  const { reports } = getState().reports;
+  const currentPage = Math.ceil(reports.length / 100) + 1; 
+
   dispatch(setLoading());
   try {
-    const response = await reportService.fetchMonthlyReports(filters);
-    dispatch(setReports(response.data));
+    const response = await reportService.fetchMonthlyReports({ ...filters, page: currentPage });
+
+    console.log(response);
+    
+    dispatch(setReports({
+      data: response.data.data,
+      hasMore: response.data.data.length > 0, 
+    }));
   } catch (error) {
     dispatch(setError(error.toString()));
   }
 };
+
 
 export const fetchFullRecords = (filters) => async (dispatch) => {
   dispatch(setLoading());

@@ -14,6 +14,7 @@ const Table = ({
   onRowDoubleClick, 
   filterableFields,
   onContext,
+  lastReportRef
 }) => {
   const [columnWidths, setColumnWidths] = useState(
     headers.reduce((acc, header) => {
@@ -178,16 +179,16 @@ const Table = ({
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200 text-xs">
-            {data &&
-              data.map((item, index) => (
+            {data.map((item, index) => {
+              const isLastRow = index === data.length - 1; 
+              return (
                 <tr
                   key={index}
-                  className={`px-2 py-1 border border-gray-200 cursor-default w-20 ${rowClassName(
-                    item
-                  )}`}
+                  className={`px-2 py-1 border border-gray-200 cursor-default ${rowClassName(item)}`}
                   onClick={() => onRowClick(item)}
                   onDoubleClick={() => onRowDoubleClick(item)} 
                   onContextMenu={(e) => onContext(e)}
+                  ref={isLastRow ? lastReportRef : null} // Attach ref to the last row
                 >
                   <td className="w-[30px]"></td>
                   {headers.map((header) => (
@@ -201,13 +202,12 @@ const Table = ({
                         textOverflow: "ellipsis",
                       }}
                     >
-                      {header.extractValue
-                        ? header.extractValue(item)
-                        : item[header.key]}
+                      {header.extractValue ? header.extractValue(item) : item[header.key]}
                     </td>
                   ))}
                 </tr>
-              ))}
+              );
+            })}
           </tbody>
         </table>
       </div>

@@ -27,6 +27,11 @@ export const useFilterAndSort = (data, initialFilters, initialSortConfig) => {
   }, [sortConfig, pageKey]);
 
   const filteredAndSortedData = useMemo(() => {
+    // Ensure data is an array before attempting to filter or sort
+    if (!Array.isArray(data)) {
+      return [];
+    }
+
     return data
       .filter((item) =>
         Object.keys(filters).every((key) => {
