@@ -83,9 +83,9 @@ const Table = ({
   return (
     <div className="container mx-auto  overflow-x-auto">
       <div
-        className="min-w-max max-h-[100vh] overflow-y-auto"
+        className="min-w-max max-h-[70vh] overflow-y-auto"
         ref={tableRef}
-        style={{ maxHeight: "calc(100vh - 300px)" }}
+        
       >
         <table className="min-w-full divide-y divide-gray-200 border-collapse">
           <thead className="bg-[#1976D2] text-white text-xs sticky top-0 z-10">

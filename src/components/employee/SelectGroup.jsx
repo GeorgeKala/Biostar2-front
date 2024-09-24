@@ -24,19 +24,16 @@ const SelectGroup = ({ label, options, placeholder, onSelect }) => {
   const [filteredOptions, setFilteredOptions] = useState(options);
   const selectRef = useRef(null);
 
-  // Toggle dropdown open/close
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
 
-  // Handle option selection and call the onSelect prop
   const handleSelect = (option) => {
     setSelected(option);
     setIsOpen(false);
-    onSelect(option); // Pass selected option to the parent
+    onSelect(option); 
   };
 
-  // Filter options based on search term
   useEffect(() => {
     setFilteredOptions(
       options.filter((option) =>
@@ -45,7 +42,6 @@ const SelectGroup = ({ label, options, placeholder, onSelect }) => {
     );
   }, [searchTerm, options]);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (selectRef.current && !selectRef.current.contains(event.target)) {

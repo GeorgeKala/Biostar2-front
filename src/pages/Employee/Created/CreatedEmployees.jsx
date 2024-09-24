@@ -40,7 +40,7 @@ const CreatedEmployees = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false); 
   const [statusFilter, setStatusFilter] = useState('active');
   const [openNestedDropdown, setOpenNestedDropdown] = useState(false);
-  const { formData, handleFormDataChange, setFormData } = useFormData({
+  const { formData, handleFormDataChange, setFormData,} = useFormData({
     fullname:"",
     department_id: user?.user_type?.has_full_access == 1 ? "" : user?.department?.id,
   });

@@ -29,10 +29,36 @@ export const useFormData = (initialFormData) => {
     setFormData(initialFormData);
   };
 
+  const handleClearField = (fieldName) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [fieldName]: '',
+    }));
+  };
+
+  // Handle select actions
+  const handleSelect = (fieldName, selectedValue) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [fieldName]: selectedValue,
+    }));
+  };
+
+  const handleSelectClear = (fieldName, selectedValue = '') => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [fieldName]: selectedValue,
+    }));
+  };
+
   return {
     formData,
     handleFormDataChange,
     clearFormData,
     setFormData, 
+    handleClearField,
+    handleSelect,
+    handleSelectClear
+
   };
 };

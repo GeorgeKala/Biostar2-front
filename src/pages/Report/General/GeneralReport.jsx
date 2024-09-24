@@ -38,7 +38,7 @@ const GeneralReport = () => {
   const [selectedField, setSelectedField] = useState(null);
 
 
-  const { formData, handleFormDataChange, setFormData } = useFormData({
+  const { formData, handleFormDataChange, setFormData, handleClearField } = useFormData({
     start_date: "",
     end_date: "",
     department_id: user?.user_type?.has_full_access == 1 ? "" : user?.department?.id,
@@ -480,6 +480,7 @@ const lastReportElementRef = useCallback(node => {
               ""
             }
             onClear={() => handleClear("department_id")}
+
             onSearchClick={() => setOpenNestedDropdown(true)}
           />
           <EmployeeInput
