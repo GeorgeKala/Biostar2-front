@@ -7,6 +7,9 @@ import Table from "../../components/Table";
 import FilterModal from "../../components/FilterModal";
 import { useFilterAndSort } from "../../hooks/useFilterAndSort";
 import ExcelJS from "exceljs";
+import NewIcon from "../../assets/new.png";
+import DeleteIcon from "../../assets/delete.png";
+import EditIcon from "../../assets/edit.png";
 
 const Device = () => {
   const [data, setData] = useState([]);
@@ -332,28 +335,31 @@ const Device = () => {
           </h1>
           <div className="flex items-center gap-8">
             <button
-              className="bg-[#5CB85C] text-white px-4 py-4 rounded-md flex items-center gap-2"
+              className=" bg-[#5CB85C] text-white px-4 py-2 rounded-md flex items-center gap-2"
               onClick={handleAddClick}
             >
+              <img src={NewIcon} alt="New" />
               ახალი
             </button>
             <button
               onClick={() => handleEditClick(selectedItem)}
-              className="bg-[#1976D2] text-white px-4 py-4 rounded-md flex items-center gap-2"
+              className="bg-[#1976D2] text-white px-4 py-2 rounded-md flex items-center gap-2"
               disabled={!selectedItem}
             >
+              <img src={EditIcon} alt="Edit" />
               შეცვლა
             </button>
             <button
               onClick={handleDeleteAccessGroup}
-              className="bg-[#D9534F] text-white px-4 py-4 rounded-md flex items-center gap-2"
+              className="bg-[#D9534F] text-white px-4 py-2 rounded-md flex items-center gap-2"
               disabled={!selectedItem}
             >
+              <img src={DeleteIcon} alt="Delete" />
               წაშლა
             </button>
             <button
               onClick={exportToExcel}
-              className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative"
+              className="bg-[#105D8D] px-7 py-2 rounded flex items-center gap-3 text-white text-[16px] border relative"
             >
               ჩამოტვირთვა
               <span className="absolute inset-0 border border-white border-dashed rounded"></span>

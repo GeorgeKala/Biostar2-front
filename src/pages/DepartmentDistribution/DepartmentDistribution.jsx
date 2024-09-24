@@ -174,21 +174,21 @@ const DepartmentDistribution = () => {
           </h1>
           <div className="flex items-center gap-8">
             <button
-              className="bg-[#5CB85C] text-white px-4 py-4 rounded-md flex items-center gap-2"
+              className="bg-[#5CB85C] text-white px-4 py-2 rounded-md flex items-center gap-2"
               onClick={() => setShowModal(true)}
             >
               <img src={NewIcon} alt="New Icon" />
               ახალი
             </button>
             <button
-              className="bg-[#1976D2] text-white px-4 py-4 rounded-md flex items-center gap-2"
+              className="bg-[#1976D2] text-white px-4 py-2 rounded-md flex items-center gap-2"
               onClick={handleEditClick}
             >
               <img src={EditIcon} alt="Edit Icon" />
               შეცვლა
             </button>
             <button
-              className="bg-[#D9534F] text-white px-4 py-4 rounded-md flex items-center gap-2"
+              className="bg-[#D9534F] text-white px-4 py-2 rounded-md flex items-center gap-2"
               onClick={handleDelete}
             >
               <img src={DeleteIcon} alt="Delete Icon" />
@@ -196,7 +196,7 @@ const DepartmentDistribution = () => {
             </button>
             <button
               onClick={exportToExcel}
-              className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative"
+              className="bg-[#105D8D] px-7 py-2 rounded flex items-center gap-3 text-white text-[16px] border relative"
             >
               ჩამოტვირთვა
               <span className="absolute inset-0 border border-white border-dashed rounded"></span>

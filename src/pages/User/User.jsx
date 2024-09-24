@@ -254,7 +254,7 @@ const User = () => {
           </h1>
           <div className="flex items-center gap-8">
             <button
-              className="bg-[#5CB85C] text-white px-4 py-4 rounded-md flex items-center gap-2"
+              className="bg-[#5CB85C] text-white px-4 py-2 rounded-md flex items-center gap-2"
               onClick={openAddModal}
             >
               <img src={NewIcon} alt="New" />
@@ -266,7 +266,7 @@ const User = () => {
                   usersData.find((user) => user.id === selectedUserId)
                 )
               }
-              className="bg-[#1976D2] text-white px-4 py-4 rounded-md flex items-center gap-2"
+              className="bg-[#1976D2] text-white px-4 py-2 rounded-md flex items-center gap-2"
             >
               <img src={EditIcon} alt="Edit" />
               შეცვლა
@@ -276,14 +276,14 @@ const User = () => {
                 e.stopPropagation();
                 handleDelete(selectedUserId);
               }}
-              className="bg-[#D9534F] text-white px-4 py-4 rounded-md flex items-center gap-2"
+              className="bg-[#D9534F] text-white px-4 py-2 rounded-md flex items-center gap-2"
             >
               <img src={DeleteIcon} alt="Delete" />
               წაშლა
             </button>
             <button
               onClick={exportUserToExcel}
-              className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative"
+              className="bg-[#105D8D] px-7 py-2 rounded flex items-center gap-3 text-white text-[16px] border relative"
             >
               ჩამოტვირთვა
               <span className="absolute inset-0 border border-white border-dashed rounded"></span>

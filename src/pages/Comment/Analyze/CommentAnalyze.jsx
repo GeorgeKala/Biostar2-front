@@ -173,7 +173,7 @@ const CommentAnalyze = () => {
           <h1 className="text-[#1976D2] font-medium text-[23px]">კომენტარების ანალიზი</h1>
           <button
             onClick={handleExportToExcel}
-            className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative"
+            className="bg-[#105D8D] px-7 py-2 rounded flex items-center gap-3 text-white text-[16px] border relative"
           >
             ჩამოტვირთვა
             <span className="absolute inset-0 border border-white border-dashed rounded"></span>

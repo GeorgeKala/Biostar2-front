@@ -357,7 +357,7 @@ const CreatedEmployees = () => {
             onSearchClick={() => setOpenNestedDropdown(true)}
           />
           <button
-            className="bg-[#1AB7C1] rounded-lg min-w-[75px] flex items-center justify-center py-3"
+            className="bg-[#1AB7C1] rounded-lg min-w-[75px] h-[52px] flex items-center justify-center py-4"
             onClick={handleSubmit}
           >
             <img src={SearchIcon} className="w-[30px]"  alt="Search Icon" />

@@ -111,13 +111,13 @@ const Group = () => {
           {user.user_type.name === "ადმინისტრატორი" && (
             <div className="flex items-center gap-8">
               <button
-                className="bg-[#FBD15B] text-[#1976D2] px-4 py-4 rounded-md flex items-center gap-2"
+                className="bg-[#FBD15B] text-[#1976D2] px-4 py-2 rounded-md flex items-center gap-2"
                 onClick={() => setModalOpen(true)}
               >
                 + დაამატე ახალი ჯგუფი
               </button>
               <button
-                className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative"
+                className="bg-[#105D8D] px-7 py-2 rounded flex items-center gap-3 text-white text-[16px] border relative"
                 onClick={exportToExcel}
               >
                 ჩამოტვირთვა

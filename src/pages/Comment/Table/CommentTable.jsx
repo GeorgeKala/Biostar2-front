@@ -217,13 +217,22 @@ const CommentTable = () => {
           <h1 className="text-[#1976D2] font-medium text-[23px]">
             კომენტარების ცხრილი
           </h1>
-          <button
-            onClick={exportToExcel}
-            className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative"
-          >
-            ჩამოტვირთვა
-            <span className="absolute inset-0 border border-white border-dashed rounded"></span>
-          </button>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={handleDelete}
+              className="bg-[#D9534F] text-white px-4 py-2 rounded-md flex items-center gap-2"
+            >
+              <img src={DeleteIcon} alt="Delete" />
+              წაშლა
+            </button>
+            <button
+              onClick={exportToExcel}
+              className="bg-[#105D8D] px-7 py-2 rounded flex items-center gap-3 text-white text-[16px] border relative"
+            >
+              ჩამოტვირთვა
+              <span className="absolute inset-0 border border-white border-dashed rounded"></span>
+            </button>
+          </div>
         </div>
 
         <div className="flex items-center gap-4">
@@ -278,16 +287,6 @@ const CommentTable = () => {
             onClick={handleSubmit}
           >
             <img src={SearchIcon} alt="Search Icon" />
-          </button>
-        </div>
-
-        <div className="flex justify-end">
-          <button
-            onClick={handleDelete}
-            className="bg-[#D9534F] text-white px-4 py-2 rounded-md flex items-center gap-2"
-          >
-            <img src={DeleteIcon} alt="Delete" />
-            წაშლა
           </button>
         </div>
 
