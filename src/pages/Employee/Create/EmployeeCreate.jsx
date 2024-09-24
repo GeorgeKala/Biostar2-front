@@ -487,10 +487,10 @@ const EmployeeCreate = () => {
           </div>
           <div className="flex justify-between gap-8">
             <div
-              className="relative w-full flex flex-col gap-2"
+              className="relative w-1/2 flex flex-col pr-4"
               ref={dropdownRef}
             >
-              <label className="text-[#105D8D] font-medium">
+              <label className="text-[#105D8D] font-medium mb-2">
                 დასვენების დღეები
               </label>
               <div className="relative">
@@ -522,14 +522,14 @@ const EmployeeCreate = () => {
                 </div>
               )}
             </div>
-            <InputGroup
+            {/* <InputGroup
               label="საკონტროლო ჯამი"
               name="checksum"
               placeholder="საკონტროლო ჯამი"
               type="number"
               value={formData.checksum}
               onChange={handleInput}
-            />
+            /> */}
           </div>
           <div className="flex justify-end  gap-4 mt-10">
             <button
