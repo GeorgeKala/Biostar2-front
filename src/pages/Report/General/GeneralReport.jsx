@@ -4,7 +4,6 @@ import GeneralInputGroup from "../../../components/GeneralInputGroup";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchForgiveTypes } from "../../../redux/forgiveTypeSlice";
 import EmployeeModal from "../../../components/employee/EmployeeModal";
-import * as XLSX from "xlsx";
 import NestedDropdownModal from "../../../components/NestedDropdownModal";
 import DepartmentInput from "../../../components/DepartmentInput";
 import EmployeeInput from "../../../components/employee/EmployeeInput";
@@ -16,7 +15,6 @@ import SearchIcon from "../../../assets/search.png";
 import reportService from "../../../services/report";
 import ExcelJS from "exceljs";
 import { useFormData } from "../../../hooks/useFormData";
-import { login } from "../../../services/auth";
 
 
 const GeneralReport = () => {
@@ -441,6 +439,7 @@ const lastReportElementRef = useCallback(node => {
 
   if (node) observer.current.observe(node);
 }, [status, hasMore, dispatch, formData]);
+
 
 
 

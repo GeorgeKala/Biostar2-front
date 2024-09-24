@@ -14,6 +14,12 @@ import { useFilterAndSort } from "../../../hooks/useFilterAndSort";
 import ExcelJS from "exceljs";
 import DeleteEmployeeModal from "../../../components/employee/DeleteEmployeeModal";
 import employeeService from "../../../services/employee";
+import { useFormData } from "../../../hooks/useFormData";
+import DepartmentInput from "../../../components/DepartmentInput";
+import NestedDropdownModal from "../../../components/NestedDropdownModal";
+import SearchIcon from "../../../assets/search.png";
+
+
 
 const CreatedEmployees = () => {
   const dispatch = useDispatch();
@@ -21,6 +27,9 @@ const CreatedEmployees = () => {
   const hasMore = useSelector((state) => state.employees.hasMore);
   const status = useSelector((state) => state.employees.status);
   const user = useSelector((state) => state.user.user);
+  const { departments, nestedDepartments } = useSelector(
+    (state) => state.departments
+  );
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [employeeStatusModal, setEmployeeStatusModal] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
@@ -30,10 +39,15 @@ const CreatedEmployees = () => {
   const [currentFilterField, setCurrentFilterField] = useState("");
   const [deleteModalOpen, setDeleteModalOpen] = useState(false); 
   const [statusFilter, setStatusFilter] = useState('active');
+  const [openNestedDropdown, setOpenNestedDropdown] = useState(false);
+  const { formData, handleFormDataChange, setFormData } = useFormData({
+    fullname:"",
+    department_id: user?.user_type?.has_full_access == 1 ? "" : user?.department?.id,
+  });
 
   useEffect(() => {
     dispatch(clearEmployees());
-    dispatch(fetchEmployees({ status: statusFilter, page: 1 }));
+    dispatch(fetchEmployees({  status: statusFilter, page: 1 }));
   }, [statusFilter, dispatch]);
 
   const handleStatusFilterChange = (status) => {
@@ -227,7 +241,7 @@ const CreatedEmployees = () => {
 
     observer.current = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting && hasMore) {
-        dispatch(fetchEmployees({ status: statusFilter })); // Always send the status filter when loading more
+        dispatch(fetchEmployees({ ...formData, status: statusFilter })); // Always send the status filter when loading more
       }
     });
 
@@ -241,8 +255,41 @@ const CreatedEmployees = () => {
   //   dispatch(clearEmployees());
   //   dispatch(fetchEmployees({ status: statusFilter, page: 1 }));
   // }, [statusFilter, dispatch]);
+
+  const handleDepartmentSelect = (departmentId) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      department_id: departmentId,
+    }));
+    setOpenNestedDropdown(false);
+  };
+
+  const filteredNestedDepartments = user?.user_type?.has_full_access
+    ? nestedDepartments
+    : nestedDepartments.filter(
+        (dept) =>
+          dept.id === user?.department?.id ||
+          dept.parent_id === user?.department?.id
+      );
   
 
+    const handleSubmit = () => {
+      dispatch(clearEmployees());
+      dispatch(fetchEmployees({ ...formData }));
+    };
+
+
+
+    const handleClear = (fieldName) => {
+      setFormData((prevData) => ({
+        ...prevData,
+        [fieldName]: fieldName === 'department_id' ? '' : fieldName === 'employee_id' ? '' : prevData[fieldName],
+      }));
+    };
+
+
+    console.log(employees.length);
+    
 
   return (
     <AuthenticatedLayout>
@@ -257,21 +304,21 @@ const CreatedEmployees = () => {
               <>
                 <Link
                   to="/employees/create"
-                  className="bg-[#5CB85C] text-white px-4 py-4 rounded-md flex items-center gap-2"
+                  className="bg-[#5CB85C] text-white px-4 py-2 rounded-md flex items-center gap-2"
                 >
                   <img src={NewIcon} alt="New" />
                   ახალი
                 </Link>
                 <button
                   onClick={() => setEditModalOpen(true)}
-                  className="bg-[#1976D2] text-white px-4 py-4 rounded-md flex items-center gap-2"
+                  className="bg-[#1976D2] text-white px-4 py-2 rounded-md flex items-center gap-2"
                 >
                   <img src={EditIcon} alt="Edit" />
                   შეცვლა
                 </button>
                 <button
                   onClick={() => setDeleteModalOpen(true)} 
-                  className="bg-[#D9534F] text-white px-4 py-4 rounded-md flex items-center gap-2"
+                  className="bg-[#D9534F] text-white px-4 py-2 rounded-md flex items-center gap-2"
                 >
                   <img src={DeleteIcon} alt="Delete" />
                   წაშლა
@@ -280,11 +327,41 @@ const CreatedEmployees = () => {
             ) : null}
             <button
               onClick={handleExportToExcel}
-              className="bg-[#105D8D] px-7 py-4 rounded flex items-center gap-3 text-white text-[16px] border relative"
+              className="bg-[#105D8D] px-7 py-2 rounded flex items-center gap-3 text-white text-[16px] border relative"
             >
               ჩამოტვირთვა
               <span className="absolute inset-0 border border-white border-dashed rounded"></span>
             </button>
+          </div>
+          
+        </div>
+        <div>
+        <div className="flex gap-4 items-center">
+        <input
+              type="text"
+              name="fullname"
+              value={formData.fullname}
+              placeholder="სახელი/გვარი"
+              onChange={(e) => setFormData((prevData) => ({
+                ...prevData,
+                fullname: e.target.value,
+              }))}
+              className="border border-[#105D8D] outline-none rounded-l py-3 px-4 w-full pr-10"
+            />
+          <DepartmentInput
+            value={
+              departments.find((d) => d.id === formData.department_id)?.name ||
+              ""
+            }
+            onClear={() => handleClear("department_id")}
+            onSearchClick={() => setOpenNestedDropdown(true)}
+          />
+          <button
+            className="bg-[#1AB7C1] rounded-lg min-w-[75px] flex items-center justify-center py-3"
+            onClick={handleSubmit}
+          >
+            <img src={SearchIcon} className="w-[30px]"  alt="Search Icon" />
+          </button>
           </div>
         </div>
         <Table
@@ -349,6 +426,16 @@ const CreatedEmployees = () => {
         onDelete={handleDeleteEmployee}
         employee={selectedEmployee}
       />
+       {openNestedDropdown && (
+        <NestedDropdownModal
+          header="დეპარტამენტები"
+          isOpen={openNestedDropdown}
+          onClose={() => setOpenNestedDropdown(false)}
+          onSelect={handleDepartmentSelect}
+          data={filteredNestedDepartments}
+          link={"/departments"}
+        />
+      )}
     </AuthenticatedLayout>
   );
 };

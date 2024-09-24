@@ -5,11 +5,11 @@ export const fetchEmployees = createAsyncThunk(
   "employees/fetchEmployees",
   async (filters = {}, { getState }) => {
     const { items } = getState().employees;
-    // const currentPage = Math.ceil(items.length / 100) + 1;
+    const currentPage = Math.ceil(items.length / 100) + 1;
 
     const response = await employeeService.getAllEmployees({
       ...filters,
-      page: 3,
+      page: currentPage,
     });
 
     
