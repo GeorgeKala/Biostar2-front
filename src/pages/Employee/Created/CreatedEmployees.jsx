@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchEmployees } from "../../../redux/employeeSlice";
+import { clearEmployees, fetchEmployees } from "../../../redux/employeeSlice";
 import AuthenticatedLayout from "../../../Layouts/AuthenticatedLayout";
 import EmployeeEditModal from "../../../components/EmployeeEditModal";
 import EmployeeStatusModal from "../../../components/EmployeeStatusModal";
@@ -18,6 +18,8 @@ import employeeService from "../../../services/employee";
 const CreatedEmployees = () => {
   const dispatch = useDispatch();
   const employees = useSelector((state) => state.employees.items);
+  const hasMore = useSelector((state) => state.employees.hasMore);
+  const status = useSelector((state) => state.employees.status);
   const user = useSelector((state) => state.user.user);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [employeeStatusModal, setEmployeeStatusModal] = useState(false);
@@ -26,7 +28,18 @@ const CreatedEmployees = () => {
   const [filterableData, setFilterableData] = useState([]);
   const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
   const [currentFilterField, setCurrentFilterField] = useState("");
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false); // Modal state for delete
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false); 
+  const [statusFilter, setStatusFilter] = useState('active');
+
+  useEffect(() => {
+    dispatch(clearEmployees());
+    dispatch(fetchEmployees({ status: statusFilter, page: 1 }));
+  }, [statusFilter, dispatch]);
+
+  const handleStatusFilterChange = (status) => {
+    setStatusFilter(status); 
+  };
+  
 
   const {
     filteredAndSortedData,
@@ -48,6 +61,7 @@ const CreatedEmployees = () => {
       "schedule.name": { text: "", selected: [] },
       honorable_minutes_per_day: { text: "", selected: [] },
       holidays: { text: "", selected: [] },
+      status: { text: "", selected: [] },
     },
     { key: "", direction: "ascending" }
   );
@@ -71,6 +85,7 @@ const CreatedEmployees = () => {
       { header: "განრიგი", key: "schedule", width: 30 },
       { header: "საპატიო წუთები", key: "honorable_minutes_per_day", width: 20 },
       { header: "დასვენების დღეები", key: "holidays", width: 30 },
+      { header: "სტატუსი", key: "status", width: 15 },
     ];
 
     worksheet.columns = columns;
@@ -91,6 +106,7 @@ const CreatedEmployees = () => {
         card_number: employee.card_number || "",
         group: employee?.group?.name || "",
         schedule: employee?.schedule?.name || "",
+        
         honorable_minutes_per_day:
           employee.honorable_minutes_per_day !== null
             ? employee.honorable_minutes_per_day
@@ -99,6 +115,7 @@ const CreatedEmployees = () => {
           employee.holidays.length > 0
             ? employee.holidays.map((holiday) => holiday.name).join(", ")
             : "",
+        status: employee.active ? "აქტიური" : "შეჩერებული",
       });
     });
 
@@ -154,7 +171,7 @@ const CreatedEmployees = () => {
     {
       label: "დეპარტამენტი",
       key: "department.name",
-      extractValue: (emp) => emp?.department?.name || "",
+      extractValue: (emp) => emp?.department || "",
     },
     { label: "პოზიცია", key: "position", extractValue: (emp) => emp.position },
     {
@@ -175,12 +192,12 @@ const CreatedEmployees = () => {
     {
       label: "ჯგუფი",
       key: "group.name",
-      extractValue: (emp) => emp?.group?.name || "",
+      extractValue: (emp) => emp?.group || "",
     },
     {
       label: "განრიგი",
       key: "schedule.name",
-      extractValue: (emp) => emp?.schedule?.name || "",
+      extractValue: (emp) => emp?.schedule || "",
     },
     {
       label: "საპატიო წუთები",
@@ -191,9 +208,41 @@ const CreatedEmployees = () => {
       label: "დასვენების დღეები",
       key: "holidays",
       extractValue: (emp) =>
-        emp.holidays.map((holiday) => holiday.name).join(", "),
+        emp.holidays.map((holiday) => holiday).join(", "),
+    },
+    {
+      label: "სტატუსი",
+      key: "status",
+      extractValue: (emp) => (emp.active ? "აქტიური" : "შეჩერებული"),
     },
   ];
+  
+
+  const observer = useRef();
+
+  const lastReportElementRef = useCallback((node) => {
+    if (status === "loading" || !hasMore) return;
+
+    if (observer.current) observer.current.disconnect();
+
+    observer.current = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && hasMore) {
+        dispatch(fetchEmployees({ status: statusFilter })); // Always send the status filter when loading more
+      }
+    });
+
+    if (node) observer.current.observe(node);
+  }, [status, hasMore, dispatch, statusFilter]);
+
+
+  console.log(employees.length);
+
+  // useEffect(() => {
+  //   dispatch(clearEmployees());
+  //   dispatch(fetchEmployees({ status: statusFilter, page: 1 }));
+  // }, [statusFilter, dispatch]);
+  
+
 
   return (
     <AuthenticatedLayout>
@@ -246,6 +295,7 @@ const CreatedEmployees = () => {
           onSort={handleSort}
           onFilterClick={handleOpenFilterModal}
           onFilterChange={handleFilterChange}
+          lastReportRef={lastReportElementRef}
           filterableFields={[
             "fullname",
             "department.name",
@@ -257,10 +307,12 @@ const CreatedEmployees = () => {
             "schedule.name",
             "honorable_minutes_per_day",
             "holidays",
+            "status"
           ]}
           rowClassName={(employee) =>
             selectedEmployee?.id === employee.id ? "bg-blue-200" : ""
           }
+
           onRowClick={(employee) => setSelectedEmployee(employee)}
           onContext={(e) => {
             e.preventDefault();
@@ -279,7 +331,7 @@ const CreatedEmployees = () => {
         <EmployeeStatusModal
           isOpen={employeeStatusModal}
           onClose={() => setEmployeeStatusModal(false)}
-          handleSearch={(status) => dispatch(fetchEmployees({ status }))}
+          handleSearch={handleStatusFilterChange}
         />
       )}
       <FilterModal

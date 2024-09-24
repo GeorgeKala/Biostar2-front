@@ -3,8 +3,16 @@ import employeeService from "../services/employee";
 
 export const fetchEmployees = createAsyncThunk(
   "employees/fetchEmployees",
-  async (filters = {}) => {
-    const response = await employeeService.getAllEmployees(filters);
+  async (filters = {}, { getState }) => {
+    const { items } = getState().employees;
+    // const currentPage = Math.ceil(items.length / 100) + 1;
+
+    const response = await employeeService.getAllEmployees({
+      ...filters,
+      page: 3,
+    });
+
+    
     return response;
   }
 );
@@ -28,7 +36,7 @@ export const updateEmployee = createAsyncThunk(
 export const deleteEmployee = createAsyncThunk(
   "employees/deleteEmployee",
   async ({ id, expiryDatetime }) => {
-    await employeeService.deleteEmployee(id, expiryDatetime); 
+    await employeeService.deleteEmployee(id, expiryDatetime);
     return id;
   }
 );
@@ -39,8 +47,16 @@ const employeeSlice = createSlice({
     items: [],
     status: "idle",
     error: null,
+    hasMore: true,
   },
-  reducers: {},
+  reducers: {
+    clearEmployees(state) {
+      state.items = [];
+      state.status = "idle";
+      state.error = null;
+      state.hasMore = true;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchEmployees.pending, (state) => {
@@ -48,7 +64,8 @@ const employeeSlice = createSlice({
       })
       .addCase(fetchEmployees.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.items = action.payload;
+        state.items = [...state.items, ...action.payload.data];
+        state.hasMore = action.payload.data.length > 0;
       })
       .addCase(fetchEmployees.rejected, (state, action) => {
         state.status = "failed";
@@ -70,5 +87,7 @@ const employeeSlice = createSlice({
       });
   },
 });
+
+export const { clearEmployees } = employeeSlice.actions;
 
 export default employeeSlice.reducer;

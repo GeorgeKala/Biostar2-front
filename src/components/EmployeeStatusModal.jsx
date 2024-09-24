@@ -2,7 +2,7 @@ import React from "react";
 import ArchivedEmployeesIcon from "../assets/archived-employees.png";
 import AllEmployeesIcon from "../assets/all-employees.png";
 import ActiveEmployeesIcon from "../assets/active-employees.png";
-import CloseIcon from "../assets/close.png"; 
+
 
 const EmployeeStatusModal = ({ isOpen, onClose, handleSearch }) => {
     
