@@ -40,8 +40,8 @@ const EmployeeCreate = () => {
     holidays: [],
   };
 
-  const { formData, handleFormDataChange, clearFormData, setFormData } =
-    useFormData(initialFormData);
+  const { formData, handleFormDataChange, clearFormData, setFormData, handleSelectClear } = useFormData(initialFormData);
+    
 
   const [errors, setErrors] = useState({});
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
@@ -249,6 +249,7 @@ const EmployeeCreate = () => {
     .join(", ");
 
     
+    console.log(formData);
     
 
   return (
@@ -366,6 +367,7 @@ const EmployeeCreate = () => {
             />
             <SelectGroup
               label="ჯგუფი"
+              fieldName="group_id"
               options={groups.map((group) => group.name)}
               placeholder="აირჩიე ჯგუფი"
               onSelect={(selectedGroup) => {
@@ -374,36 +376,18 @@ const EmployeeCreate = () => {
                 );
                 setFormData((prevData) => ({
                   ...prevData,
-                  group_id: selectedGroupObj.id, // Set the group_id here
+                  group_id: selectedGroupObj.id, 
                 }));
               }}
+              
             />
           </div>
           <div className="flex justify-between gap-8">
-            {/* <div className="w-full flex flex-col gap-2">
-              <label className="text-[#105D8D] font-medium">განრიგი</label>
-              <select
-                id="schedule_id"
-                name="schedule_id"
-                value={formData.schedule_id}
-                onChange={handleInput}
-                className="bg-white border border-[#105D8D] outline-none rounded-xl py-3  px-4 w-full"
-              >
-                <option value="">აირჩიეთ განრიგი</option>
-                {schedules &&
-                  schedules.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.name}
-                    </option>
-                  ))}
-              </select>
-              {errors.schedule_id && (
-                <p className="text-red-500 text-sm">{errors.schedule_id}</p>
-              )}
-            </div> */}
+     
             <SelectGroup
               label="განრიგი"
-              options={schedules.map((schedule) => schedule.name)} // Pass the schedule names as options
+              fieldName="schedule_id"
+              options={schedules.map((schedule) => schedule.name)} 
               placeholder="აირჩიეთ განრიგი"
               onSelect={(selectedSchedule) => {
                 const selectedScheduleObj = schedules.find(
@@ -411,7 +395,7 @@ const EmployeeCreate = () => {
                 );
                 setFormData((prevData) => ({
                   ...prevData,
-                  schedule_id: selectedScheduleObj.id, // Set the selected schedule ID in formData
+                  schedule_id: selectedScheduleObj.id, 
                 }));
               }}
             />
@@ -428,39 +412,19 @@ const EmployeeCreate = () => {
             />
           </div>
           <div className="flex justify-between gap-8">
-            {/* <div className="w-full flex flex-col gap-2">
-              <label className="text-[#105D8D] font-medium">
-                აირჩიე მოწყობილობა
-              </label>
-              <select
-                value={selectedDevice}
-                onChange={handleDeviceSelect}
-                className="bg-white border border-[#105D8D] outline-none rounded-xl py-3  px-4 w-full"
-              >
-                <option value="">აირჩიე მოწყობილობა</option>
-                {devices &&
-                  devices.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.name}
-                    </option>
-                  ))}
-              </select>
-              {errors.device_id && (
-                <p className="text-red-500 text-sm">{errors.device_id}</p>
-              )}
-            </div> */}
+           
             <SelectGroup
               label="აირჩიე მოწყობილობა"
-              options={devices.map((device) => device.name)} // Pass the device names as options
+              options={devices.map((device) => device.name)} 
               placeholder="აირჩიე მოწყობილობა"
               onSelect={(selectedDeviceName) => {
                 const selectedDeviceObj = devices.find(
                   (device) => device.name === selectedDeviceName
                 );
-                setSelectedDevice(selectedDeviceObj.id); // Set the selected device in state
+                setSelectedDevice(selectedDeviceObj.id);
                 setFormData((prevData) => ({
                   ...prevData,
-                  device_id: selectedDeviceObj.id, // Update formData with the selected device ID
+                  device_id: selectedDeviceObj.id, 
                 }));
               }}
             />

@@ -7,7 +7,7 @@ import EmployeeModal from "../../../components/employee/EmployeeModal";
 import NestedDropdownModal from "../../../components/NestedDropdownModal";
 import DepartmentInput from "../../../components/DepartmentInput";
 import EmployeeInput from "../../../components/employee/EmployeeInput";
-import { fetchReports, updateOrAddReport } from "../../../redux/reportSlice";
+import { clearReports, fetchReports, updateOrAddReport } from "../../../redux/reportSlice";
 import FilterModal from "../../../components/FilterModal";
 import Table from "../../../components/Table";
 import { useFilterAndSort } from "../../../hooks/useFilterAndSort";
@@ -23,7 +23,7 @@ const GeneralReport = () => {
   const { departments, nestedDepartments } = useSelector(
     (state) => state.departments
   );
-  const { reports, status, hasMore } = useSelector((state) => state.reports); // Include hasMore
+  const { reports, status, hasMore } = useSelector((state) => state.reports); 
   const forgiveTypeItems = useSelector(
     (state) => state.forgiveTypes.forgiveTypes
   );
@@ -97,6 +97,7 @@ const GeneralReport = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    dispatch(clearReports())
     const data = { ...formData };
     if (!data.start_date) delete data.start_date;
     if (!data.end_date) delete data.end_date;

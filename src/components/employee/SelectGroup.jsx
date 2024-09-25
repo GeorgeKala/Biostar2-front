@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useFormData } from "../../hooks/useFormData";
 
 const ArrowDownIcon = () => (
   <svg
@@ -17,12 +18,39 @@ const ArrowDownIcon = () => (
   </svg>
 );
 
-const SelectGroup = ({ label, options, placeholder, onSelect }) => {
+const CloseIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="w-4 h-4 transition-transform transform"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="black"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="2"
+      d="M6 18L18 6M6 6l12 12"
+    ></path>
+  </svg>
+);
+
+const SelectGroup = ({ label, options, placeholder, onSelect, fieldName }) => {
+
   const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredOptions, setFilteredOptions] = useState(options);
   const selectRef = useRef(null);
+  const { handleSelectClear } = useFormData();
+
+  const handleClearSelection = () => {
+    console.log(fieldName);
+    
+    handleSelectClear(fieldName)
+    setSelected(null); 
+ 
+  };
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
@@ -58,7 +86,7 @@ const SelectGroup = ({ label, options, placeholder, onSelect }) => {
     <div className="w-full flex flex-col gap-2" ref={selectRef}>
       <label className="text-[#105D8D] font-medium">{label}</label>
       <div className="relative inline-block w-full">
-        <div
+      <div
           className="border border-[#105D8D] py-3 rounded-2xl px-2 cursor-pointer flex justify-between items-center"
           onClick={toggleDropdown}
         >
@@ -67,11 +95,17 @@ const SelectGroup = ({ label, options, placeholder, onSelect }) => {
           >
             {selected ? selected : placeholder}
           </span>
-          <ArrowDownIcon
-            className={`w-4 h-4 transition-transform ${
-              isOpen ? "rotate-180" : "rotate-0"
-            }`}
-          />
+          {selected ? (
+            <button onClick={() => handleClearSelection()}>
+              <CloseIcon />
+            </button>
+          ) : (
+            <ArrowDownIcon
+              className={`w-4 h-4 transition-transform ${
+                isOpen ? "rotate-180" : "rotate-0"
+              }`}
+            />
+          )}
         </div>
 
         {isOpen && (

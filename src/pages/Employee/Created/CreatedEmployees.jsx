@@ -40,7 +40,7 @@ const CreatedEmployees = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false); 
   const [statusFilter, setStatusFilter] = useState('active');
   const [openNestedDropdown, setOpenNestedDropdown] = useState(false);
-  const { formData, handleFormDataChange, setFormData,} = useFormData({
+  const { formData, setFormData} = useFormData({
     fullname:"",
     department_id: user?.user_type?.has_full_access == 1 ? "" : user?.department?.id,
   });
@@ -76,6 +76,7 @@ const CreatedEmployees = () => {
       honorable_minutes_per_day: { text: "", selected: [] },
       holidays: { text: "", selected: [] },
       status: { text: "", selected: [] },
+      username: { text: "", selected: [] },
     },
     { key: "", direction: "ascending" }
   );
@@ -100,6 +101,7 @@ const CreatedEmployees = () => {
       { header: "საპატიო წუთები", key: "honorable_minutes_per_day", width: 20 },
       { header: "დასვენების დღეები", key: "holidays", width: 30 },
       { header: "სტატუსი", key: "status", width: 15 },
+      { header: "მომხმარებელი", key: "status", width: 15 },
     ];
 
     worksheet.columns = columns;
@@ -130,6 +132,7 @@ const CreatedEmployees = () => {
             ? employee.holidays.map((holiday) => holiday.name).join(", ")
             : "",
         status: employee.active ? "აქტიური" : "შეჩერებული",
+        username: employee?.username || ""
       });
     });
 
@@ -183,6 +186,16 @@ const CreatedEmployees = () => {
       extractValue: (emp) => emp.fullname,
     },
     {
+      label: "მომხმარებელი",  
+      key: "username",
+      extractValue: (emp) => emp.username || "",
+    },
+    {
+      label: "სტატუსი",
+      key: "status",
+      extractValue: (emp) => (emp.active ? "აქტიური" : "შეჩერებული"),
+    },
+    {
       label: "დეპარტამენტი",
       key: "department.name",
       extractValue: (emp) => emp?.department || "",
@@ -223,11 +236,6 @@ const CreatedEmployees = () => {
       key: "holidays",
       extractValue: (emp) =>
         emp.holidays.map((holiday) => holiday).join(", "),
-    },
-    {
-      label: "სტატუსი",
-      key: "status",
-      extractValue: (emp) => (emp.active ? "აქტიური" : "შეჩერებული"),
     },
   ];
   
@@ -287,8 +295,6 @@ const CreatedEmployees = () => {
       }));
     };
 
-
-    console.log(employees.length);
     
 
   return (
@@ -384,7 +390,8 @@ const CreatedEmployees = () => {
             "schedule.name",
             "honorable_minutes_per_day",
             "holidays",
-            "status"
+            "status",
+            "username"
           ]}
           rowClassName={(employee) =>
             selectedEmployee?.id === employee.id ? "bg-blue-200" : ""
