@@ -660,6 +660,22 @@ const EmployeeAccess = () => {
           <h1 className="text-[#1976D2] font-medium text-[23px]">
             თანამშრომლის დაშვება
           </h1>
+          <div>
+          <div className="flex justify-end items-center gap-8">
+          <button
+            className="bg-[#5CB85C] text-white px-4 py-2 rounded-md flex items-center gap-2"
+            onClick={() => setIsModalOpen(true)}
+          >
+            <img src={NewIcon} alt="New Icon" />
+            ახალი
+          </button>
+          <button
+            className="bg-[#D9534F] text-white px-4 py-2 rounded-md flex items-center gap-2"
+            onClick={() => handleDeleteAccessGroup(selectedEmployee.user_id)}
+          >
+            <img src={DeleteIcon} alt="Delete Icon" />
+            წაშლა
+          </button>
           <button
             onClick={exportToExcel}
             className="bg-[#105D8D] px-7 py-2 rounded flex items-center gap-3 text-white text-[16px] border relative"
@@ -667,6 +683,9 @@ const EmployeeAccess = () => {
             ჩამოტვირთვა
             <span className="absolute inset-0 border border-white border-dashed rounded"></span>
           </button>
+        </div>
+          </div>
+         
         </div>
         <div className="flex items-center gap-4">
           {/* <select
@@ -738,22 +757,7 @@ const EmployeeAccess = () => {
             ძებნა
           </button>
         </div>
-        <div className="flex justify-end items-center gap-8">
-          <button
-            className="bg-[#5CB85C] text-white px-4 py-2 rounded-md flex items-center gap-2"
-            onClick={() => setIsModalOpen(true)}
-          >
-            <img src={NewIcon} alt="New Icon" />
-            ახალი
-          </button>
-          <button
-            className="bg-[#D9534F] text-white px-4 py-2 rounded-md flex items-center gap-2"
-            onClick={() => handleDeleteAccessGroup(selectedEmployee.user_id)}
-          >
-            <img src={DeleteIcon} alt="Delete Icon" />
-            წაშლა
-          </button>
-        </div>
+        
         <div className="container mx-auto mt-10 overflow-x-auto">
           <Table
             data={filteredEmployees}

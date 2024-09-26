@@ -442,6 +442,7 @@ const lastReportElementRef = useCallback(node => {
 }, [status, hasMore, dispatch, formData]);
 
 
+console.log(reports);
 
 
     

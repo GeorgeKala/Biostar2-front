@@ -311,13 +311,31 @@ const Order = () => {
       <div className="w-full px-20 py-4 flex flex-col gap-8">
         <div className="flex justify-between w-full">
           <h1 className="text-[#1976D2] font-medium text-[23px]">ბრძანებები</h1>
-          <button
-            onClick={exportToExcel}
-            className="bg-[#105D8D] px-7 py-2 rounded flex items-center gap-3 text-white text-[16px] border relative"
-          >
-            ჩამოტვირთვა
-            <span className="absolute inset-0 border border-white border-dashed rounded"></span>
-          </button>
+          <div className="flex gap-4">
+              <div className="flex justify-end gap-4">
+              <button
+                className="bg-[#5CB85C] text-white py-2 px-4 rounded-md"
+                onClick={openModalForCreate}
+              >
+                + შექმნა
+              </button>
+              <button
+                className="bg-[#D9534F] text-white px-4 py-2 rounded-md flex items-center gap-2"
+                onClick={openModalForDelete}
+              >
+                <img src={DeleteIcon} alt="Delete Icon" />
+                წაშლა
+              </button>
+            </div>
+            <button
+              onClick={exportToExcel}
+              className="bg-[#105D8D] px-7 py-2 rounded flex items-center gap-3 text-white text-[16px] border relative"
+            >
+              ჩამოტვირთვა
+              <span className="absolute inset-0 border border-white border-dashed rounded"></span>
+            </button>
+          </div>
+          
         </div>
         <form className="flex items-center gap-4" onSubmit={handleSubmit}>
           <GeneralInputGroup
@@ -352,21 +370,7 @@ const Order = () => {
             <img src={SearchIcon} alt="Search Icon" />
           </button>
         </form>
-        <div className="flex justify-end gap-4">
-          <button
-            className="bg-[#5CB85C] text-white py-2 px-4 rounded-md"
-            onClick={openModalForCreate}
-          >
-            + შექმნა
-          </button>
-          <button
-            className="bg-[#D9534F] text-white px-4 py-2 rounded-md flex items-center gap-2"
-            onClick={openModalForDelete}
-          >
-            <img src={DeleteIcon} alt="Delete Icon" />
-            წაშლა
-          </button>
-        </div>
+        
         <Table
           data={filteredAndSortedData}
           headers={orderHeaders}

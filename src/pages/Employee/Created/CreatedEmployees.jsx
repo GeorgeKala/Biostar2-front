@@ -40,19 +40,52 @@ const CreatedEmployees = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false); 
   const [statusFilter, setStatusFilter] = useState('active');
   const [openNestedDropdown, setOpenNestedDropdown] = useState(false);
-  const { formData, setFormData} = useFormData({
-    fullname:"",
-    department_id: user?.user_type?.has_full_access == 1 ? "" : user?.department?.id,
+  const { formData, setFormData } = useFormData({
+    fullname: "",
+    department: user?.user_type?.has_full_access ? "" : user?.department?.name,
+    position: "",
+    personal_id: "",
+    phone_number: "",
+    card_number: "",
+    group: "",
+    schedule: "",
+    honorable_minutes_per_day: "",
+    holidays: "",
+    status: "",
+    username: ""
   });
 
-  useEffect(() => {
-    dispatch(clearEmployees());
-    dispatch(fetchEmployees({  status: statusFilter, page: 1 }));
-  }, [statusFilter, dispatch]);
-
+  
+ 
   const handleStatusFilterChange = (status) => {
     setStatusFilter(status); 
   };
+
+
+  const debounceRef = useRef();
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    debounceRef.current = setTimeout(() => {
+      dispatch(clearEmployees());
+      dispatch(fetchEmployees({ ...formData, status: statusFilter, page: 1 }));
+    }, 500);
+  };
+
+  useEffect(() => {
+    dispatch(fetchEmployees({ ...formData, status: statusFilter, page: 1 }));
+  }, [dispatch, statusFilter]);
+
+  
+  
   
 
   const {
@@ -66,13 +99,13 @@ const CreatedEmployees = () => {
     employees,
     {
       fullname: { text: "", selected: [] },
-      "department.name": { text: "", selected: [] },
+      department: { text: "", selected: [] },
       position: { text: "", selected: [] },
       personal_id: { text: "", selected: [] },
       phone_number: { text: "", selected: [] },
       card_number: { text: "", selected: [] },
-      "group.name": { text: "", selected: [] },
-      "schedule.name": { text: "", selected: [] },
+      group: { text: "", selected: [] },
+      schedule: { text: "", selected: [] },
       honorable_minutes_per_day: { text: "", selected: [] },
       holidays: { text: "", selected: [] },
       status: { text: "", selected: [] },
@@ -81,16 +114,19 @@ const CreatedEmployees = () => {
     { key: "", direction: "ascending" }
   );
 
-  useEffect(() => {
-    dispatch(fetchEmployees());
-  }, [dispatch]);
+  // useEffect(() => {
+  //   dispatch(fetchEmployees());
+  // }, [dispatch]);
+
+
+  
 
   const handleExportToExcel = async () => {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Employees");
 
     const columns = [
-      { header: "სახელი/გვარი", key: "fullname", width: 20 },
+      { header: "გვარი/სახელი", key: "fullname", width: 20 },
       { header: "დეპარტამენტი", key: "department", width: 30 },
       { header: "პოზიცია", key: "position", width: 20 },
       { header: "პირადი ნომერი", key: "personal_id", width: 20 },
@@ -115,13 +151,13 @@ const CreatedEmployees = () => {
     filteredAndSortedData.forEach((employee) => {
       worksheet.addRow({
         fullname: employee.fullname || "",
-        department: employee?.department?.name || "",
+        department: employee?.department|| "",
         position: employee.position || "",
         personal_id: employee.personal_id || "",
         phone_number: employee.phone_number || "",
         card_number: employee.card_number || "",
-        group: employee?.group?.name || "",
-        schedule: employee?.schedule?.name || "",
+        group: employee?.group || "",
+        schedule: employee?.schedule || "",
         
         honorable_minutes_per_day:
           employee.honorable_minutes_per_day !== null
@@ -181,12 +217,58 @@ const CreatedEmployees = () => {
 
   const employeeHeaders = [
     {
-      label: "სახელი/გვარი",
+      label: "გვარი/სახელი",
       key: "fullname",
-      extractValue: (emp) => emp.fullname,
+      extractValue: (emp) => emp.fullname || "",
     },
     {
-      label: "მომხმარებელი",  
+      label: "დეპარტამენტი",
+      key: "department",
+      extractValue: (emp) => emp.department || "",
+    },
+    {
+      label: "პოზიცია",
+      key: "position",
+      extractValue: (emp) => emp.position || "",
+    },
+    {
+      label: "პირადი ნომერი",
+      key: "personal_id",
+      extractValue: (emp) => emp.personal_id || "",
+    },
+    {
+      label: "ტელეფონის ნომერი",
+      key: "phone_number",
+      extractValue: (emp) => emp.phone_number || "",
+    },
+    {
+      label: "ბარათის ნომერი",
+      key: "card_number",
+      extractValue: (emp) => emp.card_number || "",
+    },
+    {
+      label: "ჯგუფი",
+      key: "group",
+      extractValue: (emp) => emp.group || "",
+    },
+    {
+      label: "განრიგი",
+      key: "schedule",
+      extractValue: (emp) => emp.schedule || "",
+    },
+    {
+      label: "საპატიო წუთები",
+      key: "honorable_minutes_per_day",
+      extractValue: (emp) => emp.honorable_minutes_per_day || "",
+    },
+    {
+      label: "დასვენების დღეები",
+      key: "holidays",
+      extractValue: (emp) =>
+        emp.holidays?.map((holiday) => holiday).join(", ") || "",
+    },
+    {
+      label: "მომხმარებელი",
       key: "username",
       extractValue: (emp) => emp.username || "",
     },
@@ -195,49 +277,9 @@ const CreatedEmployees = () => {
       key: "status",
       extractValue: (emp) => (emp.active ? "აქტიური" : "შეჩერებული"),
     },
-    {
-      label: "დეპარტამენტი",
-      key: "department.name",
-      extractValue: (emp) => emp?.department || "",
-    },
-    { label: "პოზიცია", key: "position", extractValue: (emp) => emp.position },
-    {
-      label: "პირადი ნომერი",
-      key: "personal_id",
-      extractValue: (emp) => emp.personal_id,
-    },
-    {
-      label: "ტელეფონის ნომერი",
-      key: "phone_number",
-      extractValue: (emp) => emp.phone_number,
-    },
-    {
-      label: "ბარათის ნომერი",
-      key: "card_number",
-      extractValue: (emp) => emp.card_number,
-    },
-    {
-      label: "ჯგუფი",
-      key: "group.name",
-      extractValue: (emp) => emp?.group || "",
-    },
-    {
-      label: "განრიგი",
-      key: "schedule.name",
-      extractValue: (emp) => emp?.schedule || "",
-    },
-    {
-      label: "საპატიო წუთები",
-      key: "honorable_minutes_per_day",
-      extractValue: (emp) => emp.honorable_minutes_per_day,
-    },
-    {
-      label: "დასვენების დღეები",
-      key: "holidays",
-      extractValue: (emp) =>
-        emp.holidays.map((holiday) => holiday).join(", "),
-    },
   ];
+  
+  
   
 
   const observer = useRef();
@@ -249,7 +291,7 @@ const CreatedEmployees = () => {
 
     observer.current = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting && hasMore) {
-        dispatch(fetchEmployees({ ...formData, status: statusFilter })); // Always send the status filter when loading more
+        dispatch(fetchEmployees({ ...formData, status: statusFilter })); 
       }
     });
 
@@ -294,7 +336,9 @@ const CreatedEmployees = () => {
         [fieldName]: fieldName === 'department_id' ? '' : fieldName === 'employee_id' ? '' : prevData[fieldName],
       }));
     };
+        
 
+    console.log(formData);
     
 
   return (
@@ -341,53 +385,26 @@ const CreatedEmployees = () => {
           </div>
           
         </div>
-        <div>
-        <div className="flex gap-4 items-center">
-        <input
-              type="text"
-              name="fullname"
-              value={formData.fullname}
-              placeholder="სახელი/გვარი"
-              onChange={(e) => setFormData((prevData) => ({
-                ...prevData,
-                fullname: e.target.value,
-              }))}
-              className="border border-[#105D8D] outline-none rounded-l py-3 px-4 w-full pr-10"
-            />
-          <DepartmentInput
-            value={
-              departments.find((d) => d.id === formData.department_id)?.name ||
-              ""
-            }
-            onClear={() => handleClear("department_id")}
-            onSearchClick={() => setOpenNestedDropdown(true)}
-          />
-          <button
-            className="bg-[#1AB7C1] rounded-lg min-w-[75px] h-[52px] flex items-center justify-center py-4"
-            onClick={handleSubmit}
-          >
-            <img src={SearchIcon} className="w-[30px]"  alt="Search Icon" />
-          </button>
-          </div>
-        </div>
+   
         <Table
-          data={filteredAndSortedData}
+          data={employees}
           headers={employeeHeaders}
           filters={filters}
           sortConfig={sortConfig}
           onSort={handleSort}
           onFilterClick={handleOpenFilterModal}
-          onFilterChange={handleFilterChange}
+          onFilterChange={handleChange}
           lastReportRef={lastReportElementRef}
+          formData={formData}
           filterableFields={[
             "fullname",
-            "department.name",
+            "department",
             "position",
             "personal_id",
             "phone_number",
             "card_number",
-            "group.name",
-            "schedule.name",
+            "group",
+            "schedule",
             "honorable_minutes_per_day",
             "holidays",
             "status",
@@ -448,3 +465,4 @@ const CreatedEmployees = () => {
 };
 
 export default CreatedEmployees;
+

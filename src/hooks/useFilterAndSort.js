@@ -27,7 +27,6 @@ export const useFilterAndSort = (data, initialFilters, initialSortConfig) => {
   }, [sortConfig, pageKey]);
 
   const filteredAndSortedData = useMemo(() => {
-    // Ensure data is an array before attempting to filter or sort
     if (!Array.isArray(data)) {
       return [];
     }
@@ -41,7 +40,6 @@ export const useFilterAndSort = (data, initialFilters, initialSortConfig) => {
               .split(".")
               .reduce((o, i) => (o ? o[i] : ""), item) || "";
 
-          // Convert fieldValue to string and lowercase if necessary
           const fieldValueStr =
             typeof fieldValue === "string"
               ? fieldValue.toLowerCase()
@@ -67,7 +65,6 @@ export const useFilterAndSort = (data, initialFilters, initialSortConfig) => {
             .split(".")
             .reduce((o, i) => (o ? o[i] : ""), b) || "";
 
-        // Convert values to string and lowercase for comparison
         const aValueStr =
           typeof aValue === "string" ? aValue.toLowerCase() : aValue.toString();
         const bValueStr =
@@ -80,6 +77,8 @@ export const useFilterAndSort = (data, initialFilters, initialSortConfig) => {
         return 0;
       });
   }, [data, filters, sortConfig]);
+
+
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;

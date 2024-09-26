@@ -14,7 +14,8 @@ const Table = ({
   onRowDoubleClick, 
   filterableFields,
   onContext,
-  lastReportRef
+  lastReportRef,
+  formData
 }) => {
   const [columnWidths, setColumnWidths] = useState(
     headers.reduce((acc, header) => {
@@ -169,7 +170,7 @@ const Table = ({
                     <input
                       type="text"
                       name={filterKey}
-                      value={filters[filterKey]?.text || ""}
+                      value={formData && formData[filterKey] ? formData[filterKey] : filters[filterKey]?.text || ""}
                       onChange={onFilterChange}
                       className="font-normal px-2 py-1 w-full outline-none border-none bg-transparent"
                       autoComplete="off"

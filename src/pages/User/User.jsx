@@ -54,7 +54,7 @@ const User = () => {
     {
       username: { text: "", selected: [] },
       name: { text: "", selected: [] },
-      userType: { text: "", selected: [] },
+      "user_type.name": { text: "", selected: [] },
       department: { text: "", selected: [] },
       employeeFullname: { text: "", selected: [] },
     },
@@ -245,6 +245,9 @@ const User = () => {
     XLSX.writeFile(workbook, "Users.xlsx");
   };
 
+  console.log(usersData);
+  
+
   return (
     <AuthenticatedLayout>
       <div className="w-full px-20 py-4 flex flex-col gap-8">
@@ -331,8 +334,8 @@ const User = () => {
           filterableFields={[
             "username",
             "name",
-            "userType",
-            "department",
+            "user_type.name",
+            "department.name",
             "employeeFullname",
           ]}
         />
