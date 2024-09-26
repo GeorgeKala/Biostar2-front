@@ -70,7 +70,7 @@ const KitchenReport = () => {
     const dataToExport = [];
     
     // Create headers
-    const headers = ["დეპარტამენტი", "თანამშრომელი", ...reportData.report_periods.flatMap((month, index) => [...reportData.dates_grouped_by_month[index], "Total"]), "საბოლოო ჯამი"];
+    const headers = ["დეპარტამენტი", "თანამშრომელი", ...reportData.report_periods.flatMap((month, index) => [...reportData.dates_grouped_by_month[index], "Total"])];
     dataToExport.push(headers);
 
     Object.keys(reportData.employee_data).forEach((month) => {
@@ -91,15 +91,13 @@ const KitchenReport = () => {
             row.push(reportData.employee_data[month][department][employee]["Month Total"]);
           });
 
-          row.push(reportData.employee_data[month][department][employee]["Grand Total"] || 0);
-
           dataToExport.push(row);
         });
 
         const deptTotalRow = [`${department} ჯამური`, "", ...reportData.dates_grouped_by_month.flatMap((dates, monthIndex) => [
           ...dates.map((date) => reportData.department_totals[month][department][date] || 0),
           reportData.department_totals[month][department]["Month Total"]
-        ]), reportData.yearly_totals[department]["Year Total"] || 0];
+        ])];
         dataToExport.push(deptTotalRow);
       });
     });
@@ -158,8 +156,7 @@ const KitchenReport = () => {
   const datesGroupedByMonth = reportData?.dates_grouped_by_month || [];
   const departmentTotals = reportData?.department_totals || {};
   const employeeData = reportData?.employee_data || {};
-  const yearlyTotals = reportData?.yearly_totals || {};
-
+  
   return (
     <AuthenticatedLayout>
       <div className="container mx-auto p-4">
@@ -211,12 +208,12 @@ const KitchenReport = () => {
             className="bg-[#1AB7C1] rounded-lg min-w-[75px] flex items-center justify-center py-2"
             onClick={handleSubmit}
           >
-            <img src={SearchIcon}   alt="Search Icon" />
+            <img src={SearchIcon} alt="Search Icon" />
           </button>
         </div>
 
         <div className="overflow-x-auto">
-          <div className="max-h-[500px] overflow-y-auto">
+          <div className="max-h-[70vh] overflow-y-auto">
             <table className="min-w-full bg-white border text-sm">
               <thead className="bg-[#1976D2] text-white">
                 <tr>
@@ -229,13 +226,12 @@ const KitchenReport = () => {
                       </th>
                     </React.Fragment>
                   ))}
-                  <th rowSpan={2} className="py-2 px-4 border">საბოლოო ჯამი</th>
                 </tr>
                 <tr>
                   {datesGroupedByMonth.map((dates, monthIndex) => (
                     <React.Fragment key={monthIndex}>
-                      {dates.map((date) => (
-                        <th key={date} className="py-2 px-4 border text-center">{date}</th>
+                      {dates.map((date, index) => (
+                        <th key={date} className="py-2 px-4 border text-center">{index + 1}</th>
                       ))}
                       <th className="py-2 px-4 border text-center">Total</th>
                     </React.Fragment>
@@ -264,22 +260,17 @@ const KitchenReport = () => {
                                 return (
                                   <td
                                     key={date}
-                                    className={`py-2 px-4 border text-center ${
-                                      isFixed ? "bg-green-500 text-white" : ""
-                                    }`}
+                                    className={`py-2 px-4 border text-center ${isFixed ? "bg-green-300 text-white" : ""}`}
                                   >
                                     {employeeData[month][department][employee][date] || 0}
                                   </td>
                                 );
                               })}
-                              <td className="py-2 px-4 border font-bold text-center">
+                              <td className="py-2 px-4 border font-bold text-center" >
                                 {employeeData[month][department][employee]["Month Total"]}
                               </td>
                             </React.Fragment>
                           ))}
-                          <td className="py-2 px-4 border font-bold text-center">
-                            {employeeData[month][department][employee]["Grand Total"] || 0}
-                          </td>
                         </tr>
                       ))}
                       <tr className="bg-gray-200">
@@ -289,10 +280,7 @@ const KitchenReport = () => {
                         {datesGroupedByMonth.map((dates, monthIndex) => (
                           <React.Fragment key={monthIndex}>
                             {dates.map((date) => (
-                              <td
-                                key={date}
-                                className="py-2 px-4 border font-bold text-center"
-                              >
+                              <td key={date} className="py-2 px-4 border font-bold text-center">
                                 {departmentTotals[month][department][date] || 0}
                               </td>
                             ))}
@@ -301,9 +289,6 @@ const KitchenReport = () => {
                             </td>
                           </React.Fragment>
                         ))}
-                        <td className="py-2 px-4 border font-bold text-center">
-                          {yearlyTotals[department]["Year Total"] || 0}
-                        </td>
                       </tr>
                     </React.Fragment>
                   ))

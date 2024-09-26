@@ -116,7 +116,7 @@ const EmployeeModal = ({ isOpen, onClose, onSelectEmployee }) => {
                             <tbody>
                                 {filteredEmployees.map((employee, index) => (
                                     <tr 
-                                        className='cursor-pointer hover:bg-gray-100 transition duration-200' // Hover effect
+                                        className='cursor-pointer hover:bg-gray-100 transition duration-200' 
                                         key={employee.id} 
                                         ref={index === filteredEmployees.length - 1 ? lastEmployeeRef : null} 
                                         onClick={() => handleRowClick(employee)}
