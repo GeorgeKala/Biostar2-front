@@ -80,9 +80,40 @@ const CreatedEmployees = () => {
     }, 500);
   };
 
-  useEffect(() => {
-    dispatch(fetchEmployees({ ...formData, status: statusFilter, page: 1 }));
-  }, [dispatch, statusFilter]);
+  // const handleChange = (e) => {
+  //   const { name, value } = e.target;
+  
+  //   setFormData((prev) => ({
+  //     ...prev,
+  //     [name]: value,
+  //   }));
+  
+  //   if (value === formData[name]) return;
+  
+  //   if (debounceRef.current) clearTimeout(debounceRef.current);
+  
+  //   dispatch(clearEmployees());
+  //   dispatch(fetchEmployees({ 
+  //     ...formData, 
+  //     [name]: value, 
+  //     status: statusFilter, 
+  //     page: 1 
+  //   }));
+  
+  //   debounceRef.current = setTimeout(() => {
+  //     dispatch(clearEmployees());
+  //     dispatch(fetchEmployees({ 
+  //       ...formData, 
+  //       [name]: value, 
+  //       status: statusFilter, 
+  //       page: 1 
+  //     }));
+  //   }, 1000);
+  // };
+
+  // useEffect(() => {
+  //   dispatch(fetchEmployees({ ...formData, status: statusFilter, page: 1 }));
+  // }, [dispatch, statusFilter,]);
 
   
   

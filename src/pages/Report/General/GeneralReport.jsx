@@ -482,7 +482,6 @@ console.log(reports);
               ""
             }
             onClear={() => handleClear("department_id")}
-
             onSearchClick={() => setOpenNestedDropdown(true)}
           />
           <EmployeeInput

@@ -25,7 +25,6 @@ const CommentAnalyze = () => {
   const [isEmployeeModalOpen, setIsEmployeeModalOpen] = useState(false);
   const [openNestedDropdown, setOpenNestedDropdown] = useState(false);
 
-  // Initialize formData using the custom useFormData hook
   const {
     formData: filters,
     handleFormDataChange,
@@ -34,7 +33,7 @@ const CommentAnalyze = () => {
   } = useFormData({
     start_date: "",
     end_date: "",
-    department_id: user?.user_type?.has_full_access ? "" : user?.department?.id,
+    department_id: user?.user_type?.has_full_access == 1 ? "" : user?.department?.id,
     forgive_type_id: "",
     employee_id: "",
   });
@@ -104,13 +103,16 @@ const CommentAnalyze = () => {
     0
   );
 
-  const handleDepartmentSelect = (department) => {
-    setFormData((prevFilters) => ({
-      ...prevFilters,
-      department_id: department.id,
+
+  const handleDepartmentSelect = (departmentId) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      department_id: departmentId,
     }));
     setOpenNestedDropdown(false);
   };
+
+  
 
   const handleClear = (field) => {
     setFormData((prevFilters) => ({
