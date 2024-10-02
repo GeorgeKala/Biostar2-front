@@ -73,7 +73,7 @@ const CommandType = () => {
   };
 
   const handleDelete = async (dayTypeId) => {
-    if (window.confirm("Are you sure you want to delete this day type?")) {
+    if (window.confirm("დარწმუნებული ხართ რომ გსურთ ბრძანების ტიპის წაშლა?")) {
       try {
         await dayTypeService.deleteDayType(dayTypeId);
         setDayTypeList(dayTypeList.filter((dt) => dt.id !== dayTypeId));

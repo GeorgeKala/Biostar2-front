@@ -84,19 +84,19 @@ const Table = ({
   return (
     <div className="container mx-auto  overflow-x-auto">
       <div
-        className="min-w-max max-h-[70vh] overflow-y-auto"
+        className="min-w-max max-h-[750px] overflow-y-auto"
         ref={tableRef}
         
       >
         <table className="min-w-full divide-y divide-gray-200 border-collapse">
           <thead className="bg-[#1976D2] text-white text-xs sticky top-0 z-10">
             <tr>
-              <th className="w-[30px]"></th>
+              <th className="w-[30px] "></th>
               {headers &&
                 headers.map((header) => (
                   <th
                     key={header.key}
-                    className="border font-normal border-gray-200 text-left px-2 customized-th-tr cursor-pointer relative group"
+                    className="border text-[14px] font-normal border-gray-200 text-left px-2 customized-th-tr cursor-pointer relative group"
                     style={{
                       maxWidth: `${columnWidths[header.key]}px`,
                       whiteSpace: "nowrap",
@@ -159,7 +159,7 @@ const Table = ({
                 filterableFields.map((filterKey) => (
                   <th
                     key={filterKey}
-                    className="border border-gray-200 customized-th-tr"
+                    className="border  customized-th-tr"
                     style={{
                       maxWidth: `${columnWidths.filterKey}px`,
                       whiteSpace: "nowrap",
@@ -172,7 +172,7 @@ const Table = ({
                       name={filterKey}
                       value={formData && formData[filterKey] ? formData[filterKey] : filters[filterKey]?.text || ""}
                       onChange={onFilterChange}
-                      className="font-normal px-2 py-1 w-full outline-none border-none bg-transparent"
+                      className="font-normal text-black bg-[#D3DBEB] px-2 py-1 w-full outline-none border-none bg-transparent"
                       autoComplete="off"
                     />
                   </th>

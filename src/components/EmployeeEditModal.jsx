@@ -25,7 +25,7 @@ const EmployeeEditModal = ({ employee = {}, isOpen, onClose }) => {
     start_datetime: employee?.start_datetime ? new Date(employee.start_datetime).toISOString().slice(0, 10) : "",
     expiry_datetime: employee.expiry_datetime ? new Date(employee.expiry_datetime).toISOString().slice(0, 10) : "",
     position: employee?.position || "",
-    group_id: employee?.group?.id || "",
+    group_id: employee?.group || "",
     schedule_id: employee?.schedule?.id || "",
     honorable_minutes_per_day: employee.honorable_minutes_per_day || "",
     device_id: employee?.device?.id || "",

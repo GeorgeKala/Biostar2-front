@@ -64,60 +64,47 @@ const CreatedEmployees = () => {
 
   const debounceRef = useRef();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-
-    debounceRef.current = setTimeout(() => {
-      dispatch(clearEmployees());
-      dispatch(fetchEmployees({ ...formData, status: statusFilter, page: 1 }));
-    }, 500);
-  };
-
   // const handleChange = (e) => {
   //   const { name, value } = e.target;
-  
+
   //   setFormData((prev) => ({
   //     ...prev,
   //     [name]: value,
   //   }));
-  
-  //   if (value === formData[name]) return;
-  
+
   //   if (debounceRef.current) clearTimeout(debounceRef.current);
-  
-  //   dispatch(clearEmployees());
-  //   dispatch(fetchEmployees({ 
-  //     ...formData, 
-  //     [name]: value, 
-  //     status: statusFilter, 
-  //     page: 1 
-  //   }));
-  
+
   //   debounceRef.current = setTimeout(() => {
   //     dispatch(clearEmployees());
-  //     dispatch(fetchEmployees({ 
-  //       ...formData, 
-  //       [name]: value, 
-  //       status: statusFilter, 
-  //       page: 1 
-  //     }));
-  //   }, 1000);
+  //     dispatch(fetchEmployees({ ...formData, status: statusFilter, page: 1 }));
+  //   }, 500);
   // };
 
-  // useEffect(() => {
-  //   dispatch(fetchEmployees({ ...formData, status: statusFilter, page: 1 }));
-  // }, [dispatch, statusFilter,]);
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
   
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   
+    dispatch(clearEmployees());
   
+    if (value === '') {
+      dispatch(fetchEmployees({ status: statusFilter, page: 1 }));
+      return;
+    }
+  
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    
+    debounceRef.current = setTimeout(() => {
+      dispatch(fetchEmployees({ ...formData, [name]: value, status: statusFilter, page: 1 }));
+    }, 500);
+  };
+  
+
+
 
   const {
     filteredAndSortedData,
@@ -137,7 +124,7 @@ const CreatedEmployees = () => {
       card_number: { text: "", selected: [] },
       group: { text: "", selected: [] },
       schedule: { text: "", selected: [] },
-      honorable_minutes_per_day: { text: "", selected: [] },
+      honorable_minutes_per_day: { text: null, selected: [] },
       holidays: { text: "", selected: [] },
       status: { text: "", selected: [] },
       username: { text: "", selected: [] },
@@ -145,80 +132,84 @@ const CreatedEmployees = () => {
     { key: "", direction: "ascending" }
   );
 
-  // useEffect(() => {
-  //   dispatch(fetchEmployees());
-  // }, [dispatch]);
 
 
   
 
   const handleExportToExcel = async () => {
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet("Employees");
-
-    const columns = [
-      { header: "გვარი/სახელი", key: "fullname", width: 20 },
-      { header: "დეპარტამენტი", key: "department", width: 30 },
-      { header: "პოზიცია", key: "position", width: 20 },
-      { header: "პირადი ნომერი", key: "personal_id", width: 20 },
-      { header: "ტელეფონის ნომერი", key: "phone_number", width: 20 },
-      { header: "ბარათის ნომერი", key: "card_number", width: 20 },
-      { header: "ჯგუფი", key: "group", width: 20 },
-      { header: "განრიგი", key: "schedule", width: 30 },
-      { header: "საპატიო წუთები", key: "honorable_minutes_per_day", width: 20 },
-      { header: "დასვენების დღეები", key: "holidays", width: 30 },
-      { header: "სტატუსი", key: "status", width: 15 },
-      { header: "მომხმარებელი", key: "status", width: 15 },
-    ];
-
-    worksheet.columns = columns;
-
-    worksheet.getRow(1).font = { bold: true };
-    worksheet.getRow(1).alignment = {
-      horizontal: "center",
-      vertical: "center",
-    };
-
-    filteredAndSortedData.forEach((employee) => {
-      worksheet.addRow({
-        fullname: employee.fullname || "",
-        department: employee?.department|| "",
-        position: employee.position || "",
-        personal_id: employee.personal_id || "",
-        phone_number: employee.phone_number || "",
-        card_number: employee.card_number || "",
-        group: employee?.group || "",
-        schedule: employee?.schedule || "",
-        
-        honorable_minutes_per_day:
-          employee.honorable_minutes_per_day !== null
-            ? employee.honorable_minutes_per_day
-            : "",
-        holidays:
-          employee.holidays.length > 0
-            ? employee.holidays.map((holiday) => holiday.name).join(", ")
-            : "",
-        status: employee.active ? "აქტიური" : "შეჩერებული",
-        username: employee?.username || ""
+    try {
+      // Fetch all employees for export, with the current filters applied
+      const response = await employeeService.getAllEmployees({
+        ...formData,       
+        status: statusFilter, 
+        export: true        
       });
-    });
-
-    const buffer = await workbook.xlsx.writeBuffer();
-
-    const blob = new Blob([buffer], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    });
-    const url = URL.createObjectURL(blob);
-
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "Employees.xlsx";
-    document.body.appendChild(link);
-    link.click();
-
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+      
+      const allEmployees = response;  
+  
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet("Employees");
+  
+      const columns = [
+        { header: "გვარი/სახელი", key: "fullname", width: 20 },
+        { header: "დეპარტამენტი", key: "department", width: 30 },
+        { header: "პოზიცია", key: "position", width: 20 },
+        { header: "პირადი ნომერი", key: "personal_id", width: 20 },
+        { header: "ტელეფონის ნომერი", key: "phone_number", width: 20 },
+        { header: "ბარათის ნომერი", key: "card_number", width: 20 },
+        { header: "ჯგუფი", key: "group", width: 20 },
+        { header: "განრიგი", key: "schedule", width: 30 },
+        { header: "საპატიო წუთები", key: "honorable_minutes_per_day", width: 20 },
+        { header: "დასვენების დღეები", key: "holidays", width: 30 },
+        { header: "სტატუსი", key: "status", width: 15 },
+        { header: "მომხმარებელი", key: "username", width: 15 },
+      ];
+  
+      worksheet.columns = columns;
+  
+      worksheet.getRow(1).font = { bold: true };
+      worksheet.getRow(1).alignment = {
+        horizontal: "center",
+        vertical: "center",
+      };
+  
+      // Loop through all the employees and add them to the worksheet
+      allEmployees.forEach((employee) => {
+        worksheet.addRow({
+          fullname: employee.fullname || "",
+          department: employee?.department || "",
+          position: employee.position || "",
+          personal_id: employee.personal_id || "",
+          phone_number: employee.phone_number || "",
+          card_number: employee.card_number || "",
+          group: employee?.group || "",
+          schedule: employee?.schedule || "",
+          honorable_minutes_per_day: employee.honorable_minutes_per_day || "",
+          holidays: employee.holidays?.map((holiday) => holiday.name).join(", ") || "",
+          status: employee.active ? "აქტიური" : "შეჩერებული",
+          username: employee?.username || ""
+        });
+      });
+  
+      // Generate the Excel file and trigger the download
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+      const url = URL.createObjectURL(blob);
+  
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "Employees.xlsx";
+      document.body.appendChild(link);
+      link.click();
+  
+      // Clean up the download link after use
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error exporting employees to Excel:", error);
+    }
   };
+  
 
   const handleOpenFilterModal = (data, fieldName, rect) => {
     setFilterableData(data);
@@ -332,10 +323,10 @@ const CreatedEmployees = () => {
 
   console.log(employees.length);
 
-  // useEffect(() => {
-  //   dispatch(clearEmployees());
-  //   dispatch(fetchEmployees({ status: statusFilter, page: 1 }));
-  // }, [statusFilter, dispatch]);
+  useEffect(() => {
+    dispatch(clearEmployees());
+    dispatch(fetchEmployees({ status: statusFilter, page: 1 }));
+  }, [statusFilter, dispatch]);
 
   const handleDepartmentSelect = (departmentId) => {
     setFormData((prevData) => ({
@@ -354,23 +345,8 @@ const CreatedEmployees = () => {
       );
   
 
-    const handleSubmit = () => {
-      dispatch(clearEmployees());
-      dispatch(fetchEmployees({ ...formData }));
-    };
-
-
-
-    const handleClear = (fieldName) => {
-      setFormData((prevData) => ({
-        ...prevData,
-        [fieldName]: fieldName === 'department_id' ? '' : fieldName === 'employee_id' ? '' : prevData[fieldName],
-      }));
-    };
         
 
-    console.log(formData);
-    
 
   return (
     <AuthenticatedLayout>
