@@ -430,7 +430,7 @@ const CreatedEmployees = () => {
       </div>
       {editModalOpen && (
         <EmployeeEditModal
-          employee={selectedEmployee}
+          employeeId={selectedEmployee}
           isOpen={editModalOpen}
           onClose={() => setEditModalOpen(false)}
         />

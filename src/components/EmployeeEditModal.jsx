@@ -9,41 +9,82 @@ import NestedDropdownModal from "./NestedDropdownModal";
 import SearchIcon from "../assets/search.png";
 import CardScanModal from "./CardScanModal";
 
-const EmployeeEditModal = ({ employee = {}, isOpen, onClose }) => {
-
-  
-  const { departments, nestedDepartments } = useSelector((state) => state.departments);
+const EmployeeEditModal = ({ employeeId, isOpen, onClose }) => {
+  const dispatch = useDispatch();
+  const holidays = useSelector(selectHolidays);
+  const { departments, nestedDepartments } = useSelector(
+    (state) => state.departments
+  );
   const user = useSelector((state) => state.user.user);
   const groups = useSelector((state) => state.groups.items);
   const schedules = useSelector((state) => state.schedules.items);
 
   const [formData, setFormData] = useState({
-    fullname: employee?.fullname || "",
-    personal_id: employee?.personal_id || "",
-    phone_number: employee?.phone_number || "",
-    department_id: user?.user_type?.has_full_access ? employee.department.id : user?.department?.id || "",
-    start_datetime: employee?.start_datetime ? new Date(employee.start_datetime).toISOString().slice(0, 10) : "",
-    expiry_datetime: employee.expiry_datetime ? new Date(employee.expiry_datetime).toISOString().slice(0, 10) : "",
-    position: employee?.position || "",
-    group_id: employee?.group || "",
-    schedule_id: employee?.schedule?.id || "",
-    honorable_minutes_per_day: employee.honorable_minutes_per_day || "",
-    device_id: employee?.device?.id || "",
-    card_number: employee?.card_number || "",
-    checksum: employee?.checksum || "",
-    session_id: sessionStorage.getItem('sessionToken'),
-    holidays: employee?.holidays?.map(holiday => holiday.id) || []
+    fullname: "",
+    personal_id: "",
+    phone_number: "",
+    department_id: "",
+    start_datetime: "",
+    expiry_datetime: "",
+    position: "",
+    group_id: "",
+    schedule_id: "",
+    honorable_minutes_per_day: "",
+    device_id: "",
+    card_number: "",
+    checksum: "",
+    session_id: sessionStorage.getItem("sessionToken"),
+    holidays: [],
   });
 
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
-  const dispatch = useDispatch();
-  const holidays = useSelector(selectHolidays);
   const [isOpenDropdown, setIsOpenDropdown] = useState(false);
   const [devices, setDevices] = useState([]);
   const [selectedDevice, setSelectedDevice] = useState("");
   const [openNestedDropdown, setOpenNestedDropdown] = useState(false);
   const [isCardScanModalOpen, setIsCardScanModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchEmployee = async () => {
+      try {
+        const employeeData = await employeeService.getEmployeeById(employeeId?.id);
+
+        console.log(employeeData);
+        
+        setFormData({
+          fullname: employeeData.fullname || "",
+          personal_id: employeeData.personal_id || "",
+          phone_number: employeeData.phone_number || "",
+          department_id: user?.user_type?.has_full_access
+            ? employeeData.department.id
+            : user?.department?.id || "",
+          start_datetime: employeeData.start_datetime
+            ? new Date(employeeData.start_datetime).toISOString().slice(0, 10)
+            : "",
+          expiry_datetime: employeeData.expiry_datetime
+            ? new Date(employeeData.expiry_datetime).toISOString().slice(0, 10)
+            : "",
+          position: employeeData.position || "",
+          group_id: employeeData.group.id || "",
+          schedule_id: employeeData.schedule?.id || "",
+          honorable_minutes_per_day:
+            employeeData.honorable_minutes_per_day || "",
+          device_id: employeeData.device?.id || "",
+          card_number: employeeData.card_number || "",
+          checksum: employeeData.checksum || "",
+          holidays: employeeData.holidays.map((holiday) => holiday.id) || [],
+          session_id: sessionStorage.getItem("sessionToken"),
+        });
+      } catch (error) {
+        console.error("Error fetching employee data:", error);
+      }
+    };
+
+    if (isOpen && employeeId?.id) {
+      fetchEmployee();
+    }
+  }, [isOpen, employeeId?.id]);
 
   useEffect(() => {
     dispatch(fetchHolidays());
@@ -90,8 +131,12 @@ const EmployeeEditModal = ({ employee = {}, isOpen, onClose }) => {
   const handleSubmit = async () => {
     setIsLoading(true);
     try {
-      await employeeService.updateEmployee(employee.id, formData);
-      setShowSuccessPopup(true);
+      const response = await employeeService.updateEmployee(employeeId?.id, formData);
+
+      if (response && response.status === 200) {
+        await employeeService.getEmployeeById(employeeId?.id);
+        setShowSuccessPopup(true);
+      }
     } catch (error) {
       console.error("Error updating employee:", error);
     } finally {
@@ -158,17 +203,32 @@ const EmployeeEditModal = ({ employee = {}, isOpen, onClose }) => {
   };
 
   return (
-    <div className={`fixed inset-0 bg-black bg-opacity-50 z-50 ${isOpen ? "block" : "hidden"}`}>
+    <div
+      className={`fixed inset-0 bg-black bg-opacity-50 z-50 ${
+        isOpen ? "block" : "hidden"
+      }`}
+    >
       <div className="bg-white w-1/2 h-[80%] p-4 rounded-md absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 overflow-hidden">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-[#1976D2] font-medium text-[23px]">თანამშრომლის ცვლილება</h2>
+          <h2 className="text-[#1976D2] font-medium text-[23px]">
+            თანამშრომლის ცვლილება
+          </h2>
           <button onClick={onClose}>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-6 h-6">
-              <path fill="currentColor" d="M18.364 5.636a.999.999 0 0 0-1.414 0L12 10.586 7.05 5.636a.999.999 0 1 0-1.414 1.414L10.586 12l-4.95 4.95a.999.999 0 1 0 1.414 1.414L12 13.414l4.95 4.95a.999.999 0 1 0 1.414-1.414L13.414 12l4.95-4.95c.39-.39.39-1.023 0-1.414z"/>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              className="w-6 h-6"
+            >
+              <path
+                fill="currentColor"
+                d="M18.364 5.636a.999.999 0 0 0-1.414 0L12 10.586 7.05 5.636a.999.999 0 1 0-1.414 1.414L10.586 12l-4.95 4.95a.999.999 0 1 0 1.414 1.414L12 13.414l4.95 4.95a.999.999 0 1 0 1.414-1.414L13.414 12l4.95-4.95c.39-.39.39-1.023 0-1.414z"
+              />
             </svg>
           </button>
         </div>
-        <div className="overflow-y-auto h-[85%] pr-2"> {/* Scrollable content */}
+        <div className="overflow-y-auto h-[85%] pr-2">
+          {" "}
+          {/* Scrollable content */}
           <div className="flex flex-col gap-4">
             <div className="flex justify-between gap-8">
               <InputGroup
@@ -192,12 +252,17 @@ const EmployeeEditModal = ({ employee = {}, isOpen, onClose }) => {
                 onChange={handleInput}
               />
               <div className="w-full flex flex-col gap-2 relative">
-                <label className="text-[#105D8D] font-medium">დეპარტამენტი</label>
+                <label className="text-[#105D8D] font-medium">
+                  დეპარტამენტი
+                </label>
                 <div className="flex">
-                  <input 
+                  <input
                     className="bg-white border border-[#105D8D] outline-none rounded-l-2xl py-3 px-4 w-full pr-10"
                     placeholder="დეპარტამენტი"
-                    value={departments.find((d) => d.id === formData.department_id)?.name || ""}
+                    value={
+                      departments.find((d) => d.id === formData.department_id)
+                        ?.name || ""
+                    }
                     readOnly
                   />
                   {formData.department_id && (
@@ -206,12 +271,26 @@ const EmployeeEditModal = ({ employee = {}, isOpen, onClose }) => {
                       onClick={handleClearDepartment}
                       className="absolute right-12 top-[70%] transform -translate-y-1/2 mr-4"
                     >
-                      <svg className="w-6 h-6" fill="none" stroke="black" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                      <svg
+                        className="w-6 h-6"
+                        fill="none"
+                        stroke="black"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M6 18L18 6M6 6l12 12"
+                        ></path>
                       </svg>
                     </button>
                   )}
-                  <button onClick={() => setOpenNestedDropdown(true)} className="bg-[#105D8D] px-4 rounded-r-2xl">
+                  <button
+                    onClick={() => setOpenNestedDropdown(true)}
+                    className="bg-[#105D8D] px-4 rounded-r-2xl"
+                  >
                     <img className="w-[20px]" src={SearchIcon} alt="" />
                   </button>
                 </div>
@@ -368,7 +447,7 @@ const EmployeeEditModal = ({ employee = {}, isOpen, onClose }) => {
             onClick={handleSubmit}
             disabled={isLoading}
           >
-            {isLoading ? 'Saving...' : 'ცვლილების შენახვა'}
+            {isLoading ? "Saving..." : "ცვლილების შენახვა"}
           </button>
         </div>
         {showSuccessPopup && (
@@ -388,7 +467,7 @@ const EmployeeEditModal = ({ employee = {}, isOpen, onClose }) => {
             onClose={() => setOpenNestedDropdown(false)}
             onSelect={handleDepartmentSelect}
             data={nestedDepartments}
-            link={'/departments'}
+            link={"/departments"}
           />
         )}
         <CardScanModal

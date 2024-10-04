@@ -15,7 +15,7 @@ const employeeService = {
   getEmployeeById: async (id) => {
     try {
       const response = await axiosInstance.get(`/employees/${id}`);
-      return response.data.employee;
+      return response.data;
     } catch (error) {
       throw error;
     }
