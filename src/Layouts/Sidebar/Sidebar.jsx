@@ -10,6 +10,7 @@ import { openModal } from "../../redux/modalSlice";
 import ReferenceIcon from '../../assets/sidebar/folder-open.png';
 import ReportsIcon from '../../assets/sidebar/task-square.png';
 import SettingsIcon from '../../assets/sidebar/Subtract.png';
+import KitchenIcon from '../../assets/sidebar/kitchenicon.png'
 import LinksModal from '../../components/LinksModal';
 
 const Sidebar = () => {
@@ -349,7 +350,7 @@ const Sidebar = () => {
                 { path: "/reports/kitchen", label: "სამზარეულოს რეპორტი" }
               ])}
             >
-              <img src={SettingsIcon} alt="Settings Icon" />
+              <img src={KitchenIcon} alt="Settings Icon" />
               {isOpen && <span>სამზარეულოს რეპორტი</span>} 
             </div>
             {sections.kitchenReport && isOpen && (
