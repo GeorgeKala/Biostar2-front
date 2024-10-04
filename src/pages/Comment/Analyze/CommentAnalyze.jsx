@@ -11,6 +11,7 @@ import EmployeeInput from "../../../components/employee/EmployeeInput";
 import CustomSelect from "../../../components/CustomSelect";
 import ExcelJS from "exceljs";
 import { useFormData } from "../../../hooks/useFormData";  // Import the custom hook
+import SearchButton from "../../../components/SearchButton";
 
 const CommentAnalyze = () => {
   const user = useSelector((state) => state.user.user);
@@ -170,7 +171,7 @@ const CommentAnalyze = () => {
 
   return (
     <AuthenticatedLayout>
-      <div className="w-full px-20 py-4 flex flex-col gap-8">
+      <div className="w-full px-10 py-4 flex flex-col gap-8">
         <div className="flex justify-between w-full">
           <h1 className="text-[#1976D2] font-medium text-[23px]">კომენტარების ანალიზი</h1>
           <button
@@ -220,12 +221,13 @@ const CommentAnalyze = () => {
             onSearchClick={() => setIsEmployeeModalOpen(true)}
             placeholder="თანამშრომელი"
           />
-          <button
+          {/* <button
             type="submit"
             className="bg-[#1AB7C1] rounded-lg min-w-[75px] flex items-center justify-center py-2"
           >
             <img src={SearchIcon} alt="ძიების ხატულა" />
-          </button>
+          </button> */}
+          <SearchButton type="submit" onClick={handleSubmit}></SearchButton>
         </form>
         {/* Table rendering logic here */}
       </div>

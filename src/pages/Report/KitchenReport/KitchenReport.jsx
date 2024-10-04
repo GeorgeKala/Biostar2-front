@@ -9,6 +9,7 @@ import NestedDropdownModal from '../../../components/NestedDropdownModal';
 import EmployeeModal from '../../../components/employee/EmployeeModal';
 import SearchIcon from '../../../assets/search.png';
 import * as XLSX from 'xlsx';
+import SearchButton from '../../../components/SearchButton';
 
 const KitchenReport = () => {
   const [reportData, setReportData] = useState(null);
@@ -159,7 +160,7 @@ const KitchenReport = () => {
   
   return (
     <AuthenticatedLayout>
-      <div className="container mx-auto p-4">
+      <div className=" mx-auto p-4">
         <div className="flex justify-between w-full items-center mb-8">
           <h1 className="text-[#1976D2] font-medium text-[23px]">
             სამზარეულოს რეპორტი
@@ -204,12 +205,13 @@ const KitchenReport = () => {
             onClear={() => handleClear('employee')}
             onSearchClick={() => setEmployeeModalOpen(true)}
           />
-          <button
+          {/* <button
             className="bg-[#1AB7C1] rounded-lg min-w-[75px] flex items-center justify-center py-2"
             onClick={handleSubmit}
           >
             <img src={SearchIcon} alt="Search Icon" />
-          </button>
+          </button> */}
+          <SearchButton onClick={handleSubmit}></SearchButton>
         </div>
 
         <div className="overflow-x-auto">

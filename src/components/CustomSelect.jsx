@@ -56,7 +56,7 @@ const CustomSelect = ({ options, selectedValue, onSelect, placeholder, className
       <div
         className={` ${
           className ? className : "bg-white border-[#105D8D]"
-        } border border-gray-300 rounded-md cursor-pointer py-3 px-4 flex items-center justify-between`}
+        } border border-gray-300 rounded-md cursor-pointer py-2 px-4 flex items-center justify-between`}
         onClick={() => setIsOpen(!isOpen)}
       >
         <span className="truncate">

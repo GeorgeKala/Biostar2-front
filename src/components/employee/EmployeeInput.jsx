@@ -10,7 +10,7 @@ const EmployeeInput = ({
   className
 }) => {
   const defaultClasses =
-    "bg-white border border-[#105D8D] outline-none rounded-l py-3 px-4 w-full pr-10";
+    "bg-white border border-[#105D8D] outline-none rounded-l py-2 px-4 w-full pr-10";
 
   const inputClassName = className ? className : defaultClasses;
 

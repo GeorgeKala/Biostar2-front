@@ -19,6 +19,7 @@ import reportService from "../../../services/report";
 import ExcelJS from "exceljs";
 import CustomSelect from "../../../components/CustomSelect";
 import { useFormData } from "../../../hooks/useFormData";
+import SearchButton from "../../../components/SearchButton";
 
 const CommentTable = () => {
   const user = useSelector((state) => state.user.user);
@@ -212,7 +213,7 @@ const CommentTable = () => {
 
   return (
     <AuthenticatedLayout>
-      <div className="w-full px-20 py-4 flex flex-col gap-8">
+      <div className="w-full px-10 py-4 flex flex-col gap-8">
         <div className="flex justify-between w-full">
           <h1 className="text-[#1976D2] font-medium text-[23px]">
             კომენტარების ცხრილი
@@ -282,12 +283,13 @@ const CommentTable = () => {
             onClear={() => handleClear("employee")}
             onSearchClick={() => setEmployeeModalOpen(true)}
           />
-          <button
+          {/* <button
             className="bg-[#1AB7C1] rounded-lg min-w-[75px] flex items-center justify-center py-2"
             onClick={handleSubmit}
           >
             <img src={SearchIcon} alt="Search Icon" />
-          </button>
+          </button> */}
+          <SearchButton onClick={handleSubmit}></SearchButton>
         </div>
 
         <Table

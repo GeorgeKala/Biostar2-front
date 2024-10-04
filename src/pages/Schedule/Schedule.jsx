@@ -258,7 +258,7 @@ const Schedule = () => {
 
   return (
     <AuthenticatedLayout>
-      <div className="w-full px-20 py-4 flex flex-col gap-8">
+      <div className="w-full px-10 py-4 flex flex-col gap-8">
         <div className="flex justify-between items-center w-full">
           <h1 className="text-[#1976D2] font-medium text-[23px]">განრიგები</h1>
           <div className="flex items-center gap-8">

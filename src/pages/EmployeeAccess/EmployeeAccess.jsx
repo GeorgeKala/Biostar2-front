@@ -447,6 +447,7 @@ import FilterModal from "../../components/FilterModal";
 import { useFilterAndSort } from "../../hooks/useFilterAndSort";
 import EmployeeInput from "../../components/employee/EmployeeInput";
 import CustomSelect from "../../components/CustomSelect";
+import SearchButton from "../../components/SearchButton";
 
 const EmployeeAccess = () => {
   const dispatch = useDispatch();
@@ -655,7 +656,7 @@ const EmployeeAccess = () => {
 
   return (
     <AuthenticatedLayout>
-      <div className="w-full px-20 py-4 flex flex-col gap-8">
+      <div className="w-full px-10 py-4 flex flex-col gap-8">
         <div className="flex justify-between w-full">
           <h1 className="text-[#1976D2] font-medium text-[23px]">
             თანამშრომლის დაშვება
@@ -715,7 +716,7 @@ const EmployeeAccess = () => {
           <div className="w-full flex flex-col gap-2 relative">
             <div className="flex">
               <input
-                className="bg-white border border-[#105D8D] outline-none rounded-l py-3 px-4 w-full pr-10"
+                className="bg-white border border-[#105D8D] outline-none rounded-l py-2 px-4 w-full pr-10"
                 placeholder="თანამშრომელი"
                 value={searchData.name}
                 readOnly
@@ -750,15 +751,16 @@ const EmployeeAccess = () => {
               </button>
             </div>
           </div>
-          <button
+          {/* <button
             onClick={getEmployeesWithBuildings}
             className="bg-[#1976D2] text-white px-4 py-3 rounded-md flex items-center gap-2"
           >
             ძებნა
-          </button>
+          </button> */}
+          <SearchButton type="submit" onClick={getEmployeesWithBuildings}></SearchButton>
         </div>
         
-        <div className="container mx-auto mt-10 overflow-x-auto">
+        <div className="mt-10 overflow-x-auto">
           <Table
             data={filteredEmployees}
             headers={tableHeaders}

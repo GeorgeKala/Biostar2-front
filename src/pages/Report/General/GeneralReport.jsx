@@ -15,6 +15,7 @@ import SearchIcon from "../../../assets/search.png";
 import reportService from "../../../services/report";
 import ExcelJS from "exceljs";
 import { useFormData } from "../../../hooks/useFormData";
+import SearchButton from "../../../components/SearchButton";
 
 
 const GeneralReport = () => {
@@ -448,7 +449,7 @@ console.log(reports);
     
   return (
     <AuthenticatedLayout>
-      <div className="w-full px-10 py-4 flex flex-col gap-8 2xl:px-20">
+      <div className="w-full px-10 py-4 flex flex-col gap-8 ">
         <div className="flex justify-between w-full">
           <h1 className="text-[#1976D2] font-medium text-[23px]">
             პერიოდის რეპორტი
@@ -489,14 +490,14 @@ console.log(reports);
             onClear={handleEmployeeClear}
             onSearchClick={() => setEmployeeModalOpen(true)}
           />
-          <button
+          {/* <button
             className="bg-[#1AB7C1] rounded-lg min-w-[75px] flex items-center justify-center py-2"
             onClick={handleSubmit}
           >
             <img src={SearchIcon}  alt="Search Icon" />
-          </button>
+          </button> */}
+          <SearchButton onClick={handleSubmit}></SearchButton>
         </div>
-        <div className="container mx-auto  overflow-x-auto">
           <Table
             data={filteredAndSortedData}
             headers={tableHeaders}
@@ -530,7 +531,7 @@ console.log(reports);
               "comment",
             ]}
           />
-        </div>
+       
 
         {modalOpen && (
           <div className="fixed z-40 inset-0 flex items-center justify-center bg-black bg-opacity-50">

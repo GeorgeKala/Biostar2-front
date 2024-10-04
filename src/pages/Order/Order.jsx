@@ -18,6 +18,7 @@ import FilterModal from "../../components/FilterModal";
 import { useFilterAndSort } from "../../hooks/useFilterAndSort";
 import ExcelJS from "exceljs";
 import CustomSelect from "../../components/CustomSelect";
+import SearchButton from "../../components/SearchButton";
 
 
 const Order = () => {
@@ -308,7 +309,7 @@ const Order = () => {
 
   return (
     <AuthenticatedLayout>
-      <div className="w-full px-20 py-4 flex flex-col gap-8">
+      <div className="w-full px-10 py-4 flex flex-col gap-8">
         <div className="flex justify-between w-full">
           <h1 className="text-[#1976D2] font-medium text-[23px]">ბრძანებები</h1>
           <div className="flex gap-4">
@@ -366,9 +367,8 @@ const Order = () => {
             onClear={() => handleClear("department_id")}
             onSearchClick={() => setOpenNestedDropdown(true)}
           />
-          <button className="bg-[#1AB7C1] rounded-lg min-w-[75px] flex items-center justify-center py-2">
-            <img src={SearchIcon} alt="Search Icon" />
-          </button>
+          <SearchButton type="submit" onClick={handleSubmit}></SearchButton>
+
         </form>
         
         <Table

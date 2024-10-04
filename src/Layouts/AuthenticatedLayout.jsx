@@ -7,7 +7,6 @@ import UserModal from '../components/user/UserModal';
 import { useNavigate } from 'react-router-dom';
 import userService from '../services/users';
 import { fetchAsyncUser } from '../redux/userDataSlice';
-
 const AuthenticatedLayout = ({ children }) => {
   const isModalOpen = useSelector(selectIsModalOpen);
   const dispatch = useDispatch();

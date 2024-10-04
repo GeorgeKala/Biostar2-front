@@ -10,6 +10,7 @@ import Table from '../../components/Table';
 import { useFilter } from '../../hooks/useFilter';
 import FilterModal from '../../components/FilterModal';
 import { useFilterAndSort } from '../../hooks/useFilterAndSort';
+import SearchButton from '../../components/SearchButton';
 
 const Direct = () => {
   const [devices, setDevices] = useState([]);
@@ -124,7 +125,7 @@ const Direct = () => {
 
   return (
     <AuthenticatedLayout>
-      <div className='w-full px-20 py-4 flex flex-col gap-8'>
+      <div className='w-full px-10 py-4 flex flex-col gap-8'>
         <div className='flex justify-between w-full'>
           <h1 className='text-[#1976D2] font-medium text-[23px]'>პირდაპირი</h1>
           <button
@@ -139,7 +140,7 @@ const Direct = () => {
           <select
             value={selectedDevice}
             onChange={handleDeviceSelect}
-            className='bg-white border border-[#105D8D] outline-none rounded-md py-3 px-4'
+            className='bg-white border border-[#105D8D] outline-none rounded-md py-2 px-4'
           >
             <option value=''>აირჩიე მოწყობილობა</option>
             {devices.map((device) => (
@@ -148,15 +149,15 @@ const Direct = () => {
               </option>
             ))}
           </select>
-          <button
+          {/* <button
             onClick={fetchData}
             className='bg-[#1976D2] text-white px-4 py-3 rounded-md flex items-center gap-2'
           >
-            {/* <img src={SearchIcon} alt='Search Icon' className='w-[20px]' /> */}
             ჩართვა
-          </button>
+          </button> */}
+          <SearchButton onClick={fetchData}></SearchButton>
         </div>
-        <div className='container mx-auto mt-10 overflow-x-auto'>
+        <div className=' mt-10 overflow-x-auto'>
           <div>
             
           </div>

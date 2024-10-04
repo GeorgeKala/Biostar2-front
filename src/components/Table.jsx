@@ -82,7 +82,7 @@ const Table = ({
   );
 
   return (
-    <div className="container mx-auto  overflow-x-auto">
+    <div className="w-full mx-auto  overflow-x-auto">
       <div
         className="min-w-max max-h-[750px] overflow-y-auto"
         ref={tableRef}
@@ -172,7 +172,7 @@ const Table = ({
                       name={filterKey}
                       value={formData && formData[filterKey] ? formData[filterKey] : filters[filterKey]?.text || ""}
                       onChange={onFilterChange}
-                      className="font-normal text-black bg-[#D3DBEB] px-2 py-1 w-full outline-none border-none bg-transparent"
+                      className="font-normal text-black bg-[#D3DBEB] px-2 py-1 w-full outline-none border-none "
                       autoComplete="off"
                     />
                   </th>
