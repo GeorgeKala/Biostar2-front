@@ -10,12 +10,15 @@ import { openModal } from "../../redux/modalSlice";
 import ReferenceIcon from '../../assets/sidebar/folder-open.png';
 import ReportsIcon from '../../assets/sidebar/task-square.png';
 import SettingsIcon from '../../assets/sidebar/Subtract.png';
-
+import LinksModal from '../../components/LinksModal';
 
 const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [isOpen, setIsOpen] = useState(true);  // State to control the sidebar open/close state
+  const [isOpen, setIsOpen] = useState(true);  // Sidebar open/close state
+  const [modalVisibleState, setModalVisibleState] = useState(false);  // State for modal visibility
+  const [currentSectionLinks, setCurrentSectionLinks] = useState([]);  // Links for current modal
+
   const getInitialSectionsState = () => {
     const savedState = sessionStorage.getItem("sidebarSections");
     return savedState
@@ -42,12 +45,17 @@ const Sidebar = () => {
     setSections(updatedSections); 
   };
 
-  const toggleSection = (section) => {
+  const toggleSection = (section, links) => {
     const updatedSections = {
       ...sections,
       [section]: !sections[section], 
     };
-    saveSectionsState(updatedSections); 
+    saveSectionsState(updatedSections);
+
+    if (!isOpen) {
+      setCurrentSectionLinks(links);  
+      setModalVisibleState(true);     
+    }
   };
 
   const handleLogout = async () => {
@@ -68,13 +76,14 @@ const Sidebar = () => {
   // Function to toggle the sidebar open/close
   const toggleSidebar = () => {
     setIsOpen(!isOpen);  // Toggle between open and close
+    setModalVisibleState(false);  // Close modal when sidebar opens
   };
 
   return (
     <div className={`bg-[#1976D2] ${isOpen ? "w-[15%]" : "w-[5%]"} transition-all duration-300 flex flex-col gap-8`}>
       
       {/* Sidebar Header with toggle button */}
-      <div className={`px-4 ${!isOpen ?"justify-center mt-4": "justify-between"} flex  items-center`}>
+      <div className={`px-4 ${!isOpen ? "justify-center mt-4" : "justify-between"} flex  items-center`}>
         {isOpen && (
           <Link to="/reports/general" className="cursor-pointer">
             <img
@@ -90,11 +99,20 @@ const Sidebar = () => {
       </div>
 
       <div className="flex flex-col h-full gap-6 px-4">
+        
         {/* "ცნობარები" Section */}
         <div>
           <div
             className={`flex ${isOpen ? "justify-start": "justify-center"}  items-center gap-3 text-white text-[14px] cursor-pointer`}
-            onClick={() => toggleSection("reports")}
+            onClick={() => toggleSection("reports", [
+              { path: "/employees", label: "თანამშრომლები" },
+              { path: "/groups", label: "ჯგუფები" },
+              { path: "/departments", label: "დეპარტამენტები" },
+              { path: "/schedules", label: "განრიგები" },
+              { path: "/command-types", label: "ბრძანების ტიპები" },
+              { path: "/forgive-types", label: "პატიების ტიპები" },
+              { path: "/devices", label: "მოწყობილობები" }
+            ])}
           >
             <img src={ReferenceIcon} alt="Reference Icon" />
             {isOpen && <span>ცნობარები</span>} 
@@ -108,14 +126,7 @@ const Sidebar = () => {
                 <img src={ArrowRight} alt="Arrow Right Icon" />
                 თანამშრომლები
               </Link>
-              {/* Additional links for reports section */}
-              {canAccessPage([
-                "ადმინისტრატორი",
-                "HR",
-                "IT",
-                "მენეჯერი 1",
-                "მენეჯერი-რეგიონები",
-              ]) && (
+              {canAccessPage([ "ადმინისტრატორი", "HR", "IT", "მენეჯერი 1", "მენეჯერი-რეგიონები" ]) && (
                 <Link
                   to="/groups"
                   className={`flex items-center gap-3 text-white text-[14px] ${location.pathname === "/groups" ? "font-bold" : ""}`}
@@ -124,12 +135,7 @@ const Sidebar = () => {
                   ჯგუფები
                 </Link>
               )}
-              {canAccessPage([
-                "ადმინისტრატორი",
-                "IT",
-                "მენეჯერი 1",
-                "მენეჯერი-რეგიონები",
-              ]) && (
+              {canAccessPage([ "ადმინისტრატორი", "IT", "მენეჯერი 1", "მენეჯერი-რეგიონები" ]) && (
                 <Link
                   to="/departments"
                   className={`flex items-center gap-3 text-white text-[14px] ${location.pathname === "/departments" ? "font-bold" : ""}`}
@@ -147,13 +153,7 @@ const Sidebar = () => {
                   განრიგები
                 </Link>
               )}
-              {canAccessPage([
-                "ადმინისტრატორი",
-                "HR",
-                "IT",
-                "მენეჯერი",
-                "მენეჯერი-რეგიონები",
-              ]) && (
+              {canAccessPage([ "ადმინისტრატორი", "HR", "IT", "მენეჯერი", "მენეჯერი-რეგიონები" ]) && (
                 <Link
                   to="/command-types"
                   className={`flex items-center gap-3 text-white text-[14px] ${location.pathname === "/command-types" ? "font-bold" : ""}`}
@@ -162,11 +162,7 @@ const Sidebar = () => {
                   ბრძანების ტიპები
                 </Link>
               )}
-              {canAccessPage([
-                "ადმინისტრატორი",
-                "IT",
-                "მენეჯერი-რეგიონები",
-              ]) && (
+              {canAccessPage([ "ადმინისტრატორი", "IT", "მენეჯერი-რეგიონები" ]) && (
                 <Link
                   to="/forgive-types"
                   className={`flex items-center gap-3 text-white text-[14px] ${location.pathname === "/forgive-types" ? "font-bold" : ""}`}
@@ -192,10 +188,17 @@ const Sidebar = () => {
         <div>
           <div
             className={`flex ${isOpen ? "justify-start": "justify-center"}  items-center gap-3 text-white text-[14px] cursor-pointer`}
-            onClick={() => toggleSection("employees")}
+            onClick={() => toggleSection("employees", [
+              { path: "/employees/create", label: "თანამშრომლის დამატება" },
+              { path: "/records/full", label: "სრული ჩანაწერები" },
+              { path: "/reports/general", label: "პერიოდის რეპორტი" },
+              { path: "/comments/table", label: "კომენტარების ცხრილი" },
+              { path: "/orders", label: "ბრძანებები" },
+              { path: "/comments/analyze", label: "კომენტარების ანალიზი" }
+            ])}
           >
             <img src={ReportsIcon} alt="Reports Icon" />
-            {isOpen && <span>ანგარიშები</span>}  {/* Show text only when open */}
+            {isOpen && <span>ანგარიშები</span>} 
           </div>
           {sections.employees && isOpen && (
             <div className="pl-4 flex flex-col gap-4 mt-4">
@@ -251,10 +254,18 @@ const Sidebar = () => {
         <div>
           <div
             className={`flex ${isOpen ? "justify-start": "justify-center"}  items-center gap-3 text-white text-[14px] cursor-pointer`}
-            onClick={() => toggleSection("comments")}
+            onClick={() => toggleSection("comments", [
+              { path: "/users", label: "მომხმარებლები" },
+              { path: "/user-types", label: "მომხმარებლების ტიპები" },
+              { path: "/buildings", label: "შენობები" },
+              { path: "/departments-distributions", label: "დეპარტამენტების განაწილება" },
+              { path: "/employees/access", label: "თანამშრომლის დაშვება" },
+              { path: "/direct", label: "პირდაპირი" },
+              { path: "/change-password", label: "პაროლის შეცვლა" }
+            ])}
           >
             <img src={SettingsIcon} alt="Settings Icon" />
-            {isOpen && <span>პარამეტრები</span>}  {/* Show text only when open */}
+            {isOpen && <span>პარამეტრები</span>} 
           </div>
           {sections.comments && isOpen && (
             <div className="pl-4 flex flex-col gap-4 mt-4">
@@ -334,10 +345,12 @@ const Sidebar = () => {
           <div>
             <div
               className={`flex ${isOpen ? "justify-start": "justify-center"}  items-center gap-3 text-white text-[14px] cursor-pointer`}
-              onClick={() => toggleSection("kitchenReport")}
+              onClick={() => toggleSection("kitchenReport", [
+                { path: "/reports/kitchen", label: "სამზარეულოს რეპორტი" }
+              ])}
             >
               <img src={SettingsIcon} alt="Settings Icon" />
-              {isOpen && <span>სამზარეულოს რეპორტი</span>}  {/* Show text only when open */}
+              {isOpen && <span>სამზარეულოს რეპორტი</span>} 
             </div>
             {sections.kitchenReport && isOpen && (
               <div className="pl-4 flex flex-col gap-4 mt-4">
@@ -358,9 +371,16 @@ const Sidebar = () => {
       <div className="flex gap-2 items-center justify-center pb-2">
         <button onClick={handleLogout} className="text-white flex gap-2">
           <img src={LogoutIcon} alt="Logout Icon" />
-          {isOpen && <span>გამოსვლა</span>}  {/* Show text only when open */}
+          {isOpen && <span>გამოსვლა</span>} 
         </button>
       </div>
+
+      {/* Links Modal */}
+      <LinksModal
+        isVisible={modalVisibleState}
+        links={currentSectionLinks}
+        onClose={() => setModalVisibleState(false)}  // Close modal handler
+      />
     </div>
   );
 };

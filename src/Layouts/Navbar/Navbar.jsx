@@ -79,8 +79,8 @@ const Navbar = () => {
   };
 
   return (
-    <div className="bg-[#1976D2] w-full flex justify-between gap-4 items-center h-[70px] py-4 border-[#0A5FB6] relative">
-      <div className="flex space-x-1 overflow-hidden">
+    <div className="bg-[#1976D2] border-x-white border-l-2 px-2 w-full flex justify-between gap-4 items-center h-[70px] py-4  relative">
+      <div className="flex space-x-1 overflow-hidden ">
         {history
           .slice(currentIndex, currentIndex + maxVisibleTabs)
           .map((route, index) => (
