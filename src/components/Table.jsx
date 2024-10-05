@@ -83,20 +83,16 @@ const Table = ({
 
   return (
     <div className="w-full mx-auto  overflow-x-auto">
-      <div
-        className="min-w-max max-h-[750px] overflow-y-auto"
-        ref={tableRef}
-        
-      >
+      <div className="min-w-max max-h-[750px] overflow-y-auto" ref={tableRef}>
         <table className="min-w-full divide-y divide-gray-200 border-collapse">
-          <thead className="bg-[#1976D2] text-white text-xs sticky top-0 z-10">
+          <thead className="bg-[#1976D2] text-white text-xs sticky top-0 z-30 ">
             <tr>
               <th className="w-[30px] "></th>
               {headers &&
                 headers.map((header) => (
                   <th
                     key={header.key}
-                    className="border text-[14px] font-normal border-gray-200 text-left px-2 customized-th-tr cursor-pointer relative group"
+                    className="border-2 text-[14px] font-normal border-gray-200 text-left px-2 customized-th-tr  cursor-pointer relative group"
                     style={{
                       maxWidth: `${columnWidths[header.key]}px`,
                       whiteSpace: "nowrap",
@@ -170,7 +166,11 @@ const Table = ({
                     <input
                       type="text"
                       name={filterKey}
-                      value={formData && formData[filterKey] ? formData[filterKey] : filters[filterKey]?.text || ""}
+                      value={
+                        formData && formData[filterKey]
+                          ? formData[filterKey]
+                          : filters[filterKey]?.text || ""
+                      }
                       onChange={onFilterChange}
                       className="font-normal text-black bg-[#D3DBEB] px-2 py-1 w-full outline-none border-none "
                       autoComplete="off"
@@ -181,13 +181,15 @@ const Table = ({
           </thead>
           <tbody className="bg-white divide-y divide-gray-200 text-xs">
             {data.map((item, index) => {
-              const isLastRow = index === data.length - 1; 
+              const isLastRow = index === data.length - 1;
               return (
                 <tr
                   key={index}
-                  className={`px-2 py-1 border border-gray-200 cursor-default ${rowClassName(item)}`}
+                  className={`px-2 py-1 border border-gray-200 cursor-default ${rowClassName(
+                    item
+                  )}`}
                   onClick={() => onRowClick(item)}
-                  onDoubleClick={() => onRowDoubleClick(item)} 
+                  onDoubleClick={() => onRowDoubleClick(item)}
                   onContextMenu={(e) => onContext(e)}
                   ref={isLastRow ? lastReportRef : null} // Attach ref to the last row
                 >
@@ -203,7 +205,9 @@ const Table = ({
                         textOverflow: "ellipsis",
                       }}
                     >
-                      {header.extractValue ? header.extractValue(item) : item[header.key]}
+                      {header.extractValue
+                        ? header.extractValue(item)
+                        : item[header.key]}
                     </td>
                   ))}
                 </tr>

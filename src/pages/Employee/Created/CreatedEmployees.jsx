@@ -81,27 +81,63 @@ const CreatedEmployees = () => {
   // };
 
 
+  // const handleChange = (e) => {
+  //   const { name, value } = e.target;
+  
+  //   setFormData((prev) => ({
+  //     ...prev,
+  //     [name]: value,
+  //   }));
+  
+  //   dispatch(clearEmployees());
+  
+  //   if (value === '') {
+  //     dispatch(fetchEmployees({ status: statusFilter, page: 1 }));
+  //     return;
+  //   }
+  
+  //   if (debounceRef.current) clearTimeout(debounceRef.current);
+    
+  //   debounceRef.current = setTimeout(() => {
+  //     dispatch(fetchEmployees({ ...formData, [name]: value, status: statusFilter, page: 1 }));
+  //   }, 500);
+  // };
+
+
+  //  useEffect(() => {
+  //    dispatch(clearEmployees());
+  //    dispatch(fetchEmployees({ status: statusFilter, page: 1 }));
+  //  }, [statusFilter, dispatch]);
+
+
+
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-  
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
-  
+
     dispatch(clearEmployees());
-  
-    if (value === '') {
+
+    if (value === "") {
       dispatch(fetchEmployees({ status: statusFilter, page: 1 }));
-      return;
     }
-  
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    
-    debounceRef.current = setTimeout(() => {
-      dispatch(fetchEmployees({ ...formData, [name]: value, status: statusFilter, page: 1 }));
-    }, 500);
   };
+
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    debounceRef.current = setTimeout(() => {
+      dispatch(clearEmployees());
+      dispatch(fetchEmployees({ ...formData, status: statusFilter, page: 1 }));
+    }, 500);
+
+    return () => clearTimeout(debounceRef.current);
+  }, [formData, statusFilter, dispatch]);
+
   
 
 
@@ -323,10 +359,7 @@ const CreatedEmployees = () => {
 
   console.log(employees.length);
 
-  useEffect(() => {
-    dispatch(clearEmployees());
-    dispatch(fetchEmployees({ status: statusFilter, page: 1 }));
-  }, [statusFilter, dispatch]);
+ 
 
   const handleDepartmentSelect = (departmentId) => {
     setFormData((prevData) => ({
