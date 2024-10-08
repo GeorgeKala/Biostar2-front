@@ -224,7 +224,7 @@ const Sidebar = () => {
                 <img src={ArrowRight} alt="Arrow Right Icon" />
                 პერიოდის რეპორტი
               </Link>
-              {canAccessPage(["ადმინისტრატორი", "HR", "IT", "მენეჯერი 1"]) && (
+              {canAccessPage(["ადმინისტრატორი", "HR", "IT", "მენეჯერი 1", "მენეჯერი-რეგიონები"]) && (
                 <Link
                   to="/comments/table"
                   className={`flex items-center gap-3 text-white text-[14px] ${location.pathname === "/comments/table" ? "font-bold" : ""}`}

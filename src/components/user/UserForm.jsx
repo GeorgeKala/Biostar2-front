@@ -17,11 +17,11 @@ const UserForm = ({
   openNestedDropdown,
   setOpenNestedDropdown,
 }) => {
-  const modalRef = useClickOutside(closeModal);
+
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
-      <div ref={modalRef} className="bg-white rounded-lg max-w-md w-full">
+      <div  className="bg-white rounded-lg max-w-md w-full">
         <div className="flex justify-between items-center p-3 bg-blue-500 text-white rounded-t-lg">
           <h2 className="text-lg font-semibold">
             {modalMode === "create" ? "დაამატე ახალი მომხმარებელი" : "განაახლე მომხმარებელი"}

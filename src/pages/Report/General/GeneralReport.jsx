@@ -42,7 +42,7 @@ const GeneralReport = () => {
   const { formData, handleFormDataChange, setFormData, handleClearField } = useFormData({
     start_date: "",
     end_date: "",
-    department_id: user?.user_type?.has_full_access == 1 ? "" : user?.department?.id,
+    department_id: "",
     employee: "",
   });
 
@@ -136,6 +136,9 @@ const GeneralReport = () => {
       };
 
       const response = await reportService.updateOrCreateDayDetail(data);
+
+      console.log(response);
+      
 
       dispatch(
         updateOrAddReport({
@@ -237,13 +240,23 @@ const GeneralReport = () => {
     dispatch(fetchForgiveTypes());
   }, [dispatch]);
 
-  const filteredNestedDepartments = user?.user_type?.has_full_access
-    ? nestedDepartments
-    : nestedDepartments.filter(
-        (dept) =>
-          dept.id === user?.department?.id ||
-          dept.parent_id === user?.department?.id
-      );
+  // const filteredNestedDepartments = user?.user_type?.has_full_access
+  //   ? nestedDepartments
+  //   : nestedDepartments.filter(
+  //       (dept) =>
+  //         dept.id === user?.department?.id ||
+  //         dept.parent_id === user?.department?.id
+  //     );
+
+  const filteredNestedDepartments = user?.user_type?.has_full_access == 1
+  ? nestedDepartments
+  : nestedDepartments.filter(
+      (dept) =>
+        dept.id === user?.department?.id || 
+        dept.parent_id === user?.department?.id ||  // Include direct child departments
+        nestedDepartments.some((nestedDept) => nestedDept.parent_id === dept.id) // Include deeper child departments
+    );
+
 
   const tableHeaders = [
     {
@@ -381,6 +394,8 @@ const GeneralReport = () => {
   };
 
   const handleDepartmentSelect = (departmentId) => {
+    console.log(departmentId);
+    
     setFormData((prevData) => ({
       ...prevData,
       department_id: departmentId,
@@ -443,7 +458,7 @@ const lastReportElementRef = useCallback(node => {
 }, [status, hasMore, dispatch, formData]);
 
 
-console.log(reports);
+console.log(departments);
 
 
     

@@ -10,6 +10,9 @@ import SearchIcon from "../assets/search.png";
 import CardScanModal from "./CardScanModal";
 
 const EmployeeEditModal = ({ employeeId, isOpen, onClose }) => {
+
+  console.log(employeeId);
+  
   const dispatch = useDispatch();
   const holidays = useSelector(selectHolidays);
   const { departments, nestedDepartments } = useSelector(
@@ -48,17 +51,16 @@ const EmployeeEditModal = ({ employeeId, isOpen, onClose }) => {
   useEffect(() => {
     const fetchEmployee = async () => {
       try {
-        const employeeData = await employeeService.getEmployeeById(employeeId?.id);
-
-        console.log(employeeData);
-        
+        const employeeData = await employeeService.getEmployeeById(employeeId.id);
+  
         setFormData({
           fullname: employeeData.fullname || "",
           personal_id: employeeData.personal_id || "",
           phone_number: employeeData.phone_number || "",
           department_id: user?.user_type?.has_full_access
-            ? employeeData.department.id
+            ? employeeData?.department?.id || ""  // Store department_id
             : user?.department?.id || "",
+          department_name: employeeData?.department?.name || "",  // Store department name for display
           start_datetime: employeeData.start_datetime
             ? new Date(employeeData.start_datetime).toISOString().slice(0, 10)
             : "",
@@ -66,25 +68,25 @@ const EmployeeEditModal = ({ employeeId, isOpen, onClose }) => {
             ? new Date(employeeData.expiry_datetime).toISOString().slice(0, 10)
             : "",
           position: employeeData.position || "",
-          group_id: employeeData.group.id || "",
-          schedule_id: employeeData.schedule?.id || "",
-          honorable_minutes_per_day:
-            employeeData.honorable_minutes_per_day || "",
-          device_id: employeeData.device?.id || "",
+          group_id: employeeData?.group?.id || "",
+          schedule_id: employeeData?.schedule?.id || "",
+          honorable_minutes_per_day: employeeData.honorable_minutes_per_day || "",
+          device_id: employeeData?.device?.id || "",
           card_number: employeeData.card_number || "",
           checksum: employeeData.checksum || "",
-          holidays: employeeData.holidays.map((holiday) => holiday.id) || [],
+          holidays: employeeData.holidays?.map((holiday) => holiday.id) || [],
           session_id: sessionStorage.getItem("sessionToken"),
         });
       } catch (error) {
         console.error("Error fetching employee data:", error);
       }
     };
-
-    if (isOpen && employeeId?.id) {
+  
+    if (isOpen && employeeId) {
       fetchEmployee();
     }
-  }, [isOpen, employeeId?.id]);
+  }, [isOpen, employeeId, user]);
+  
 
   useEffect(() => {
     dispatch(fetchHolidays());

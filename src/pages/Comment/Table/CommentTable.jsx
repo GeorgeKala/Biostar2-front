@@ -66,7 +66,7 @@ const CommentTable = () => {
     user: { text: "", selected: [] },
     created_at: { text: "", selected: [] },
     comment: { text: "", selected: [] },
-    date: { text: "", selected: [] },  // Added date to initial filters
+    date: { text: "", selected: [] },  
   };
 
   const {
@@ -74,6 +74,7 @@ const CommentTable = () => {
     handleInputChange,
     applyModalFilters,
     handleSort,
+    handleFilterChange,
     filters,
     sortConfig,
   } = useFilterAndSort(commentedDetails, initialFilters, {
@@ -211,6 +212,8 @@ const CommentTable = () => {
     },
   ];
 
+  
+
   return (
     <AuthenticatedLayout>
       <div className="w-full px-10 py-4 flex flex-col gap-8">
@@ -299,7 +302,8 @@ const CommentTable = () => {
           sortConfig={sortConfig}
           onSort={handleSort}
           onFilterClick={handleOpenFilterModal}
-          onFilterChange={handleInputChange}
+          onFilterChange={handleFilterChange}
+
           rowClassName={(comment) =>
             selectedComment?.id === comment.id ? "bg-blue-200" : ""
           }

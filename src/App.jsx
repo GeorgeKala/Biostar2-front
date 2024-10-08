@@ -166,7 +166,7 @@ const App = () => {
         <Route
           path="/groups"
           element={
-            <ProtectedRoute element={<Group />} requiresFullAccess={true} />
+            <ProtectedRoute element={<Group />} requiresFullAccess={false} />
           }
         />
         <Route

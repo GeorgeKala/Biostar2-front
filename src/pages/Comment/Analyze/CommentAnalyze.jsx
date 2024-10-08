@@ -229,7 +229,45 @@ const CommentAnalyze = () => {
           </button> */}
           <SearchButton type="submit" onClick={handleSubmit}></SearchButton>
         </form>
-        {/* Table rendering logic here */}
+        <div className="mt-8">
+          {loading ? (
+            <p>Loading...</p>
+          ) : (
+            <table className="table-auto w-full border-collapse border border-gray-300">
+              <thead>
+                <tr className="bg-[#1976D2] text-white">
+                  <th className="border border-gray-300 p-2 text-left">თანამშრომელი</th>
+                  <th className="border border-gray-300 p-2 text-left">კომენტარების რაოდენობა</th>
+                  <th className="border border-gray-300 p-2 text-left">გაცდენილი წუთები</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries(groupedComments).length === 0 ? (
+                  <tr>
+                    <td colSpan="3" className="text-center py-4">No Data Available</td>
+                  </tr>
+                ) : (
+                  Object.entries(groupedComments).map(([employee, details]) => (
+                    <tr key={employee}>
+                      <td className="border border-gray-300 p-2">{employee}</td>
+                      <td className="border border-gray-300 p-2">{details.count}</td>
+                      <td className="border border-gray-300 p-2">{details.total}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+              {Object.entries(groupedComments).length > 0 && (
+                <tfoot>
+                  <tr className="font-bold">
+                    <td className="border border-gray-300 p-2">ჯამი</td>
+                    <td className="border border-gray-300 p-2">{totalCounts}</td>
+                    <td className="border border-gray-300 p-2">{totalMinutes}</td>
+                  </tr>
+                </tfoot>
+              )}
+            </table>
+          )}
+        </div>
       </div>
       {isEmployeeModalOpen && (
         <EmployeeModal
