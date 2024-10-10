@@ -136,14 +136,14 @@ const User = () => {
           selectedUserId,
           userData
         );
-        const updatedIndex = usersData.findIndex(
-          (user) => user.id === selectedUserId
-        );
-        if (updatedIndex !== -1) {
-          const updatedUsers = [...usersData];
-          updatedUsers[updatedIndex] = updatedUser;
-          setUsers(updatedUsers);
-        }
+        // const updatedIndex = usersData.findIndex(
+        //   (user) => user.id === selectedUserId
+        // );
+        // if (updatedIndex !== -1) {
+        //   const updatedUsers = [...usersData];
+        //   updatedUsers[updatedIndex] = updatedUser;
+        //   setUsers(updatedUsers);
+        // }
         closeAddModal();
       }
       dispatch(fetchUsers());

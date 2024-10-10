@@ -315,7 +315,7 @@ const Sidebar = () => {
                   თანამშრომლის დაშვება
                 </Link>
               )}
-              {canAccessPage(["ადმინისტრატორი", "IT"]) && (
+              {canAccessPage(["ადმინისტრატორი", "IT", "მენეჯერი-რეგიონები"]) && (
                 <Link
                   to="/direct"
                   className={`flex items-center gap-3 text-white text-[14px] ${location.pathname === "/direct" ? "font-bold" : ""}`}
