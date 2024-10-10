@@ -12,7 +12,6 @@ export const fetchEmployees = createAsyncThunk(
       page: currentPage,
     });
 
-    
     return response;
   }
 );
@@ -33,11 +32,16 @@ export const updateEmployee = createAsyncThunk(
   }
 );
 
+// Updated deleteEmployee thunk to pass `expiryDatetime` and update the employee in the state
 export const deleteEmployee = createAsyncThunk(
   "employees/deleteEmployee",
-  async ({ id, expiryDatetime }) => {
-    await employeeService.deleteEmployee(id, expiryDatetime);
-    return id;
+  async ({ id, expiryDatetime }, { rejectWithValue }) => {
+    try {
+      const response = await employeeService.deleteEmployee(id, expiryDatetime);
+      return { id, expiryDatetime };  // Return the updated data
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
   }
 );
 
@@ -83,7 +87,22 @@ const employeeSlice = createSlice({
         }
       })
       .addCase(deleteEmployee.fulfilled, (state, action) => {
-        state.items = state.items.filter((item) => item.id !== action.payload);
+        const { id, expiryDatetime } = action.payload;
+    
+        const index = state.items.findIndex((item) => item.id === id);
+        if (index !== -1) {
+                state.items[index] = {
+                ...state.items[index],
+                card_number: null,      
+                active: false,          
+                expiry_datetime: expiryDatetime, 
+            };
+            state.items.splice(index, 1);
+        }
+    })
+      .addCase(deleteEmployee.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
       });
   },
 });

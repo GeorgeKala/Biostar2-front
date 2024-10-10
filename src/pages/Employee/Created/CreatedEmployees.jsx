@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { clearEmployees, fetchEmployees } from "../../../redux/employeeSlice";
+import { clearEmployees, deleteEmployee, fetchEmployees } from "../../../redux/employeeSlice";
 import AuthenticatedLayout from "../../../Layouts/AuthenticatedLayout";
 import EmployeeEditModal from "../../../components/EmployeeEditModal";
 import EmployeeStatusModal from "../../../components/EmployeeStatusModal";
@@ -254,18 +254,38 @@ const CreatedEmployees = () => {
     setCurrentFilterField(fieldName);
   };
 
+  // const handleDeleteEmployee = async (expiryDatetime) => {
+  //   if (selectedEmployee) {
+  //     try {
+  //       await employeeService.deleteEmployee(
+  //         selectedEmployee.id,
+  //         expiryDatetime
+  //       );
+  //       console.log(
+  //         `Employee ${selectedEmployee.id} expiry date updated to ${expiryDatetime}`
+  //       );
+
+  //       dispatch(fetchEmployees()); 
+  //     } catch (error) {
+  //       console.error("Error deleting (updating expiry) employee:", error);
+  //     }
+  //   }
+  // };
+
+
   const handleDeleteEmployee = async (expiryDatetime) => {
     if (selectedEmployee) {
       try {
-        await employeeService.deleteEmployee(
-          selectedEmployee.id,
-          expiryDatetime
+        dispatch(
+          deleteEmployee({
+            id: selectedEmployee.id,
+            expiryDatetime,
+          })
         );
+  
         console.log(
-          `Employee ${selectedEmployee.id} expiry date updated to ${expiryDatetime}`
+          `Employee ${selectedEmployee.id} expiry date updated to ${expiryDatetime}, card number removed, and set inactive.`
         );
-
-        dispatch(fetchEmployees()); 
       } catch (error) {
         console.error("Error deleting (updating expiry) employee:", error);
       }
