@@ -135,6 +135,20 @@ const employeeService = {
       throw error;
     }
   },
+
+
+  removeUser: async (id) => {
+    try {
+      const response = await axiosInstance.delete(`/employees/${id}/remove`, {
+        headers: {
+          "bs-session-id": sessionStorage.getItem("sessionToken"),
+        },
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
 

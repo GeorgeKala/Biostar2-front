@@ -32,13 +32,24 @@ export const updateEmployee = createAsyncThunk(
   }
 );
 
-// Updated deleteEmployee thunk to pass `expiryDatetime` and update the employee in the state
 export const deleteEmployee = createAsyncThunk(
   "employees/deleteEmployee",
   async ({ id, expiryDatetime }, { rejectWithValue }) => {
     try {
       const response = await employeeService.deleteEmployee(id, expiryDatetime);
-      return { id, expiryDatetime };  // Return the updated data
+      return { id, expiryDatetime };
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const removeUser = createAsyncThunk(
+  "employees/removeUser",
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await employeeService.removeUser(id);
+      return id;
     } catch (error) {
       return rejectWithValue(error.response.data);
     }
@@ -88,19 +99,29 @@ const employeeSlice = createSlice({
       })
       .addCase(deleteEmployee.fulfilled, (state, action) => {
         const { id, expiryDatetime } = action.payload;
-    
+
         const index = state.items.findIndex((item) => item.id === id);
         if (index !== -1) {
-                state.items[index] = {
-                ...state.items[index],
-                card_number: null,      
-                active: false,          
-                expiry_datetime: expiryDatetime, 
-            };
-            state.items.splice(index, 1);
+          state.items[index] = {
+            ...state.items[index],
+            card_number: null,
+            active: false,
+            expiry_datetime: expiryDatetime,
+          };
+          state.items.splice(index, 1);
         }
-    })
+      })
       .addCase(deleteEmployee.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
+      })
+      .addCase(removeUser.fulfilled, (state, action) => {
+        const index = state.items.findIndex((item) => item.id === action.payload);
+        if (index !== -1) {
+          state.items.splice(index, 1);
+        }
+      })
+      .addCase(removeUser.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload;
       });

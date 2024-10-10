@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { clearEmployees, deleteEmployee, fetchEmployees } from "../../../redux/employeeSlice";
+import { clearEmployees, deleteEmployee, fetchEmployees, removeUser } from "../../../redux/employeeSlice";
 import AuthenticatedLayout from "../../../Layouts/AuthenticatedLayout";
 import EmployeeEditModal from "../../../components/EmployeeEditModal";
 import EmployeeStatusModal from "../../../components/EmployeeStatusModal";
@@ -293,6 +293,19 @@ const CreatedEmployees = () => {
   };
 
 
+  const handleRemoveUser = async () => {
+    if (selectedEmployee) {
+      try {
+        dispatch(removeUser(selectedEmployee.id)); 
+  
+        console.log(`Employee ${selectedEmployee.id} has been removed.`);
+      } catch (error) {
+        console.error("Error removing employee:", error);
+      }
+    }
+  };
+
+
   const employeeHeaders = [
     {
       label: "გვარი/სახელი",
@@ -428,6 +441,13 @@ const CreatedEmployees = () => {
                 </button>
                 <button
                   onClick={() => setDeleteModalOpen(true)} 
+                  className="bg-[#D9534F] text-white px-4 py-2 rounded-md flex items-center gap-2"
+                >
+                  <img src={DeleteIcon} alt="Delete" />
+                  დაარქივება
+                </button>
+                <button
+                  onClick={() => handleRemoveUser()} 
                   className="bg-[#D9534F] text-white px-4 py-2 rounded-md flex items-center gap-2"
                 >
                   <img src={DeleteIcon} alt="Delete" />
