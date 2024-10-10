@@ -390,8 +390,6 @@ const CreatedEmployees = () => {
   }, [status, hasMore, dispatch, statusFilter]);
 
 
-  console.log(employees.length);
-
  
 
   const handleDepartmentSelect = (departmentId) => {
@@ -446,13 +444,15 @@ const CreatedEmployees = () => {
                   <img src={DeleteIcon} alt="Delete" />
                   დაარქივება
                 </button>
-                <button
-                  onClick={() => handleRemoveUser()} 
-                  className="bg-[#D9534F] text-white px-4 py-2 rounded-md flex items-center gap-2"
-                >
-                  <img src={DeleteIcon} alt="Delete" />
-                  წაშლა
-                </button>
+                {user?.user_type?.name === "ადმინისტრატორი" ? (
+                  <button
+                    onClick={() => handleRemoveUser()}
+                    className="bg-[#D9534F] text-white px-4 py-2 rounded-md flex items-center gap-2"
+                  >
+                    <img src={DeleteIcon} alt="Delete" />
+                    წაშლა
+                  </button>
+                ) : null}
               </>
             ) : null}
             <button
