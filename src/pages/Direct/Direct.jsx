@@ -1,21 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import AuthenticatedLayout from '../../Layouts/AuthenticatedLayout';
-import ArrowDownIcon from '../../assets/arrow-down-2.png';
-import GeneralInputGroup from '../../components/GeneralInputGroup';
-import SearchIcon from '../../assets/search.png';
 import * as XLSX from 'xlsx';
 import directService from '../../services/direct';
 import deviceService from '../../services/device';
 import Table from '../../components/Table';
-import { useFilter } from '../../hooks/useFilter';
-import FilterModal from '../../components/FilterModal';
 import { useFilterAndSort } from '../../hooks/useFilterAndSort';
 import SearchButton from '../../components/SearchButton';
+import FilterModal from '../../components/FilterModal';
+import CustomSelect from '../../components/CustomSelect';
 
 const Direct = () => {
   const [devices, setDevices] = useState([]);
-  const [selectedDevice, setSelectedDevice] = useState('');
+  const [selectedDevice, setSelectedDevice] = useState(null);
   const [events, setEvents] = useState([]);
+  const [latestEmployee, setLatestEmployee] = useState(null); // To store the latest employee details
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [filterableData, setFilterableData] = useState([]);
   const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
@@ -27,17 +25,17 @@ const Direct = () => {
     applyModalFilters,
     handleSort,
     sortConfig,
-    filters
+    filters,
   } = useFilterAndSort(
     events,
     {
-      datetime: { text: "", selected: [] },
-      employee_name: { text: "", selected: [] },
-      department: { text: "", selected: [] },
-      employee_status: { text: "", selected: [] },
-      device_name: { text: "", selected: [] },
+      datetime: { text: '', selected: [] },
+      employee_name: { text: '', selected: [] },
+      department: { text: '', selected: [] },
+      employee_status: { text: '', selected: [] },
+      device_name: { text: '', selected: [] },
     },
-    { key: "", direction: "ascending" }
+    { key: '', direction: 'ascending' }
   );
 
   useEffect(() => {
@@ -57,19 +55,16 @@ const Direct = () => {
     if (selectedDevice) {
       try {
         const response = await directService.fetchEvents({
-          device_id: selectedDevice,
+          device_id: selectedDevice.id,
         });
         setEvents(response.data);
+        setLatestEmployee(response.data[0]); // Directly take the first element
       } catch (error) {
         console.error('Error fetching events:', error);
       }
     } else {
       console.error('No device selected');
     }
-  };
-
-  const handleDeviceSelect = (e) => {
-    setSelectedDevice(e.target.value);
   };
 
   const exportToExcel = () => {
@@ -123,6 +118,9 @@ const Direct = () => {
     },
   ];
 
+  console.log(latestEmployee);
+  
+
   return (
     <AuthenticatedLayout>
       <div className='w-full px-10 py-4 flex flex-col gap-8'>
@@ -137,30 +135,24 @@ const Direct = () => {
           </button>
         </div>
         <div className='flex items-center gap-4'>
-          <select
-            value={selectedDevice}
-            onChange={handleDeviceSelect}
-            className='bg-white border border-[#105D8D] outline-none rounded-md py-2 px-4'
-          >
-            <option value=''>აირჩიე მოწყობილობა</option>
-            {devices.map((device) => (
-              <option key={device.id} value={device.id}>
-                {device.name}
-              </option>
-            ))}
-          </select>
-          {/* <button
-            onClick={fetchData}
-            className='bg-[#1976D2] text-white px-4 py-3 rounded-md flex items-center gap-2'
-          >
-            ჩართვა
-          </button> */}
+          <CustomSelect
+            options={devices}
+            selectedValue={selectedDevice ? selectedDevice.name : ''}
+            onSelect={(device) => setSelectedDevice(device)}
+            placeholder='აირჩიე მოწყობილობა'
+            className='w-[300px]'
+          />
           <SearchButton onClick={fetchData}></SearchButton>
         </div>
-        <div className=' mt-10 overflow-x-auto'>
-          <div>
-            
+        {latestEmployee && (
+          <div className="bg-gray-100 p-4  rounded shadow-md flex items-center gap-4">
+            <h1 className='font-bold text-[20px]'>{latestEmployee.datetime}</h1>
+            <p className='font-medium'>{latestEmployee.employee_name} {latestEmployee.employee_status
+            }</p>
           </div>
+        )}
+        <div className=' overflow-x-auto'>
+      
           <Table
             data={filteredEvents}
             headers={tableHeaders}
@@ -178,6 +170,10 @@ const Direct = () => {
             ]}
           />
         </div>
+
+        {/* Display the latest employee's details */}
+      
+
         {isFilterModalOpen && (
           <FilterModal
             isOpen={isFilterModalOpen}

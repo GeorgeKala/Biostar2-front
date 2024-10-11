@@ -93,6 +93,7 @@
 
 
 
+
 .customized-th-tr .truncate {
   max-width: 100%;
   overflow: hidden;
@@ -113,6 +114,11 @@
 .customized-th-tr .flex-grow {
   flex-grow: 1; /* Ensures text takes up remaining space */
 }
+
+
+
+
+
 
 
 @keyframes fadeIn {

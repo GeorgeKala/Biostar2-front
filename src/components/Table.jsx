@@ -325,17 +325,17 @@ const Table = ({
   );
 
   return (
-    <div className="w-full mx-auto  overflow-x-auto">
+    <div className="w-full mx-auto overflow-x-auto">
       <div className="min-w-max max-h-[750px] overflow-y-auto" ref={tableRef}>
-        <table className="min-w-full divide-y divide-gray-200 ">
-          <thead className=" text-white text-xs sticky top-0 z-50 ">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="text-white text-xs sticky top-0 z-20">
             <tr>
-              <th className="bg-[#1976D2] w-[30px] "></th>
+              <th className="bg-[#1976D2] w-[30px]"></th>
               {headers &&
                 headers.map((header) => (
                   <th
                     key={header.key}
-                    className=" border-solid  border-2 text-[14px] bg-[#1976D2] font-normal text-left px-2 customized-th-tr  cursor-pointer relative group"
+                    className="border border-solid border-2 text-[14px] bg-[#1976D2] font-normal text-left px-2 cursor-pointer relative group"
                     style={{
                       maxWidth: `${columnWidths[header.key]}px`,
                       whiteSpace: "nowrap",
@@ -398,7 +398,7 @@ const Table = ({
                 filterableFields.map((filterKey) => (
                   <th
                     key={filterKey}
-                    className="border  customized-th-tr"
+                    className="border border-solid border-2 customized-th-tr"
                     style={{
                       maxWidth: `${columnWidths.filterKey}px`,
                       whiteSpace: "nowrap",
@@ -415,7 +415,7 @@ const Table = ({
                           : filters[filterKey]?.text || ""
                       }
                       onChange={onFilterChange}
-                      className="font-normal text-black bg-[#D3DBEB] px-2 py-1 w-full outline-none border-none "
+                      className="font-normal text-black bg-[#D3DBEB] px-2 py-1 w-full outline-none border-none"
                       autoComplete="off"
                     />
                   </th>
