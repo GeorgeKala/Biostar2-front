@@ -16,6 +16,9 @@ import reportService from "../../../services/report";
 import ExcelJS from "exceljs";
 import { useFormData } from "../../../hooks/useFormData";
 import SearchButton from "../../../components/SearchButton";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import CustomSelect from "../../../components/CustomSelect";
 
 
 const GeneralReport = () => {
@@ -137,9 +140,10 @@ const GeneralReport = () => {
 
       const response = await reportService.updateOrCreateDayDetail(data);
 
-      console.log(response);
-      
+      // Show success toast when the comment is successfully saved
+      toast.success("კომენტარი წარმატებით დაემატა!");
 
+      // Dispatch updated report data to Redux store
       dispatch(
         updateOrAddReport({
           employee_id: editData.employee_id,
@@ -147,15 +151,17 @@ const GeneralReport = () => {
           comment: response.data.comment,
           forgive_type: response.data.forgive_type,
           day_type_id: response.data.day_type_id,
-          ...editData,
         })
       );
 
       handleModalClose();
     } catch (error) {
+      // Show error toast if there's an issue saving the comment
+      toast.error("შეცდომა კომენტარის დამატებისას: " + error.message);
       console.error("Error saving data:", error);
     }
   };
+
 
 
 
@@ -167,6 +173,9 @@ const GeneralReport = () => {
       [name]: value,
     });
   };
+
+  console.log(reports);
+  
 
   const exportToExcel = async () => {
     const workbook = new ExcelJS.Workbook();
@@ -240,13 +249,7 @@ const GeneralReport = () => {
     dispatch(fetchForgiveTypes());
   }, [dispatch]);
 
-  // const filteredNestedDepartments = user?.user_type?.has_full_access
-  //   ? nestedDepartments
-  //   : nestedDepartments.filter(
-  //       (dept) =>
-  //         dept.id === user?.department?.id ||
-  //         dept.parent_id === user?.department?.id
-  //     );
+
 
   const filteredNestedDepartments = user?.user_type?.has_full_access == 1
   ? nestedDepartments
@@ -510,40 +513,39 @@ const lastReportElementRef = useCallback(node => {
           </button> */}
           <SearchButton onClick={handleSubmit}></SearchButton>
         </div>
-          <Table
-            data={filteredAndSortedData}
-            headers={tableHeaders}
-            filters={filters}
-            sortConfig={sortConfig}
-            onSort={handleSort}
-            onRowClick={(item) => handleRowClick(item)}
-            lastReportRef={lastReportElementRef}
-            onFilterClick={handleOpenFilterModal}
-            onFilterChange={handleFilterChange}
-            rowClassName={getRowClassName}
-            onRowDoubleClick={handleRowDoubleClick}
-            filterableFields={[
-              "fullname",
-              "department",
-              "position",
-              "date",
-              "come_time",
-              "come_early",
-              "come_late",
-              "penalized_time",
-              "leave_time",
-              "leave_early",
-              "leave_late",
-              "worked_hours",
-              "day_type",
-              "week_day",
-              "homorable_minutes",
-              "schedule",
-              "final_penalized_time",
-              "comment",
-            ]}
-          />
-       
+        <Table
+          data={filteredAndSortedData}
+          headers={tableHeaders}
+          filters={filters}
+          sortConfig={sortConfig}
+          onSort={handleSort}
+          onRowClick={(item) => handleRowClick(item)}
+          lastReportRef={lastReportElementRef}
+          onFilterClick={handleOpenFilterModal}
+          onFilterChange={handleFilterChange}
+          rowClassName={getRowClassName}
+          onRowDoubleClick={handleRowDoubleClick}
+          filterableFields={[
+            "fullname",
+            "department",
+            "position",
+            "date",
+            "come_time",
+            "come_early",
+            "come_late",
+            "penalized_time",
+            "leave_time",
+            "leave_early",
+            "leave_late",
+            "worked_hours",
+            "day_type",
+            "week_day",
+            "homorable_minutes",
+            "schedule",
+            "final_penalized_time",
+            "comment",
+          ]}
+        />
 
         {modalOpen && (
           <div className="fixed z-40 inset-0 flex items-center justify-center bg-black bg-opacity-50">
@@ -581,23 +583,28 @@ const lastReportElementRef = useCallback(node => {
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm mb-2 font-medium text-gray-700">
                   პატიების ტიპი
                 </label>
-                <select
-                  name="forgive_type_id"
-                  value={editData.forgive_type_id}
-                  onChange={handleModalInputChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                >
-                  <option value="">აირჩიე პატიების ტიპი</option>
-                  {forgiveTypeItems &&
-                    forgiveTypeItems.map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.name}
-                      </option>
-                    ))}
-                </select>
+                <CustomSelect
+                  options={forgiveTypeItems.map((item) => ({
+                    id: item.id,
+                    name: item.name,
+                  }))}
+                  selectedValue={
+                    forgiveTypeItems.find(
+                      (item) => item.id === editData.forgive_type_id
+                    )?.name || "აირჩიე პატიების ტიპი"
+                  }
+                  onSelect={(selectedOption) =>
+                    setEditData((prev) => ({
+                      ...prev,
+                      forgive_type_id: selectedOption.id,
+                    }))
+                  }
+                  placeholder="აირჩიე პატიების ტიპი"
+                  borderColor="gray-300"
+                />
               </div>
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700">

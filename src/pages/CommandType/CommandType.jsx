@@ -5,6 +5,8 @@ import DeleteIcon from "../../assets/delete-2.png";
 import dayTypeService from "../../services/dayType";
 import ExcelJS from "exceljs";
 import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const CommandType = () => {
   const user = useSelector((state) => state.user.user);
@@ -55,6 +57,7 @@ const CommandType = () => {
       if (modalMode === "create") {
         const newDayType = await dayTypeService.createDayType(formData);
         setDayTypeList([...dayTypeList, newDayType]);
+        toast.success("ბრძანების ტიპი წარმატებით დაემატა.");
         closeAddModal();
       } else if (modalMode === "update" && selectedDayTypeId) {
         await dayTypeService.updateDayType(selectedDayTypeId, formData);
@@ -65,20 +68,23 @@ const CommandType = () => {
           return dt;
         });
         setDayTypeList(updatedDayTypes);
+        toast.success("ბრძანების ტიპი წარმატებით განახლდა.");
         closeAddModal();
       }
     } catch (error) {
-      alert("Failed to save day type: " + error.message);
+      toast.error("ბრძანების ტიპის შენახვა ვერ მოხერხდა: " + error.message);
     }
   };
+
 
   const handleDelete = async (dayTypeId) => {
     if (window.confirm("დარწმუნებული ხართ რომ გსურთ ბრძანების ტიპის წაშლა?")) {
       try {
         await dayTypeService.deleteDayType(dayTypeId);
         setDayTypeList(dayTypeList.filter((dt) => dt.id !== dayTypeId));
+        toast.success("ბრძანების ტიპი წარმატებით წაიშალა.");
       } catch (error) {
-        alert("Failed to delete day type: " + error.message);
+        toast.error("ბრძანების ტიპის წაშლა ვერ მოხერხდა: " + error.message);
       }
     }
   };

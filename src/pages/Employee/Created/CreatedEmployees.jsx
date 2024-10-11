@@ -15,9 +15,9 @@ import ExcelJS from "exceljs";
 import DeleteEmployeeModal from "../../../components/employee/DeleteEmployeeModal";
 import employeeService from "../../../services/employee";
 import { useFormData } from "../../../hooks/useFormData";
-import DepartmentInput from "../../../components/DepartmentInput";
 import NestedDropdownModal from "../../../components/NestedDropdownModal";
-import SearchIcon from "../../../assets/search.png";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 
 
@@ -63,54 +63,6 @@ const CreatedEmployees = () => {
 
 
   const debounceRef = useRef();
-
-  // const handleChange = (e) => {
-  //   const { name, value } = e.target;
-
-  //   setFormData((prev) => ({
-  //     ...prev,
-  //     [name]: value,
-  //   }));
-
-  //   if (debounceRef.current) clearTimeout(debounceRef.current);
-
-  //   debounceRef.current = setTimeout(() => {
-  //     dispatch(clearEmployees());
-  //     dispatch(fetchEmployees({ ...formData, status: statusFilter, page: 1 }));
-  //   }, 500);
-  // };
-
-
-  // const handleChange = (e) => {
-  //   const { name, value } = e.target;
-  
-  //   setFormData((prev) => ({
-  //     ...prev,
-  //     [name]: value,
-  //   }));
-  
-  //   dispatch(clearEmployees());
-  
-  //   if (value === '') {
-  //     dispatch(fetchEmployees({ status: statusFilter, page: 1 }));
-  //     return;
-  //   }
-  
-  //   if (debounceRef.current) clearTimeout(debounceRef.current);
-    
-  //   debounceRef.current = setTimeout(() => {
-  //     dispatch(fetchEmployees({ ...formData, [name]: value, status: statusFilter, page: 1 }));
-  //   }, 500);
-  // };
-
-
-  //  useEffect(() => {
-  //    dispatch(clearEmployees());
-  //    dispatch(fetchEmployees({ status: statusFilter, page: 1 }));
-  //  }, [statusFilter, dispatch]);
-
-
-
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -254,56 +206,61 @@ const CreatedEmployees = () => {
     setCurrentFilterField(fieldName);
   };
 
-  // const handleDeleteEmployee = async (expiryDatetime) => {
-  //   if (selectedEmployee) {
-  //     try {
-  //       await employeeService.deleteEmployee(
-  //         selectedEmployee.id,
-  //         expiryDatetime
-  //       );
-  //       console.log(
-  //         `Employee ${selectedEmployee.id} expiry date updated to ${expiryDatetime}`
-  //       );
-
-  //       dispatch(fetchEmployees()); 
-  //     } catch (error) {
-  //       console.error("Error deleting (updating expiry) employee:", error);
-  //     }
-  //   }
-  // };
 
 
   const handleDeleteEmployee = async (expiryDatetime) => {
     if (selectedEmployee) {
+      const confirmed = window.confirm(
+        `დარწმუნებული ხარ რომ გსურს თანამშრომლის ${selectedEmployee.fullname} დაარქივება?`
+      );
+      if (!confirmed) return; // Exit if the user cancels
+
       try {
         dispatch(
           deleteEmployee({
             id: selectedEmployee.id,
             expiryDatetime,
           })
-        );
-  
-        console.log(
-          `Employee ${selectedEmployee.id} expiry date updated to ${expiryDatetime}, card number removed, and set inactive.`
-        );
+        )
+          .unwrap()
+          .then(() => {
+            toast.success(
+              `თანამშრომელი ${selectedEmployee.fullname} წარმატებით დაარქივდა.`
+            );
+          })
+          .catch((error) => {
+            toast.error(`შეცდომა თანამშრომლის არქივირებისას: ${error.message}`);
+          });
       } catch (error) {
         console.error("Error deleting (updating expiry) employee:", error);
       }
     }
   };
 
-
   const handleRemoveUser = async () => {
     if (selectedEmployee) {
+      const confirmed = window.confirm(
+        `დარწმუნებული ხარ რომ გსურს თანამშრომლის ${selectedEmployee.fullname} წაშლა?`
+      );
+      if (!confirmed) return; // Exit if the user cancels
+
       try {
-        dispatch(removeUser(selectedEmployee.id)); 
-  
-        console.log(`Employee ${selectedEmployee.id} has been removed.`);
+        dispatch(removeUser(selectedEmployee.id))
+          .unwrap()
+          .then(() => {
+            toast.success(
+              `თანამშრომელი ${selectedEmployee.fullname} წარმატებით წაიშალა.`
+            );
+          })
+          .catch((error) => {
+            toast.error(`შეცდომა თანამშრომლის წაშლისას: ${error.message}`);
+          });
       } catch (error) {
         console.error("Error removing employee:", error);
       }
     }
   };
+
 
 
   const employeeHeaders = [

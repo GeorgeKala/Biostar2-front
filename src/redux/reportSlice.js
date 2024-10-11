@@ -36,7 +36,10 @@ const reportSlice = createSlice({
       state.hasMore = true; // Reset hasMore on clear
     },
     updateOrAddReport(state, action) {
-      const { employee_id, date } = action.payload;
+      const { employee_id, date, comment } = action.payload;
+
+      console.log(comment);
+      
 
       const reportIndex = state.reports.findIndex(
         (report) => report.user_id === employee_id && report.date === date
@@ -46,6 +49,10 @@ const reportSlice = createSlice({
         state.reports[reportIndex] = {
           ...state.reports[reportIndex],
           ...action.payload,
+          comment:
+            comment !== undefined
+              ? comment
+              : state.reports[reportIndex].comment,
         };
       } else {
         state.reports.push(action.payload);

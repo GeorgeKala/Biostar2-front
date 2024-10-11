@@ -18,11 +18,12 @@ const ArrowDownIcon = ({ isOpen }) => (
 );
 
 const CustomSelect = ({
-  options,
+  options = [],
   selectedValue,
   onSelect,
   placeholder,
-  className = '',
+  className = "",
+  borderColor = "#105D8D", // default color if not provided
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -57,15 +58,14 @@ const CustomSelect = ({
   return (
     <div
       ref={selectRef}
-      className={`relative outline-none rounded-md w-full ${
-        className ? className : "bg-white border border-[#105D8D]"
-      }`}
+      className={`relative outline-none rounded-md w-full ${className}`}
     >
       <div
-        className={`${
-          className ? className : "bg-white border-[#105D8D]"
-        } border border-gray-300 rounded-md cursor-pointer py-2 px-4 flex items-center justify-between`}
+        className={`border cursor-pointer py-2 px-4 flex items-center justify-between rounded-md ${
+          className ? className : "bg-white"
+        }`}
         onClick={() => setIsOpen(!isOpen)}
+        style={{ borderColor: borderColor }}
       >
         <span className="truncate">
           {selectedValue ? selectedValue : placeholder}
@@ -75,12 +75,13 @@ const CustomSelect = ({
 
       {isOpen && (
         <div
-          className={`absolute z-50 bg-white border border-gray-300 rounded-md mt-2 w-full shadow-lg transition-all duration-300 ease-in-out ${
-            isOpen ? 'opacity-100 max-h-60' : 'opacity-0 max-h-0'
+          className={`absolute z-50 bg-white border rounded-md mt-2 w-full shadow-lg transition-all duration-300 ease-in-out ${
+            isOpen ? "opacity-100 max-h-60" : "opacity-0 max-h-0"
           } transform`}
           style={{
             maxHeight: isOpen ? "300px" : "0",
             overflow: isOpen ? "auto" : "hidden",
+            borderColor: borderColor, // Apply border color to the dropdown
           }}
         >
           <input
@@ -102,7 +103,9 @@ const CustomSelect = ({
                 </li>
               ))
             ) : (
-              <li className="p-2 text-center text-gray-500">No options found</li>
+              <li className="p-2 text-center text-gray-500">
+                No options found
+              </li>
             )}
           </ul>
         </div>

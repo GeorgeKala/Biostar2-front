@@ -11,10 +11,17 @@ import {
 } from "../../redux/buildingSlice";
 import buildingService from "../../services/building";
 import ExcelJS from "exceljs";
+import { toast } from "react-toastify"; // Import react-toastify
+import "react-toastify/dist/ReactToastify.css";
+import CustomSelect from "../../components/CustomSelect";
 
 const Building = () => {
   const dispatch = useDispatch();
   const { buildings } = useSelector((state) => state.building);
+
+
+  console.log(buildings);
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("create");
   const [formData, setFormData] = useState({
@@ -94,7 +101,7 @@ const Building = () => {
     const { name, address, parent_id } = formData;
 
     if (!name.trim()) {
-      alert("Please enter name.");
+      toast.error("გთხოვთ შეიყვანოთ სახელი.");
       return;
     }
 
@@ -107,29 +114,32 @@ const Building = () => {
     try {
       if (modalMode === "create") {
         await dispatch(createBuilding(buildingData));
+        toast.success("შენობა წარმატებით დაემატა!");
       } else if (modalMode === "update" && buildingIdToUpdate) {
         await dispatch(
           updateBuilding({ id: buildingIdToUpdate, buildingData })
         );
+        toast.success("შენობა წარმატებით განახლდა!");
       }
       closeModal();
       fetchNestedBuildings();
     } catch (error) {
-      alert(
-        `Failed to ${modalMode === "create" ? "create" : "update"} building: ${
-          error.message
-        }`
+      toast.error(
+        `შენობის ${
+          modalMode === "create" ? "დამატება" : "განახლება"
+        } ვერ მოხერხდა.`
       );
     }
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this building?")) {
+    if (window.confirm("დარწმუნებული ხართ, რომ გსურთ ამ შენობის წაშლა?")) {
       try {
         await dispatch(deleteBuilding(id));
+        toast.success("შენობა წარმატებით წაიშალა!");
         fetchNestedBuildings();
       } catch (error) {
-        alert("Failed to delete building: " + error.message);
+        toast.error("შენობის წაშლა ვერ მოხერხდა.");
       }
     }
   };
@@ -270,7 +280,7 @@ const Building = () => {
           </svg>
         </div>
 
-        <div >
+        <div>
           {filteredBuildings &&
             filteredBuildings.map((item, index) => (
               <div key={index} className="cursor-pointer">
@@ -366,7 +376,7 @@ const Building = () => {
                   }
                 />
               </div>
-              <div className="mb-4">
+              {/* <div className="mb-4">
                 <label
                   htmlFor="parent_id"
                   className="block text-sm font-medium text-gray-700"
@@ -390,6 +400,30 @@ const Building = () => {
                       </option>
                     ))}
                 </select>
+              </div> */}
+              <div className="mb-4">
+                <label
+                  htmlFor="parent_id"
+                  className="block text-sm mb-2 font-medium text-gray-700"
+                >
+                  მდებარეობს
+                </label>
+                <CustomSelect
+                  options={buildings?.map((item) => ({
+                    id: item.id,
+                    name: item.name,
+                  }))}
+                  selectedValue={
+                    buildings?.find((item) => item.id === formData.parent_id)
+                      ?.name || "აირჩიე შენობა"
+                  }
+                  onSelect={(selected) =>
+                    setFormData({ ...formData, parent_id: selected.id })
+                  }
+                  placeholder="აირჩიე შენობა"
+                  className="bg-gray-300"
+                  borderColor="gray-300"
+                />
               </div>
               <div className="flex justify-end mt-4">
                 <button

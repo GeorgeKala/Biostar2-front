@@ -4,6 +4,9 @@ import AuthenticatedLayout from "../../Layouts/AuthenticatedLayout";
 import CreateIcon from "../../assets/create.png";
 import DeleteIcon from "../../assets/delete-2.png";
 import Modal from "../../components/Modal";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import {
   fetchForgiveTypes,
   createForgiveType,
@@ -38,19 +41,40 @@ const ForgiveType = () => {
   };
 
   const handleSaveForgiveType = async (value) => {
-    if (editItemId) {
-      dispatch(
-        updateForgiveType({ id: editItemId, forgiveTypeData: { name: value } })
-      );
-    } else {
-      dispatch(createForgiveType({ name: value }));
+    try {
+      if (editItemId) {
+        await dispatch(
+          updateForgiveType({
+            id: editItemId,
+            forgiveTypeData: { name: value },
+          })
+        ).unwrap();
+        toast.success("პატიების ტიპი წარმატებით განახლდა.");
+      } else {
+        await dispatch(createForgiveType({ name: value })).unwrap();
+        toast.success("პატიების ტიპი წარმატებით დაემატა.");
+      }
+      closeModal();
+    } catch (error) {
+      toast.error("შეცდომა პატიების ტიპის შენახვისას: " + error.message);
     }
-    closeModal();
   };
 
-  const handleDeleteForgiveType = (id) => {
-    dispatch(deleteForgiveType(id));
+
+  const handleDeleteForgiveType = async (id) => {
+    const confirmed = window.confirm(
+      "დარწმუნებული ხართ, რომ გსურთ პატიების ტიპის წაშლა?"
+    );
+    if (!confirmed) return; 
+
+    try {
+      await dispatch(deleteForgiveType(id)).unwrap();
+      toast.success("პატიების ტიპი წარმატებით წაიშალა.");
+    } catch (error) {
+      toast.error("შეცდომა პატიების ტიპის წაშლისას: " + error.message);
+    }
   };
+
 
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(

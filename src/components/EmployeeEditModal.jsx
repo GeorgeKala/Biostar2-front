@@ -9,6 +9,8 @@ import NestedDropdownModal from "./NestedDropdownModal";
 import SearchIcon from "../assets/search.png";
 import CardScanModal from "./CardScanModal";
 import { updateEmployee } from "../redux/employeeSlice";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const EmployeeEditModal = ({ employeeId, isOpen, onClose }) => {
 
@@ -137,16 +139,16 @@ const EmployeeEditModal = ({ employeeId, isOpen, onClose }) => {
   const handleSubmit = async () => {
     setIsLoading(true);
     try {
-      // // Assuming employeeId is an object and employeeId.id is the employee's unique identifier
-      // const response = await employeeService.updateEmployee(employeeId?.id, formData);
-      dispatch(updateEmployee({ id: employeeId?.id, employeeData: formData }));
-      onClose();
-      
-      // if (response && response.status === 200) {
-      //   const updatedEmployee = response.data; 
-       
-      //     onClose();
-      // }
+      // Dispatch the updateEmployee action
+      dispatch(updateEmployee({ id: employeeId?.id, employeeData: formData }))
+        .unwrap() // Make sure to unwrap the promise to catch the error directly
+        .then(() => {
+          toast.success("თანამშრომლის ინფორმაცია წარმატებით განახლდა.");
+          onClose();
+        })
+        .catch((error) => {
+          toast.error(`შეცდომა თანამშრომლის განახლებისას: ${error.message}`);
+        });
     } catch (error) {
       console.error("Error updating employee:", error);
     } finally {

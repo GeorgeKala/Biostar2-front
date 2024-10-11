@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import AuthenticatedLayout from "../../Layouts/AuthenticatedLayout";
-import ArrowDownIcon from "../../assets/arrow-down-2.png";
 import GeneralInputGroup from "../../components/GeneralInputGroup";
-import SearchIcon from "../../assets/search.png";
 import dayTypeService from "../../services/dayType";
 import EmployeeModal from "../../components/employee/EmployeeModal";
 import reportService from "../../services/report";
@@ -19,6 +17,8 @@ import { useFilterAndSort } from "../../hooks/useFilterAndSort";
 import ExcelJS from "exceljs";
 import CustomSelect from "../../components/CustomSelect";
 import SearchButton from "../../components/SearchButton";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 
 const Order = () => {
@@ -120,28 +120,40 @@ const Order = () => {
   const handleSaveOrder = async (e) => {
     e.preventDefault();
     try {
-      await reportService.updateDayTypeForDateRange(formData);
-      dispatch(fetchEmployeeOrders(filters));
-      setShowSuccessPopup(true);
-      setSuccessMessage("ბრძანება წარმატებით დაემატა");
-      closeModal();
+      const response = await reportService.updateDayTypeForDateRange(formData);
+
+      if (response.status === 200 || response.data.success) {
+        dispatch(fetchEmployeeOrders(filters));
+        toast.success("ბრძანება წარმატებით დაემატა");
+        closeModal();
+      } else {
+        toast.error("ბრძანების დამატება ვერ მოხერხდა.");
+      }
     } catch (error) {
+      toast.error("ბრძანების დამატება ვერ მოხერხდა.");
       console.error("Error saving order:", error);
     }
   };
 
+
   const handleDeleteOrder = async (e) => {
     e.preventDefault();
     try {
-      await reportService.deleteDayTypeForDateRange(formData);
-      dispatch(fetchEmployeeOrders(filters));
-      setShowSuccessPopup(true);
-      setSuccessMessage("ბრძანება წარმატებით წაიშალა");
-      closeModal();
+      const response = await reportService.deleteDayTypeForDateRange(formData);
+
+      if (response.status === 200 || response.data.success) {
+        dispatch(fetchEmployeeOrders(filters));
+        toast.success("ბრძანება წარმატებით წაიშალა");
+        closeModal();
+      } else {
+        toast.error("ბრძანების წაშლა ვერ მოხერხდა.");
+      }
     } catch (error) {
+      toast.error("ბრძანების წაშლა ვერ მოხერხდა.");
       console.error("Error deleting order:", error);
     }
   };
+
 
   const openModalForCreate = () => {
     setModalMode("create");
@@ -313,7 +325,7 @@ const Order = () => {
         <div className="flex justify-between w-full">
           <h1 className="text-[#1976D2] font-medium text-[23px]">ბრძანებები</h1>
           <div className="flex gap-4">
-              <div className="flex justify-end gap-4">
+            <div className="flex justify-end gap-4">
               <button
                 className="bg-[#5CB85C] text-white py-2 px-4 rounded-md"
                 onClick={openModalForCreate}
@@ -336,7 +348,6 @@ const Order = () => {
               <span className="absolute inset-0 border border-white border-dashed rounded"></span>
             </button>
           </div>
-          
         </div>
         <form className="flex items-center gap-4" onSubmit={handleSubmit}>
           <GeneralInputGroup
@@ -368,9 +379,8 @@ const Order = () => {
             onSearchClick={() => setOpenNestedDropdown(true)}
           />
           <SearchButton type="submit" onClick={handleSubmit}></SearchButton>
-
         </form>
-        
+
         <Table
           data={filteredAndSortedData}
           headers={orderHeaders}
@@ -508,6 +518,7 @@ const Order = () => {
                     }
                     placeholder="აირჩიეთ ბრძანების ტიპი"
                     className="bg-gray-300"
+                    borderColor="gray-300"
                   />
                 </div>
               )}

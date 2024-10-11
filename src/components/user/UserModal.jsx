@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { selectUsers } from '../../redux/userDataSlice';
+import { fetchUsers, selectUsers } from '../../redux/userDataSlice';
 import { closeModal } from '../../redux/modalSlice';
 import useClickOutside from '../../hooks/useClickOutside';
 
@@ -9,7 +9,11 @@ const UserModal = ({ handleLoginAsUser }) => {
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState('');
   
-
+useEffect(() => {
+  if (users.length === 0) {
+    dispatch(fetchUsers());
+  }
+}, [dispatch, users.length]);
   const handleClose = () => {
     dispatch(closeModal());
   };

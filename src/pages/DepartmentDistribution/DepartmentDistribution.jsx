@@ -12,6 +12,8 @@ import FilterModal from "../../components/FilterModal";
 import Table from "../../components/Table";
 import { useFilterAndSort } from "../../hooks/useFilterAndSort";
 import CustomSelect from "../../components/CustomSelect";
+import { toast } from "react-toastify"; // Import react-toastify
+import "react-toastify/dist/ReactToastify.css"; // Import toast CSS
 
 const DepartmentDistribution = () => {
   const dispatch = useDispatch();
@@ -87,11 +89,13 @@ const DepartmentDistribution = () => {
             formData.building_id,
             formData.department_id
           );
+          toast.success("დეპარტამენტი წარმატებით განახლდა!");
         } else {
           await buildingService.attachDepartment(
             formData.building_id,
             formData.department_id
           );
+          toast.success("დეპარტამენტი წარმატებით დაემატა!");
         }
 
         setShowModal(false);
@@ -103,23 +107,28 @@ const DepartmentDistribution = () => {
 
         fetchData();
       } catch (error) {
-        console.error("Error adding/editing department to building:", error);
+        toast.error("დეპარტამენტის დამატება/განახლება ვერ მოხერხდა.");
       }
     } else {
-      console.error("Please select both a building and a department.");
+      toast.error("გთხოვთ, შეარჩიეთ შენობა და დეპარტამენტი.");
     }
   };
 
   const handleDelete = async () => {
-    if (formData.department_id && formData.building_id) {
+    if (
+      window.confirm("დარწმუნებული ხართ, რომ გსურთ ამ დეპარტამენტის წაშლა?")
+    ) {
       try {
-        await buildingService.detachDepartment(
-          formData.building_id,
-          formData.department_id
-        );
-        fetchData();
+        if (formData.department_id && formData.building_id) {
+          await buildingService.detachDepartment(
+            formData.building_id,
+            formData.department_id
+          );
+          fetchData();
+          toast.success("დეპარტამენტი წარმატებით წაიშალა!");
+        }
       } catch (error) {
-        console.log(error);
+        toast.error("დეპარტამენტის წაშლა ვერ მოხერხდა.");
       }
     }
   };
@@ -247,6 +256,7 @@ const DepartmentDistribution = () => {
                 }
                 placeholder="შენობა"
                 className="bg-gray-300"
+                borderColor="gray-300"
               />
             </div>
             <div className="mb-4">
@@ -266,6 +276,7 @@ const DepartmentDistribution = () => {
                 }
                 placeholder="დეპარტამენტი"
                 className="bg-gray-300"
+                borderColor="gray-300"
               />
             </div>
             <div className="flex justify-end">

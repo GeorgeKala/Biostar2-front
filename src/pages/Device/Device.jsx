@@ -10,6 +10,9 @@ import ExcelJS from "exceljs";
 import NewIcon from "../../assets/new.png";
 import DeleteIcon from "../../assets/delete.png";
 import EditIcon from "../../assets/edit.png";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 
 const Device = () => {
   const [data, setData] = useState([]);
@@ -98,77 +101,6 @@ const Device = () => {
     setSelectedItem(null);
   };
 
-  // const handleSaveAccessGroup = async () => {
-  //   try {
-  //     const buildingType = isKitchen ? "kitchen" : null;
-  //     const parsedBuildingId = parseInt(selectedBuildingId, 10);
-
-  //     await buildingService.addAccessGroup(
-  //       parsedBuildingId,
-  //       [selectedAccessGroup],
-  //       buildingType
-  //     );
-
-  //     if (selectedItem) {
-  //       // Update an existing access group
-  //       setData((prevData) =>
-  //         prevData.map((building) => {
-  //           if (building.building_id === parsedBuildingId) {
-  //             const updatedAccessGroups = [
-  //               ...(Array.isArray(building.access_groups)
-  //                 ? building.access_groups
-  //                 : []),
-  //               {
-  //                 access_group_id: selectedItem.access_group_id,
-  //                 access_group_name: selectedItem.device_name,
-  //                 device_name: selectedItem.device_name,
-  //                 building_id: parsedBuildingId,
-  //                 building_name: building.building_name,
-  //               },
-  //             ];
-
-  //             return {
-  //               ...building,
-  //               access_groups: updatedAccessGroups,
-  //             };
-  //           }
-  //           return building;
-  //         })
-  //       );
-  //     } else {
-  //       // Add a new access group
-  //       setData((prevData) =>
-  //         prevData.map((building) => {
-  //           if (building.building_id === parsedBuildingId) {
-  //             const updatedAccessGroups = [
-  //               ...(Array.isArray(building.access_groups)
-  //                 ? building.access_groups
-  //                 : []),
-  //               {
-  //                 access_group_id: selectedAccessGroup.access_group_id,
-  //                 access_group_name: selectedAccessGroup.device_name,
-  //                 device_name: selectedAccessGroup.device_name,
-  //                 building_id: parsedBuildingId,
-  //                 building_name: building.building_name,
-  //               },
-  //             ];
-
-  //             return {
-  //               ...building,
-  //               access_groups: updatedAccessGroups,
-  //             };
-  //           }
-  //           return building;
-  //         })
-  //       );
-  //     }
-
-  //     handleModalClose();
-  //   } catch (error) {
-  //     console.error("Error saving access group:", error);
-  //   }
-  // };
-
 
   const handleSaveAccessGroup = async () => {
     try {
@@ -184,65 +116,73 @@ const Device = () => {
       // Refetch data after successful save or update
       const updatedData = await buildingService.getBuildingsWithAccessGroups();
       setData(updatedData);
+      toast.success("მოწყობილობა წარმატებით შეინახა.");
 
       handleModalClose();
     } catch (error) {
       console.error("Error saving access group:", error);
+       toast.error("შეცდომა მოწყობილობის შენახვისას: " + error.message);
     }
   };
 
 
 
   const handleDeleteAccessGroup = async () => {
-    if (selectedItem) {
-      try {
-        const parsedBuildingId = parseInt(selectedItem.building_id, 10);
+    if (!selectedItem) return;
 
-        await buildingService.removeAccessGroup(
-          parsedBuildingId,
-          selectedItem.access_group_id
-        );
+    const confirmed = window.confirm(
+      "დარწმუნებული ხართ, რომ გსურთ ამ მოწყობილობის წაშლა?"
+    );
 
-        setData((prevData) =>
-          prevData
-            .map((building) => {
-              if (building.building_id === parsedBuildingId) {
-                const updatedAccessGroups = (
-                  building.access_groups || []
-                ).filter(
-                  (group) =>
-                    group.access_group_id !== selectedItem.access_group_id
-                );
+    if (!confirmed) return; // Exit if the user cancels
 
-                if (updatedAccessGroups.length > 0) {
-                  return updatedAccessGroups.map((group) => ({
-                    building_id: building.building_id,
-                    building_name: building.building_name,
-                    access_group_id: group.access_group_id,
-                    access_group_name: group.access_group_name,
-                    device_name: group.device_name,
-                  }));
-                } else {
-                  return {
-                    building_id: building.building_id,
-                    building_name: building.building_name,
-                    access_group_id: null,
-                    access_group_name: null,
-                    device_name: null,
-                  };
-                }
+    try {
+      const parsedBuildingId = parseInt(selectedItem.building_id, 10);
+
+      await buildingService.removeAccessGroup(
+        parsedBuildingId,
+        selectedItem.access_group_id
+      );
+
+      setData((prevData) =>
+        prevData
+          .map((building) => {
+            if (building.building_id === parsedBuildingId) {
+              const updatedAccessGroups = (building.access_groups || []).filter(
+                (group) =>
+                  group.access_group_id !== selectedItem.access_group_id
+              );
+
+              if (updatedAccessGroups.length > 0) {
+                return updatedAccessGroups.map((group) => ({
+                  building_id: building.building_id,
+                  building_name: building.building_name,
+                  access_group_id: group.access_group_id,
+                  access_group_name: group.access_group_name,
+                  device_name: group.device_name,
+                }));
+              } else {
+                return {
+                  building_id: building.building_id,
+                  building_name: building.building_name,
+                  access_group_id: null,
+                  access_group_name: null,
+                  device_name: null,
+                };
               }
-              return building;
-            })
-            .flat()
-        );
+            }
+            return building;
+          })
+          .flat()
+      );
 
-        setSelectedItem(null);
-      } catch (error) {
-        console.error("Error removing access group from building:", error);
-      }
+      toast.success("მოწყობილობა წარმატებით წაიშალა.");
+      setSelectedItem(null);
+    } catch (error) {
+      toast.error("შეცდომა მოწყობილობის წაშლისას: " + error.message);
     }
   };
+
 
   const handleRowClick = (item) => {
     setSelectedItem(item);

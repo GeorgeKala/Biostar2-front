@@ -2,6 +2,7 @@ import React from "react";
 import DepartmentInput from "../../components/DepartmentInput";
 import EmployeeInput from "../../components/employee/EmployeeInput";
 import useClickOutside from "../../hooks/useClickOutside";
+import CustomSelect from "../CustomSelect";
 
 const UserForm = ({
   formData,
@@ -17,16 +18,19 @@ const UserForm = ({
   openNestedDropdown,
   setOpenNestedDropdown,
 }) => {
-
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
-      <div  className="bg-white rounded-lg max-w-md w-full">
+      <div className="bg-white rounded-lg max-w-md w-full">
         <div className="flex justify-between items-center p-3 bg-blue-500 text-white rounded-t-lg">
           <h2 className="text-lg font-semibold">
-            {modalMode === "create" ? "დაამატე ახალი მომხმარებელი" : "განაახლე მომხმარებელი"}
+            {modalMode === "create"
+              ? "დაამატე ახალი მომხმარებელი"
+              : "განაახლე მომხმარებელი"}
           </h2>
-          <button onClick={closeModal} className="hover:text-gray-200 focus:outline-none">
+          <button
+            onClick={closeModal}
+            className="hover:text-gray-200 focus:outline-none"
+          >
             <svg
               className="w-6 h-6"
               fill="none"
@@ -34,17 +38,21 @@ const UserForm = ({
               viewBox="0 0 24 24"
               xmlns="http://www.w3.org/2000/svg"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M6 18L18 6M6 6l12 12"
+              ></path>
             </svg>
           </button>
         </div>
-        {/* Explicitly prevent form submission when interacting with inputs */}
-        <form
-          className="p-3"
-          onSubmit={(e) => e.preventDefault()}
-        >
+        <form className="p-3" onSubmit={(e) => e.preventDefault()}>
           <div className="mb-4">
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-gray-700"
+            >
               სახელი:
             </label>
             <input
@@ -58,7 +66,10 @@ const UserForm = ({
             />
           </div>
           <div className="mb-4">
-            <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="username"
+              className="block text-sm font-medium text-gray-700"
+            >
               მომხმარებელი:
             </label>
             <input
@@ -72,39 +83,52 @@ const UserForm = ({
             />
           </div>
           <div className="mb-4">
-            <label htmlFor="userType" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="userType"
+              className="block text-sm mb-2 font-medium text-gray-700"
+            >
               მომხმარებლის ტიპი:
             </label>
-            <select
-              id="userType"
-              name="userType"
-              className="mt-1 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-              value={formData.userType}
-              onChange={handleChange}
-              required
-            >
-              <option value="">აირჩიე მომხმარებლის ტიპი</option>
-              {userTypes &&
-                userTypes.map((type) => (
-                  <option key={type.id} value={type.id}>
-                    {type.name}
-                  </option>
-                ))}
-            </select>
+            <CustomSelect
+              options={userTypes.map((type) => ({
+                id: type.id,
+                name: type.name,
+              }))}
+              selectedValue={
+                userTypes.find((t) => t.id === formData.userType)?.name
+              }
+              onSelect={(selectedOption) =>
+                handleChange({
+                  target: { name: "userType", value: selectedOption.id },
+                })
+              }
+              className="bg-gray-300"
+              placeholder="აირჩიეთ მომხმარებლის ტიპი"
+              borderColor="gray-300"
+            />
           </div>
           <div className="mb-4">
-            <label htmlFor="department" className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="department"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               დეპარტამენტი:
             </label>
             <DepartmentInput
-              value={departments.find((d) => d.id === formData.department)?.name || ""}
+              value={
+                departments.find((d) => d.id === formData.department)?.name ||
+                ""
+              }
               onClear={handleClearDepartment}
               onSearchClick={() => setOpenNestedDropdown(true)}
               className="px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-l shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
             />
           </div>
           <div className="mb-4">
-            <label htmlFor="employeeId" className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="employeeId"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               თანამშრომელი:
             </label>
             <EmployeeInput

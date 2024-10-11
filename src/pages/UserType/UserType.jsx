@@ -7,6 +7,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchUserTypes } from "../../redux/userTypeSlice";
 import userTypeService from "../../services/userType";
 import * as XLSX from "xlsx";
+import { toast } from "react-toastify"; 
+import 'react-toastify/dist/ReactToastify.css'; 
 
 const UserType = () => {
   const dispatch = useDispatch();
@@ -58,6 +60,7 @@ const UserType = () => {
       if (modalMode === "create") {
         const response = await userTypeService.createUserType(formData);
         setUserTypeList([...userTypeList, response.data]);
+        toast.success("მომხმარებლის ტიპი წარმატებით დაემატა!"); // Success message
         closeAddModal();
       } else if (modalMode === "update" && selectedUserTypeId) {
         await userTypeService.updateUserType(selectedUserTypeId, formData);
@@ -68,20 +71,22 @@ const UserType = () => {
           return ut;
         });
         setUserTypeList(updatedUserTypes);
+        toast.success("მომხმარებლის ტიპი წარმატებით განახლდა!"); // Success message
         closeAddModal();
       }
     } catch (error) {
-      alert("Failed to save user type: " + error.message);
+      toast.error("მომხმარებლის ტიპის შენახვა ვერ მოხერხდა!"); // Error message
     }
   };
 
   const handleDelete = async (userTypeId) => {
-    if (window.confirm("Are you sure you want to delete this user type?")) {
+    if (window.confirm("დარწმუნებული ხართ, რომ გსურთ მომხმარებლის ტიპის წაშლა?")) {
       try {
         await userTypeService.deleteUserType(userTypeId);
         setUserTypeList(userTypeList.filter((ut) => ut.id !== userTypeId));
+        toast.success("მომხმარებლის ტიპი წარმატებით წაიშალა!"); // Success message
       } catch (error) {
-        alert("Failed to delete user type: " + error.message);
+        toast.error("მომხმარებლის ტიპის წაშლა ვერ მოხერხდა!"); // Error message
       }
     }
   };

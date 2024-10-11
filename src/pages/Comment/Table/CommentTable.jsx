@@ -20,6 +20,8 @@ import ExcelJS from "exceljs";
 import CustomSelect from "../../../components/CustomSelect";
 import { useFormData } from "../../../hooks/useFormData";
 import SearchButton from "../../../components/SearchButton";
+import { toast } from "react-toastify";
+
 
 const CommentTable = () => {
   const user = useSelector((state) => state.user.user);
@@ -118,11 +120,25 @@ const CommentTable = () => {
   };
 
   const handleDelete = async () => {
+    if (!selectedComment) {
+      toast.warn("გთხოვთ, აირჩიეთ კომენტარი წასაშლელად.");
+      return;
+    }
+
+    const confirmDelete = window.confirm(
+      "დარწმუნებული ხარ რომ გინდა ამ კომენტარის წაშლა?"
+    );
+
+    if (!confirmDelete) {
+      return;
+    }
+
     try {
       await reportService.deleteDayDetail(selectedComment.id);
       dispatch(removeComment(selectedComment.id));
+      toast.success("კომენტარი წარმატებით წაიშალა.");
     } catch (error) {
-      console.error("Error deleting comment:", error);
+      toast.error("შეცდომა კომენტარის წაშლისას: " + error.message);
     }
   };
 

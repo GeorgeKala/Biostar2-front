@@ -11,6 +11,8 @@ import departmentService from "../../services/department";
 import ExcelJS from "exceljs";
 import CustomSelect from "../../components/CustomSelect";
 import { useFormData } from "../../hooks/useFormData";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Department = () => {
   const user = useSelector((state) => state.user.user);
@@ -92,20 +94,19 @@ const Department = () => {
     try {
       if (modalMode === "create") {
         await departmentService.createDepartment(formData);
-        closeAddModal();
-        dispatch(fetchNestedDepartments());
-        dispatch(fetchDepartments());
+        toast.success("დეპარტამენტი წარმატებით შეიქმნა.");
       } else if (modalMode === "update" && selectedDepartmentId) {
         await departmentService.updateDepartment(
           selectedDepartmentId,
           formData
         );
-        closeAddModal();
-        dispatch(fetchNestedDepartments());
-        dispatch(fetchDepartments());
+        toast.success("დეპარტამენტი წარმატებით განახლდა.");
       }
+      closeAddModal();
+      dispatch(fetchNestedDepartments());
+      dispatch(fetchDepartments());
     } catch (error) {
-      alert("Failed to save department: " + error.message);
+      toast.error("დეპარტამენტის შენახვა ვერ მოხერხდა: " + error.message);
     }
   };
 
@@ -113,10 +114,11 @@ const Department = () => {
     if (window.confirm("დარწმუნებული ხართ რომ გინდათ დეპარტამენტის წაშლა?")) {
       try {
         await departmentService.deleteDepartment(departmentId);
+        toast.success("დეპარტამენტი წარმატებით წაიშალა.");
         dispatch(fetchNestedDepartments());
         dispatch(fetchDepartments());
       } catch (error) {
-        alert("Failed to delete department: " + error.message);
+        toast.error("დეპარტამენტის წაშლა ვერ მოხერხდა: " + error.message);
       }
     }
   };

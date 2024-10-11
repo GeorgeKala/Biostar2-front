@@ -15,6 +15,8 @@ import Table from "../../components/Table";
 import UserForm from "../../components/user/UserForm";
 import { useFilterAndSort } from "../../hooks/useFilterAndSort";
 import * as XLSX from "xlsx";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const User = () => {
   const dispatch = useDispatch();
@@ -116,9 +118,7 @@ const User = () => {
 
   const handleSave = async (e) => {
     e.preventDefault();
-
     const { name, username, userType, department, employeeId } = formData;
-
     const userData = {
       name,
       username,
@@ -128,40 +128,44 @@ const User = () => {
     };
 
     try {
+      let response;
       if (modalMode === "create") {
-        await userService.createUser(userData);
-        closeAddModal();
-      } else if (modalMode === "update" && selectedUserId) {
-        const updatedUser = await userService.updateUser(
-          selectedUserId,
-          userData
-        );
-        // const updatedIndex = usersData.findIndex(
-        //   (user) => user.id === selectedUserId
-        // );
-        // if (updatedIndex !== -1) {
-        //   const updatedUsers = [...usersData];
-        //   updatedUsers[updatedIndex] = updatedUser;
-        //   setUsers(updatedUsers);
+        response = await userService.createUser(userData);
+        // if (response.status === 201) {
+          toast.success("მომხმარებელი წარმატებით დაემატა");
+        // } else {
+        //   toast.error("მომხმარებლის დამატება ვერ მოხერხდა.");
         // }
-        closeAddModal();
+      } else if (modalMode === "update" && selectedUserId) {
+        response = await userService.updateUser(selectedUserId, userData);
+        // if (response.status === 200) {
+          toast.success("მომხმარებელი წარმატებით განახლდა");
+        // } else {
+        //   toast.error("მომხმარებლის განახლება ვერ მოხერხდა.");
+        // }
       }
+      closeAddModal();
       dispatch(fetchUsers());
     } catch (error) {
-      alert("Failed to save user: " + error.message);
+      toast.error("შეცდომა: " + error.message);
     }
   };
 
+
   const handleDelete = async (userId) => {
-    if (window.confirm("Are you sure you want to delete this user?")) {
+    if (window.confirm("დარწმუნებული ხართ რომ გსურთ მომხმარებლის წაშლა?")) {
       try {
-        await userService.deleteUser(userId);
-        dispatch(fetchUsers());
+        const response = await userService.deleteUser(userId);
+          toast.success("მომხმარებელი წარმატებით წაიშალა");
+       
+          dispatch(fetchUsers());
+
       } catch (error) {
-        alert("Failed to delete user: " + error.message);
+        toast.error("შეცდომა: " + error.message);
       }
     }
   };
+
 
   const handleRowClick = (userId) => {
     setSelectedUserId(userId === selectedUserId ? null : userId);
