@@ -249,7 +249,6 @@ const EmployeeCreate = () => {
     .join(", ");
 
     
-    console.log(formData);
     
 
   return (

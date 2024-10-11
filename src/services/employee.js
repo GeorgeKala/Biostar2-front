@@ -36,7 +36,7 @@ const employeeService = {
         `/employees/${id}`,
         employeeData
       );
-      return response.data.employee;
+      return response;
     } catch (error) {
       throw error;
     }

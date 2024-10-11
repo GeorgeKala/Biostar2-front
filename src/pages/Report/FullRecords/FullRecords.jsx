@@ -76,6 +76,7 @@ const FullRecords = () => {
       end_date: formData.end_date,
       department_id: formData.department_id,
       building_id: formData.building_id,
+      employee_id: formData.employee_id
     };
 
     dispatch(fetchFullRecords(filters));
@@ -188,6 +189,16 @@ const FullRecords = () => {
     URL.revokeObjectURL(url);
   }, [filteredRecords]);
 
+  console.log(formData);
+  
+  const handleEmployeeClear = useCallback(() => {
+    setFormData((prev) => ({
+      ...prev,
+      employee: "",
+      employee_id: null, // Ensure to clear employee ID as well
+    }));
+  }, []);
+
   return (
     <AuthenticatedLayout>
       <div className="w-full px-10 py-4 flex flex-col gap-8 ">
@@ -233,7 +244,7 @@ const FullRecords = () => {
           />
           <EmployeeInput
             value={formData.employee}
-            onClear={() => handleClear("employee")}
+            onClear={handleEmployeeClear}
             onSearchClick={openModal}
           />
           {/* <button

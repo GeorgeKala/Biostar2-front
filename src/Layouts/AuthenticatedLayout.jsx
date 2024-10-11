@@ -7,6 +7,7 @@ import UserModal from '../components/user/UserModal';
 import { useNavigate } from 'react-router-dom';
 import userService from '../services/users';
 import { fetchAsyncUser } from '../redux/userDataSlice';
+import { ToastContainer } from 'react-toastify';
 const AuthenticatedLayout = ({ children }) => {
   const isModalOpen = useSelector(selectIsModalOpen);
   const dispatch = useDispatch();
@@ -73,6 +74,7 @@ const AuthenticatedLayout = ({ children }) => {
       <Sidebar />
       <div className="min-h-screen flex flex-col w-full">
         <Navbar />
+        <ToastContainer />
         <div className="h-full w-full">{children}</div>
       </div>
       {isModalOpen && <UserModal handleLoginAsUser={handleLoginAsUser} />}

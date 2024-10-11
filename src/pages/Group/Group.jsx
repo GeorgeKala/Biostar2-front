@@ -11,20 +11,19 @@ import {
   deleteGroup,
 } from "../../redux/groupSlice";
 import ExcelJS from "exceljs";
-import { useFormData } from "../../hooks/useFormData"; // Import the custom hook
+import { useFormData } from "../../hooks/useFormData";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Group = () => {
   const user = useSelector((state) => state.user.user);
   const dispatch = useDispatch();
   const groupItems = useSelector((state) => state.groups.items);
   const groupStatus = useSelector((state) => state.groups.status);
-
-  // Use form data hook to manage search term and modal data
   const { formData, handleFormDataChange, setFormData } = useFormData({
     searchTerm: "",
     name: "",
   });
-
   const [modalOpen, setModalOpen] = useState(false);
   const [editItemId, setEditItemId] = useState(null);
 
@@ -35,9 +34,14 @@ const Group = () => {
   }, [groupStatus, dispatch]);
 
   const openModal = (id) => {
-    setEditItemId(id);
-    const item = groupItems.find((item) => item.id === id);
-    setFormData({ ...formData, name: item ? item.name : "" });
+    if (id) {
+      setEditItemId(id);
+      const item = groupItems.find((item) => item.id === id);
+      setFormData({ ...formData, name: item ? item.name : "" });
+    } else {
+      setEditItemId(null);
+      setFormData({ ...formData, name: "" });
+    }
     setModalOpen(true);
   };
 
@@ -46,17 +50,19 @@ const Group = () => {
     setEditItemId(null);
   };
 
-  const handleSaveGroup = async (value) => {
-    if (editItemId) {
-      dispatch(updateGroup({ id: editItemId, groupData: { name: value } }));
-    } else {
-      dispatch(createGroup({ name: value }));
+  const handleSaveGroup = async (name) => {
+    try {
+      if (editItemId) {
+        await dispatch(updateGroup({ id: editItemId, groupData: { name } }));
+        toast.success("ჯგუფი წარმატებით განახლდა!");
+      } else {
+        await dispatch(createGroup({ name }));
+        toast.success("ჯგუფი წარმატებით დაემატა!");
+      }
+      closeModal();
+    } catch (error) {
+      toast.error("შეცდომა მოხდა. გთხოვთ სცადოთ კიდევ ერთხელ.");
     }
-    closeModal();
-  };
-
-  const handleDeleteGroup = (id) => {
-    dispatch(deleteGroup(id));
   };
 
   const exportToExcel = async () => {
@@ -82,26 +88,33 @@ const Group = () => {
     });
 
     const buffer = await workbook.xlsx.writeBuffer();
-
     const blob = new Blob([buffer], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
     const url = URL.createObjectURL(blob);
-
     const link = document.createElement("a");
     link.href = url;
     link.download = "ჯგუფები.xlsx";
     document.body.appendChild(link);
     link.click();
-
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
   };
 
-  // Filter the group list based on the search term
   const filteredGroupItems = groupItems.filter((group) =>
     group.name.toLowerCase().includes(formData.searchTerm.toLowerCase())
   );
+
+  const handleDeleteGroup = async (id) => {
+    if (window.confirm("დარწმუმენული ხართ რომ გსურთ ჯგუფის წაშლა?")) {
+    try {
+      await dispatch(deleteGroup(id));
+      toast.success("ჯგუფი წარმატებით წაიშალა!");
+    } catch (error) {
+      toast.error("ჯგუფის წაშლისას მოხდა შეცდომა.");
+    }
+  }
+  };
 
   return (
     <AuthenticatedLayout>
@@ -112,7 +125,7 @@ const Group = () => {
             <div className="flex items-center gap-8">
               <button
                 className="bg-[#FBD15B] text-[#1976D2] px-4 py-2 rounded-md flex items-center gap-2"
-                onClick={() => setModalOpen(true)}
+                onClick={() => openModal(null)}
               >
                 + დაამატე ახალი ჯგუფი
               </button>
@@ -127,7 +140,6 @@ const Group = () => {
           )}
         </div>
 
-        {/* Search Bar */}
         <div className="relative">
           <input
             type="text"
@@ -153,7 +165,6 @@ const Group = () => {
           </svg>
         </div>
 
-        {/* Group List */}
         <div>
           {filteredGroupItems.length > 0 ? (
             filteredGroupItems.map((item) => (
@@ -182,11 +193,10 @@ const Group = () => {
         </div>
       </div>
 
-      {/* Modal for Creating/Editing Groups */}
       <Modal
         isOpen={modalOpen}
         onClose={closeModal}
-        onSave={() => handleSaveGroup(formData.name)}
+        onSave={handleSaveGroup}
         title={editItemId ? "შეცვალე ჯგუფი" : "დაამატე ჯგუფი"}
         initialValue={formData.name}
       />

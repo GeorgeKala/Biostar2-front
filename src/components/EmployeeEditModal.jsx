@@ -8,10 +8,10 @@ import SuccessPopup from "./SuccessPopup";
 import NestedDropdownModal from "./NestedDropdownModal";
 import SearchIcon from "../assets/search.png";
 import CardScanModal from "./CardScanModal";
+import { updateEmployee } from "../redux/employeeSlice";
 
 const EmployeeEditModal = ({ employeeId, isOpen, onClose }) => {
 
-  console.log(employeeId);
   
   const dispatch = useDispatch();
   const holidays = useSelector(selectHolidays);
@@ -52,15 +52,19 @@ const EmployeeEditModal = ({ employeeId, isOpen, onClose }) => {
     const fetchEmployee = async () => {
       try {
         const employeeData = await employeeService.getEmployeeById(employeeId.id);
+
+        console.log(employeeData);
+        
   
         setFormData({
           fullname: employeeData.fullname || "",
           personal_id: employeeData.personal_id || "",
           phone_number: employeeData.phone_number || "",
-          department_id: user?.user_type?.has_full_access
-            ? employeeData?.department?.id || ""  // Store department_id
-            : user?.department?.id || "",
-          department_name: employeeData?.department?.name || "",  // Store department name for display
+          department_id: employeeData?.department?.id || "",
+          // department_id: user?.user_type?.has_full_access
+          //   ? employeeData?.department?.id || ""  // Store department_id
+          //   : user?.department?.id || "",
+          // department_name: employeeData?.department?.name || "",  // Store department name for display
           start_datetime: employeeData.start_datetime
             ? new Date(employeeData.start_datetime).toISOString().slice(0, 10)
             : "",
@@ -133,18 +137,23 @@ const EmployeeEditModal = ({ employeeId, isOpen, onClose }) => {
   const handleSubmit = async () => {
     setIsLoading(true);
     try {
-      const response = await employeeService.updateEmployee(employeeId?.id, formData);
-
-      if (response && response.status === 200) {
-        await employeeService.getEmployeeById(employeeId?.id);
-        setShowSuccessPopup(true);
-      }
+      // // Assuming employeeId is an object and employeeId.id is the employee's unique identifier
+      // const response = await employeeService.updateEmployee(employeeId?.id, formData);
+      dispatch(updateEmployee({ id: employeeId?.id, employeeData: formData }));
+      onClose();
+      
+      // if (response && response.status === 200) {
+      //   const updatedEmployee = response.data; 
+       
+      //     onClose();
+      // }
     } catch (error) {
       console.error("Error updating employee:", error);
     } finally {
       setIsLoading(false);
     }
   };
+  
 
   const handleDeviceSelect = (e) => {
     const deviceId = e.target.value;

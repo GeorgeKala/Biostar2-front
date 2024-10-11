@@ -45,7 +45,6 @@ const SelectGroup = ({ label, options, placeholder, onSelect, fieldName }) => {
   const { handleSelectClear } = useFormData();
 
   const handleClearSelection = () => {
-    console.log(fieldName);
     
     handleSelectClear(fieldName)
     setSelected(null); 

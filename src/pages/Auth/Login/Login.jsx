@@ -26,7 +26,7 @@ const Login = () => {
                 dispatch(fetchDepartments());
                 dispatch(fetchSchedules());
                 dispatch(fetchNestedDepartments());
-                navigate('/reports/general');
+                navigate('/employees');
             }
         } catch (error) {
             setError(error.message || 'An error occurred during login.');

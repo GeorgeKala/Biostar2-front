@@ -245,7 +245,6 @@ const User = () => {
     XLSX.writeFile(workbook, "Users.xlsx");
   };
 
-  console.log(usersData);
   
 
   return (

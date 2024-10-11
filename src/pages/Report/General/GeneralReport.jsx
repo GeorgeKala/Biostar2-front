@@ -394,7 +394,6 @@ const GeneralReport = () => {
   };
 
   const handleDepartmentSelect = (departmentId) => {
-    console.log(departmentId);
     
     setFormData((prevData) => ({
       ...prevData,
@@ -449,7 +448,6 @@ const lastReportElementRef = useCallback(node => {
 
   observer.current = new IntersectionObserver(entries => {
     if (entries[0].isIntersecting && hasMore) {
-      console.log('Loading more reports...');
       dispatch(fetchReports({ ...formData }));
     }
   });
@@ -458,7 +456,6 @@ const lastReportElementRef = useCallback(node => {
 }, [status, hasMore, dispatch, formData]);
 
 
-console.log(departments);
 
 
     

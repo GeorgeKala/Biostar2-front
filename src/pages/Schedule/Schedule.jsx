@@ -2,16 +2,17 @@ import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import AuthenticatedLayout from "../../Layouts/AuthenticatedLayout";
 import NewIcon from "../../assets/new.png";
-import ArrowDownIcon from "../../assets/arrow-down-2.png";
-import DeleteIcon from "../../assets/delete.png";
 import EditIcon from "../../assets/edit.png";
+import DeleteIcon from "../../assets/delete.png";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import {
   fetchSchedules,
   createSchedule,
   updateSchedule,
   deleteSchedule,
 } from "../../redux/scheduleSlice";
-  import ExcelJS from "exceljs";
+import ExcelJS from "exceljs";
 import { useFilterAndSort } from "../../hooks/useFilterAndSort";
 import FilterModal from "../../components/FilterModal";
 import Table from "../../components/Table";
@@ -33,6 +34,7 @@ const Schedule = () => {
     interval: "",
     comment: "",
   });
+  const [oldFormData, setOldFormData] = useState({}); // Store old form data
 
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [filterableData, setFilterableData] = useState([]);
@@ -65,16 +67,6 @@ const Schedule = () => {
     dispatch(fetchSchedules());
   }, [dispatch]);
 
-
-
-  const handleOpenFilterModal = (data, fieldName, rect) => {
-    const uniqueData = [...new Set(data)];
-    setFilterableData(uniqueData);
-    setIsFilterModalOpen(true);
-    setModalPosition({ top: rect.bottom, left: rect.left - 240 });
-    setCurrentFilterField(fieldName);
-  };
-
   const openAddModal = () => {
     setIsModalOpen(true);
     setModalMode("create");
@@ -88,13 +80,15 @@ const Schedule = () => {
       interval: "",
       comment: "",
     });
+    setOldFormData({}); // Reset old data when creating
   };
 
   const openUpdateModal = (schedule) => {
     setIsModalOpen(true);
     setModalMode("update");
     setSelectedScheduleId(schedule.id);
-    setFormData({
+
+    const initialData = {
       name: schedule.name,
       start_date: schedule.start_date,
       end_date: schedule.end_date,
@@ -103,7 +97,10 @@ const Schedule = () => {
       repetition_unit: schedule.repetition_unit,
       interval: schedule.interval,
       comment: schedule.comment,
-    });
+    };
+
+    setFormData(initialData); // Set form data for display
+    setOldFormData(initialData); // Save old data for comparison
   };
 
   const closeAddModal = () => {
@@ -120,29 +117,44 @@ const Schedule = () => {
       interval: "",
       comment: "",
     });
+    setOldFormData({}); // Reset old form data
   };
 
   const handleSave = async (e) => {
     e.preventDefault();
 
+    // Compare formData with oldFormData and send only changed fields
+    const updatedFormData = Object.keys(formData).reduce((acc, key) => {
+      if (formData[key] !== oldFormData[key]) {
+        acc[key] = formData[key];
+      }
+      return acc;
+    }, {});
+
     try {
       if (modalMode === "create") {
-        dispatch(createSchedule(formData));
-        closeAddModal();
+        await dispatch(createSchedule(updatedFormData));
+        toast.success("განრიგი წარმატებით დაემატა!");
       } else if (modalMode === "update" && selectedScheduleId) {
-        dispatch(
-          updateSchedule({ id: selectedScheduleId, scheduleData: formData })
+        await dispatch(
+          updateSchedule({ id: selectedScheduleId, scheduleData: updatedFormData })
         );
-        closeAddModal();
+        toast.success("განრიგი წარმატებით განახლდა!");
       }
+      closeAddModal();
     } catch (error) {
-      alert("Failed to save schedule: " + error.message);
+      toast.error("შეცდომა მოხდა. სცადეთ ხელახლა.");
     }
   };
 
   const handleDelete = async (scheduleId) => {
-    if (window.confirm("Are you sure you want to delete this schedule?")) {
-      dispatch(deleteSchedule(scheduleId));
+    if (window.confirm("დარწმუმენული ხართ რომ გსურთ განრიგის წაშლა?")) {
+      try {
+        await dispatch(deleteSchedule(scheduleId));
+        toast.success("განრიგი წარმატებით წაიშალა!");
+      } catch (error) {
+        toast.error("განრიგის წაშლისას მოხდა შეცდომა.");
+      }
     }
   };
 
@@ -152,13 +164,19 @@ const Schedule = () => {
     );
   };
 
+  const handleOpenFilterModal = (data, fieldName, rect) => {
+    const uniqueData = [...new Set(data)];
+    setFilterableData(uniqueData);
+    setIsFilterModalOpen(true);
+    setModalPosition({ top: rect.bottom, left: rect.left - 240 });
+    setCurrentFilterField(fieldName);
+  };
 
   const exportToExcel = async () => {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Schedules");
 
-    // Define the columns with the same width
-    const columnWidth = 25; // Set the desired width for all columns
+    const columnWidth = 25;
     worksheet.columns = [
       { header: "სახელი", key: "name", width: columnWidth },
       { header: "დაწყების თარიღი", key: "start_date", width: columnWidth },
@@ -174,14 +192,12 @@ const Schedule = () => {
       { header: "კომენტარი", key: "comment", width: columnWidth },
     ];
 
-    // Add header styling
     worksheet.getRow(1).font = { bold: true };
     worksheet.getRow(1).alignment = {
       horizontal: "center",
       vertical: "center",
     };
 
-    // Add the filtered schedules data
     filteredSchedules.forEach((schedule) => {
       worksheet.addRow({
         name: schedule.name,
@@ -196,64 +212,28 @@ const Schedule = () => {
     });
 
     const buffer = await workbook.xlsx.writeBuffer();
-
     const blob = new Blob([buffer], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
     const url = URL.createObjectURL(blob);
-
     const link = document.createElement("a");
     link.href = url;
     link.download = "Schedules.xlsx";
     document.body.appendChild(link);
     link.click();
-
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
   };
 
-
   const tableHeaders = [
-    {
-      label: "სახელი",
-      key: "name",
-      extractValue: (schedule) => schedule.name,
-    },
-    {
-      label: "დაწყების თარიღი",
-      key: "start_date",
-      extractValue: (schedule) => schedule.start_date,
-    },
-    {
-      label: "დასრულების თარიღი",
-      key: "end_date",
-      extractValue: (schedule) => schedule.end_date,
-    },
-    {
-      label: "დაწყების დრო",
-      key: "day_start",
-      extractValue: (schedule) => schedule.day_start,
-    },
-    {
-      label: "დამთავრების დრო",
-      key: "day_end",
-      extractValue: (schedule) => schedule.day_end,
-    },
-    {
-      label: "გამეორების ერთეული",
-      key: "repetition_unit",
-      extractValue: (schedule) => schedule.repetition_unit,
-    },
-    {
-      label: "ინტერვალი",
-      key: "interval",
-      extractValue: (schedule) => schedule.interval,
-    },
-    {
-      label: "კომენტარი",
-      key: "comment",
-      extractValue: (schedule) => schedule.comment,
-    },
+    { label: "სახელი", key: "name", extractValue: (schedule) => schedule.name },
+    { label: "დაწყების თარიღი", key: "start_date", extractValue: (schedule) => schedule.start_date },
+    { label: "დასრულების თარიღი", key: "end_date", extractValue: (schedule) => schedule.end_date },
+    { label: "დაწყების დრო", key: "day_start", extractValue: (schedule) => schedule.day_start },
+    { label: "დამთავრების დრო", key: "day_end", extractValue: (schedule) => schedule.day_end },
+    { label: "გამეორების ერთეული", key: "repetition_unit", extractValue: (schedule) => schedule.repetition_unit },
+    { label: "ინტერვალი", key: "interval", extractValue: (schedule) => schedule.interval },
+    { label: "კომენტარი", key: "comment", extractValue: (schedule) => schedule.comment },
   ];
 
   return (
@@ -262,40 +242,18 @@ const Schedule = () => {
         <div className="flex justify-between items-center w-full">
           <h1 className="text-[#1976D2] font-medium text-[23px]">განრიგები</h1>
           <div className="flex items-center gap-8">
-            <button
-              className=" bg-[#5CB85C] text-white px-4 py-2 rounded-md flex items-center gap-2"
-              onClick={openAddModal}
-            >
-              <img src={NewIcon} alt="New" />
-              ახალი
+            <button className="bg-[#5CB85C] text-white px-4 py-2 rounded-md flex items-center gap-2" onClick={openAddModal}>
+              <img src={NewIcon} alt="New" /> ახალი
             </button>
-            <button
-              onClick={() =>
-                openUpdateModal(
-                  schedules.find(
-                    (schedule) => schedule.id === selectedScheduleId
-                  )
-                )
-              }
-              className="bg-[#1976D2] text-white px-4 py-2 rounded-md flex items-center gap-2"
-            >
-              <img src={EditIcon} alt="Edit" />
-              შეცვლა
+            <button onClick={() => openUpdateModal(schedules.find(schedule => schedule.id === selectedScheduleId))}
+              className="bg-[#1976D2] text-white px-4 py-2 rounded-md flex items-center gap-2">
+              <img src={EditIcon} alt="Edit" /> შეცვლა
             </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDelete(selectedScheduleId);
-              }}
-              className="bg-[#D9534F] text-white px-4 py-2 rounded-md flex items-center gap-2"
-            >
-              <img src={DeleteIcon} alt="Delete" />
-              წაშლა
+            <button onClick={(e) => { e.stopPropagation(); handleDelete(selectedScheduleId); }}
+              className="bg-[#D9534F] text-white px-4 py-2 rounded-md flex items-center gap-2">
+              <img src={DeleteIcon} alt="Delete" /> წაშლა
             </button>
-            <button
-              onClick={exportToExcel}
-              className="bg-[#105D8D] px-7 py-2 rounded flex items-center gap-3 text-white text-[16px] border relative"
-            >
+            <button onClick={exportToExcel} className="bg-[#105D8D] px-7 py-2 rounded flex items-center gap-3 text-white text-[16px] border relative">
               ჩამოტვირთვა
               <span className="absolute inset-0 border border-white border-dashed rounded"></span>
             </button>
@@ -309,19 +267,10 @@ const Schedule = () => {
           onSort={handleSort}
           onFilterClick={handleOpenFilterModal}
           onFilterChange={handleFilterChange}
-          rowClassName={(schedule) =>
-            schedule.id === selectedScheduleId ? "bg-blue-200" : ""
-          }
+          rowClassName={(schedule) => schedule.id === selectedScheduleId ? "bg-blue-200" : ""}
           onRowClick={(schedule) => handleRowClick(schedule.id)}
           filterableFields={[
-            "name",
-            "start_date",
-            "end_date",
-            "day_start",
-            "day_end",
-            "repetition_unit",
-            "interval",
-            "comment",
+            "name", "start_date", "end_date", "day_start", "day_end", "repetition_unit", "interval", "comment"
           ]}
         />
       </div>
@@ -329,9 +278,7 @@ const Schedule = () => {
       {isModalOpen && (
         <ScheduleForm
           formData={formData}
-          handleChange={(e) =>
-            setFormData({ ...formData, [e.target.name]: e.target.value })
-          }
+          handleChange={(e) => setFormData({ ...formData, [e.target.name]: e.target.value })}
           handleSave={handleSave}
           closeModal={closeAddModal}
           modalMode={modalMode}
@@ -342,9 +289,7 @@ const Schedule = () => {
         isOpen={isFilterModalOpen}
         onClose={() => setIsFilterModalOpen(false)}
         filterableData={filterableData}
-        onApply={(selectedFilters) =>
-          applyModalFilters(currentFilterField, selectedFilters)
-        }
+        onApply={(selectedFilters) => applyModalFilters(currentFilterField, selectedFilters)}
         position={modalPosition}
       />
     </AuthenticatedLayout>

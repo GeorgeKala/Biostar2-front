@@ -28,7 +28,7 @@ export const updateEmployee = createAsyncThunk(
   "employees/updateEmployee",
   async ({ id, employeeData }) => {
     const response = await employeeService.updateEmployee(id, employeeData);
-    return response;
+    return response.data;
   }
 );
 
