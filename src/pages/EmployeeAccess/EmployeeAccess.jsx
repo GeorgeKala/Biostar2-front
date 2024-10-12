@@ -448,6 +448,8 @@ import { useFilterAndSort } from "../../hooks/useFilterAndSort";
 import EmployeeInput from "../../components/employee/EmployeeInput";
 import CustomSelect from "../../components/CustomSelect";
 import SearchButton from "../../components/SearchButton";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const EmployeeAccess = () => {
   const dispatch = useDispatch();
@@ -527,36 +529,44 @@ const EmployeeAccess = () => {
 
   const handleEmployeeSelect = (employee) => {
     if (isSearchContext) {
-      setSearchData({
-        ...searchData,
+      // Handle search context
+      setSearchData((prevSearchData) => ({
+        ...prevSearchData,
         name: employee?.fullname,
         employee_id: employee.id,
-      });
+      }));
     } else {
-      setFormData({
-        ...formData,
+      // Handle form context
+      setFormData((prevFormData) => ({
+        ...prevFormData,
         name: employee?.fullname,
         employee_id: employee.id,
-      });
+      }));
     }
-    setIsEmployeeModalOpen(false);
+    setIsEmployeeModalOpen(false); // Close the modal after selecting an employee
   };
 
-  const handleModalBuildingSelect = (e) => {
-    const selectedBuildingId = e.target.value;
+  const handleModalBuildingSelect = (selectedOption) => {
+    if (!selectedOption || !selectedOption.id) {
+      console.error("Invalid selected option: ", selectedOption);
+      return;
+    }
+
     const selectedBuilding = buildings.find(
-      (building) => building.id === parseInt(selectedBuildingId)
+      (building) => building.id === selectedOption.id
     );
+
     if (selectedBuilding) {
-      setFormData({
-        ...formData,
+      setFormData((prevFormData) => ({
+        ...prevFormData,
         building_id: selectedBuilding.id,
-        access_group: selectedBuilding.access_group.map((group) => ({
-          access_group_id: group.access_group_id,
-          access_group_name: group.access_group_name,
-          device_name: group.device_name,
-        })),
-      });
+        access_group: selectedBuilding.access_group || [],
+      }));
+    } else {
+      console.error(
+        "Building not found for the selected option: ",
+        selectedOption
+      );
     }
   };
 
@@ -569,8 +579,10 @@ const EmployeeAccess = () => {
       );
       setIsModalOpen(false);
       getEmployeesWithBuildings();
+      toast.success("თანამშრომლის დაშვება წარმატებით დასრულდა");
     } catch (error) {
       console.error(error);
+      // toast.error("Error updating access group.");
     }
   };
 
@@ -581,8 +593,10 @@ const EmployeeAccess = () => {
         employeeId
       );
       getEmployeesWithBuildings();
+      toast.success("Access group successfully removed!");
     } catch (error) {
       console.error(error);
+      toast.error("Error removing access group.");
     }
   };
 
@@ -609,6 +623,11 @@ const EmployeeAccess = () => {
   const openEmployeeModal = (context) => {
     setIsSearchContext(context === "filter");
     setIsEmployeeModalOpen(true);
+  };
+
+  const closeEmployeeModal = () => {
+    setIsEmployeeModalOpen(false);
+    setIsSearchContext(false); // Reset search context after closing
   };
 
   const handleOpenFilterModal = (data, fieldName, rect) => {
@@ -661,47 +680,30 @@ const EmployeeAccess = () => {
           <h1 className="text-[#1976D2] font-medium text-[23px]">
             თანამშრომლის დაშვება
           </h1>
-          <div>
           <div className="flex justify-end items-center gap-8">
-          <button
-            className="bg-[#5CB85C] text-white px-4 py-2 rounded-md flex items-center gap-2"
-            onClick={() => setIsModalOpen(true)}
-          >
-            <img src={NewIcon} alt="New Icon" />
-            ახალი
-          </button>
-          <button
-            className="bg-[#D9534F] text-white px-4 py-2 rounded-md flex items-center gap-2"
-            onClick={() => handleDeleteAccessGroup(selectedEmployee.user_id)}
-          >
-            <img src={DeleteIcon} alt="Delete Icon" />
-            წაშლა
-          </button>
-          <button
-            onClick={exportToExcel}
-            className="bg-[#105D8D] px-7 py-2 rounded flex items-center gap-3 text-white text-[16px] border relative"
-          >
-            ჩამოტვირთვა
-            <span className="absolute inset-0 border border-white border-dashed rounded"></span>
-          </button>
-        </div>
+            <button
+              className="bg-[#5CB85C] text-white px-4 py-2 rounded-md flex items-center gap-2"
+              onClick={() => setIsModalOpen(true)}
+            >
+              <img src={NewIcon} alt="New Icon" />
+              ახალი
+            </button>
+            <button
+              className="bg-[#D9534F] text-white px-4 py-2 rounded-md flex items-center gap-2"
+              onClick={() => handleDeleteAccessGroup(selectedEmployee.user_id)}
+            >
+              <img src={DeleteIcon} alt="Delete Icon" />
+              წაშლა
+            </button>
+            <button
+              onClick={exportToExcel}
+              className="bg-[#105D8D] px-7 py-2 rounded flex items-center gap-3 text-white text-[16px] border relative"
+            >
+              ჩამოტვირთვა
+            </button>
           </div>
-         
         </div>
         <div className="flex items-center gap-4">
-          {/* <select
-            value={searchData.building_id}
-            onChange={handleBuildingSelect}
-            className="bg-white border border-[#105D8D] outline-none rounded-md py-3 px-4 w-full"
-          >
-            <option value="">აირჩიე შენობა</option>
-            {buildings &&
-              buildings.map((building) => (
-                <option key={building.id} value={building.id}>
-                  {building.name}
-                </option>
-              ))}
-          </select> */}
           <CustomSelect
             options={buildings}
             selectedValue={
@@ -751,15 +753,12 @@ const EmployeeAccess = () => {
               </button>
             </div>
           </div>
-          {/* <button
+          <SearchButton
+            type="submit"
             onClick={getEmployeesWithBuildings}
-            className="bg-[#1976D2] text-white px-4 py-3 rounded-md flex items-center gap-2"
-          >
-            ძებნა
-          </button> */}
-          <SearchButton type="submit" onClick={getEmployeesWithBuildings}></SearchButton>
+          ></SearchButton>
         </div>
-        
+
         <div className="mt-10 overflow-x-auto">
           <Table
             data={filteredEmployees}
@@ -788,12 +787,12 @@ const EmployeeAccess = () => {
         </div>
         <EmployeeModal
           isOpen={isEmployeeModalOpen}
-          onClose={() => setIsEmployeeModalOpen(false)}
+          onClose={closeEmployeeModal}
           onSelectEmployee={handleEmployeeSelect}
         />
         {isModalOpen && (
           <div className="fixed inset-0 z-40 flex items-center justify-center bg-gray-900 bg-opacity-50">
-            <div className="bg-white rounded-lg max-w-md w-full ">
+            <div className="bg-white rounded-lg max-w-md w-full">
               <div className="flex justify-between items-center p-3 bg-blue-500 text-white rounded-t-lg">
                 <h2 className="text-lg font-semibold">თანამშრომლის დაშვება</h2>
                 <button
@@ -824,20 +823,6 @@ const EmployeeAccess = () => {
                   >
                     შენობა:
                   </label>
-                  {/* <select
-                    id="building_id"
-                    name="building_id"
-                    className="mt-1 px-2 block w-full outline-none bg-gray-300 py-2 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                    value={formData.building_id}
-                    onChange={handleModalBuildingSelect}
-                  >
-                    <option value="">აირჩიე შენობა</option>
-                    {buildings.map((building) => (
-                      <option key={building.id} value={building.id}>
-                        {building.name}
-                      </option>
-                    ))}
-                  </select> */}
                   <div className="mb-4">
                     <CustomSelect
                       options={buildings}
@@ -845,12 +830,7 @@ const EmployeeAccess = () => {
                         buildings.find((b) => b.id === formData.building_id)
                           ?.name
                       }
-                      onSelect={(selectedOption) =>
-                        setFormData({
-                          ...formData,
-                          building_id: selectedOption.id,
-                        })
-                      }
+                      onSelect={handleModalBuildingSelect}
                       placeholder="აირჩიე შენობა"
                       className="bg-gray-300"
                     />
@@ -908,5 +888,6 @@ const EmployeeAccess = () => {
 };
 
 export default EmployeeAccess;
+
 
 

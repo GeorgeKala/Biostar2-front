@@ -335,7 +335,7 @@ const Table = ({
                 headers.map((header) => (
                   <th
                     key={header.key}
-                    className="border border-solid border-2 text-[14px] bg-[#1976D2] font-normal text-left px-2 cursor-pointer relative group"
+                    className=" border-solid border-2 text-[14px] bg-[#1976D2] font-normal text-left px-2 cursor-pointer relative group"
                     style={{
                       maxWidth: `${columnWidths[header.key]}px`,
                       whiteSpace: "nowrap",
