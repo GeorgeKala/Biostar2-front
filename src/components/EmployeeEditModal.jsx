@@ -416,12 +416,12 @@ const EmployeeEditModal = ({ employeeId, isOpen, onClose }) => {
               </div>
             </div>
             <div className="flex justify-between gap-8">
-              <InputGroup
+              {/* <InputGroup
                 label="საკონტროლო ჯამი"
                 name="checksum"
                 value={formData.checksum}
                 onChange={handleInput}
-              />
+              /> */}
               <div className="w-full flex flex-col gap-2">
                 <label className="text-[#105D8D] font-medium">
                   დასვენების დღეები

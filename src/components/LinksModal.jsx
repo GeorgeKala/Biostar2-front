@@ -4,8 +4,8 @@ const LinksModal = ({ isVisible, links, onClose }) => {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed top-20 left-[5%] bg-white shadow-lg p-6 z-100 rounded-lg border border-gray-200 w-64">
-      <div className="flex justify-between items-center mb-4 z-100">
+    <div className="fixed top-20 left-[5%] bg-white shadow-lg p-6 z-2 rounded-lg border border-gray-200 w-64">
+      <div className="flex justify-between items-center mb-4 z-2">
         <h2 className="text-lg font-semibold text-gray-800">Quick Links</h2>
         {/* Close Button */}
         <button

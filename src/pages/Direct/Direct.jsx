@@ -140,7 +140,7 @@ const Direct = () => {
             selectedValue={selectedDevice ? selectedDevice.name : ''}
             onSelect={(device) => setSelectedDevice(device)}
             placeholder='აირჩიე მოწყობილობა'
-            className='w-[300px]'
+            className='max-w-[300px]'
           />
           <SearchButton onClick={fetchData}></SearchButton>
         </div>
