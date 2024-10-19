@@ -341,8 +341,9 @@ const Table = ({
                       whiteSpace: "nowrap",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
+                      
                     }}
-                    onClick={() => handleSortClick(header.key)} // Use custom click handler
+                    onClick={() => handleSortClick(header.key)} 
                   >
                     <div className="flex items-center justify-between">
                       <span className="truncate flex-grow">{header.label}</span>
