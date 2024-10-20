@@ -7,12 +7,12 @@ import FilterModal from "../../../components/FilterModal";
 import GeneralInputGroup from "../../../components/GeneralInputGroup";
 import DepartmentInput from "../../../components/DepartmentInput";
 import NestedDropdownModal from "../../../components/NestedDropdownModal";
-import SearchIcon from "../../../assets/search.png";
 import EmployeeInput from "../../../components/employee/EmployeeInput";
 import EmployeeModal from "../../../components/employee/EmployeeModal";
 import { useFilterAndSort } from "../../../hooks/useFilterAndSort";
 import ExcelJS from "exceljs";
 import SearchButton from "../../../components/SearchButton";
+import { useFormData } from "../../../hooks/useFormData";
 
 const FullRecords = () => {
   const dispatch = useDispatch();
@@ -28,13 +28,22 @@ const FullRecords = () => {
   const [currentFilterField, setCurrentFilterField] = useState("");
   const [selectedRecord, setSelectedRecord] = useState(null);
 
-  const [formData, setFormData] = useState({
-    start_date: "",
-    end_date: "",
-    department_id: "",
-    building_id: "",
-    employee: "",
-  });
+  const { formData, handleFormDataChange, setFormData, handleClearField } =
+    useFormData({
+      start_date: "",
+      end_date: "",
+      department_id: "",
+      building_id: "",
+      employee: "",
+    });
+
+  // const [formData, setFormData] = useState({
+  //   start_date: "",
+  //   end_date: "",
+  //   department_id: "",
+  //   building_id: "",
+  //   employee: "",
+  // });
   const [openNestedDropdown, setOpenNestedDropdown] = useState(false);
   const [EmployeeModalOpen, setEmployeeModalOpen] = useState(false);
 

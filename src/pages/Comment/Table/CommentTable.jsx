@@ -285,9 +285,11 @@ const CommentTable = () => {
           <CustomSelect
             options={forgiveTypeItems}
             selectedValue={
-              forgiveTypeItems.find(
-                (item) => item.id === formData.forgive_type_id
-              )?.name || "აირჩიეთ პატიების ტიპი"
+              formData.forgive_type_id
+                ? forgiveTypeItems.find(
+                    (item) => item.id === formData.forgive_type_id
+                  )?.name
+                : "" 
             }
             onSelect={(selectedValue) =>
               setFormData((prev) => ({
@@ -296,7 +298,14 @@ const CommentTable = () => {
               }))
             }
             placeholder="აირჩიეთ პატიების ტიპი"
+            onClear={() =>
+              setFormData((prev) => ({
+                ...prev,
+                forgive_type_id: "", 
+              }))
+            }
           />
+
           <EmployeeInput
             value={formData.employee}
             onClear={() => handleClear("employee")}
@@ -319,7 +328,6 @@ const CommentTable = () => {
           onSort={handleSort}
           onFilterClick={handleOpenFilterModal}
           onFilterChange={handleFilterChange}
-
           rowClassName={(comment) =>
             selectedComment?.id === comment.id ? "bg-blue-200" : ""
           }
@@ -331,7 +339,7 @@ const CommentTable = () => {
             "user",
             "created_at",
             "comment",
-            "date",  // Added date to filterable fields
+            "date", // Added date to filterable fields
           ]}
         />
 

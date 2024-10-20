@@ -177,7 +177,7 @@ const Department = () => {
     <ul
       className={`ml-10 transition-all ease-in-out duration-300 overflow-hidden ${
         openSubmenus[subMenu[0]?.parent_id]
-          ? "max-h-[1000px] opacity-100"
+          ? " opacity-100"
           : "max-h-0 opacity-0"
       }`}
     >
@@ -209,6 +209,7 @@ const Department = () => {
               </div>
             )}
           </div>
+          {/* Render children recursively */}
           {subItem?.children &&
             openSubmenus[subItem.id] &&
             renderSubMenu(subItem.children)}
@@ -216,6 +217,10 @@ const Department = () => {
       ))}
     </ul>
   );
+
+
+  console.log(departments);
+  
 
   return (
     <AuthenticatedLayout>
