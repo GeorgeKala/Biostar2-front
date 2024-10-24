@@ -113,13 +113,16 @@
 }
 
 .customized-th-tr .flex-grow {
-  flex-grow: 1; /* Ensures text takes up remaining space */
+  flex-grow: 1; 
 }
 
 
 
 
 
+table {
+  table-layout: fixed;
+}
 
 
 @keyframes fadeIn {

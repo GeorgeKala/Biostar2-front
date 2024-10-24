@@ -237,11 +237,11 @@ const Table = ({
   onFilterChange,
   rowClassName = () => "",
   onRowClick,
-  onRowDoubleClick, 
+  onRowDoubleClick,
   filterableFields,
   onContext,
   lastReportRef,
-  formData
+  formData,
 }) => {
   const [columnWidths, setColumnWidths] = useState(
     headers.reduce((acc, header) => {
@@ -250,29 +250,55 @@ const Table = ({
     }, {})
   );
 
-  const [isResizing, setIsResizing] = useState(false); // New flag to track resizing
-  const resizeTimeout = useRef(null); // Ref to store timeout for resetting resize
+  const [isResizing, setIsResizing] = useState(false);
+  const resizeTimeout = useRef(null);
 
   const tableRef = useRef(null);
 
-  const handleResizeColumn = (newWidth, key) => {
-    setColumnWidths((prevWidths) => ({
-      ...prevWidths,
-      [key]: newWidth > 10 ? newWidth : 10,
-    }));
+  // Implement throttle function
+  const throttle = (func, limit) => {
+    let inThrottle;
+    let lastFunc;
+    let lastTime;
+    return function (...args) {
+      const context = this;
+      if (!inThrottle) {
+        func.apply(context, args);
+        lastTime = Date.now();
+        inThrottle = true;
+      } else {
+        clearTimeout(lastFunc);
+        lastFunc = setTimeout(function () {
+          if (Date.now() - lastTime >= limit) {
+            func.apply(context, args);
+            lastTime = Date.now();
+          }
+        }, limit - (Date.now() - lastTime));
+      }
+    };
   };
+
+  // Throttle the handleResizeColumn function
+  const throttledHandleResizeColumn = useRef(
+    throttle((newWidth, key) => {
+      setColumnWidths((prevWidths) => ({
+        ...prevWidths,
+        [key]: newWidth > 10 ? newWidth : 10,
+      }));
+    }, 50) // Adjust the throttle limit (in milliseconds) as needed
+  ).current;
 
   const handleMouseDown = (e, sortKey) => {
     e.preventDefault();
     document.body.style.userSelect = "none";
-    setIsResizing(true); // Set resizing to true when resize starts
+    setIsResizing(true);
 
     const startX = e.clientX;
     const initialWidth = columnWidths[sortKey];
 
     const handleMouseMove = (moveEvent) => {
       const newWidth = initialWidth + (moveEvent.clientX - startX);
-      handleResizeColumn(newWidth, sortKey);
+      throttledHandleResizeColumn(newWidth, sortKey);
     };
 
     const handleMouseUp = () => {
@@ -280,11 +306,10 @@ const Table = ({
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
 
-      // Clear the resize flag after a short delay to prevent accidental sorting clicks
       clearTimeout(resizeTimeout.current);
       resizeTimeout.current = setTimeout(() => {
         setIsResizing(false);
-      }, 100); // Adjust this delay if necessary
+      }, 100);
     };
 
     document.addEventListener("mousemove", handleMouseMove);
@@ -292,7 +317,6 @@ const Table = ({
   };
 
   const handleSortClick = (headerKey) => {
-    // If the user is resizing, do not trigger sorting
     if (!isResizing) {
       onSort(headerKey);
     }
@@ -335,15 +359,14 @@ const Table = ({
                 headers.map((header) => (
                   <th
                     key={header.key}
-                    className=" border-solid border-2 text-[14px] bg-[#1976D2] font-normal text-left px-2 cursor-pointer relative group"
+                    className="border-solid border-2 text-[14px] bg-[#1976D2] font-normal text-left px-2 cursor-pointer relative group"
                     style={{
                       maxWidth: `${columnWidths[header.key]}px`,
                       whiteSpace: "nowrap",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
-                      
                     }}
-                    onClick={() => handleSortClick(header.key)} 
+                    onClick={() => handleSortClick(header.key)}
                   >
                     <div className="flex items-center justify-between">
                       <span className="truncate flex-grow">{header.label}</span>
@@ -351,8 +374,7 @@ const Table = ({
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            const rect =
-                              e.currentTarget.getBoundingClientRect();
+                            const rect = e.currentTarget.getBoundingClientRect();
                             onFilterClick(
                               data
                                 .map((item) => header.extractValue(item))
@@ -401,7 +423,7 @@ const Table = ({
                     key={filterKey}
                     className="border border-solid border-2 customized-th-tr"
                     style={{
-                      maxWidth: `${columnWidths.filterKey}px`,
+                      maxWidth: `${columnWidths[filterKey]}px`,
                       whiteSpace: "nowrap",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
@@ -433,9 +455,9 @@ const Table = ({
                     item
                   )}`}
                   onClick={() => onRowClick(item)}
-                  onDoubleClick={() => onRowDoubleClick(item)}
-                  onContextMenu={(e) => onContext(e)}
-                  ref={isLastRow ? lastReportRef : null} // Attach ref to the last row
+                  onDoubleClick={() => onRowDoubleClick && onRowDoubleClick(item)}
+                  onContextMenu={(e) => onContext && onContext(e)}
+                  ref={isLastRow ? lastReportRef : null}
                 >
                   <td className="w-[30px]"></td>
                   {headers.map((header) => (

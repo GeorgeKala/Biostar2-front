@@ -366,9 +366,6 @@ const CreatedEmployees = () => {
       );
   
 
-        
-
-
   return (
     <AuthenticatedLayout>
       <div className="w-full px-10 py-4 flex flex-col gap-8 2xl">

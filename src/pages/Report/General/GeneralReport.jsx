@@ -111,6 +111,9 @@ const GeneralReport = () => {
   };
 
   const handleRowDoubleClick = (report) => {
+    if(report.comment && report.comment.trim() !== ''){
+      return
+    }
     setModalOpen(true);
     setEditData({
       employee_id: report.user_id,
