@@ -66,6 +66,18 @@ const departmentService = {
       throw error;
     }
   },
+
+  updateDepartmentOrder: async (departments) => {
+    try {
+      const response = await axiosInstance.post("/departments/reorder", {
+        departments,
+      });
+      return response.data.message;
+    } catch (error) {
+      throw error;
+    }
+  },
+
   
 };
 

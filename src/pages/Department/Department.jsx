@@ -13,6 +13,7 @@ import CustomSelect from "../../components/CustomSelect";
 import { useFormData } from "../../hooks/useFormData";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 const Department = () => {
   const user = useSelector((state) => state.user.user);
@@ -21,7 +22,6 @@ const Department = () => {
     (state) => state.departments
   );
 
-  // UseFormData for both form and filter states
   const { formData, handleFormDataChange, setFormData } = useFormData({
     name: "",
     parent_id: null,
@@ -35,24 +35,11 @@ const Department = () => {
   const [filteredDepartments, setFilteredDepartments] =
     useState(nestedDepartments);
 
-  const searchItems = (items, term) => {
-    return items.reduce((acc, item) => {
-      if (
-        item.name.toLowerCase().includes(term.toLowerCase()) ||
-        (item.children && searchItems(item.children, term).length > 0)
-      ) {
-        acc.push({
-          ...item,
-          children: item.children ? searchItems(item.children, term) : [],
-        });
-      }
-      return acc;
-    }, []);
-  };
-
   useEffect(() => {
     if (formData.searchTerm) {
-      setFilteredDepartments(searchItems(nestedDepartments, formData.searchTerm));
+      setFilteredDepartments(
+        searchItems(nestedDepartments, formData.searchTerm)
+      );
     } else {
       setFilteredDepartments(nestedDepartments);
     }
@@ -173,48 +160,115 @@ const Department = () => {
     URL.revokeObjectURL(url);
   };
 
-  const renderSubMenu = (subMenu) => (
-    <ul
-      className={`ml-10 transition-all ease-in-out duration-300 overflow-hidden ${
-        openSubmenus[subMenu[0]?.parent_id]
-          ? "max-h-[1000px] opacity-100"
-          : "max-h-0 opacity-0"
-      }`}
-    >
-      {subMenu.map((subItem, index) => (
-        <li key={index} className="cursor-pointer">
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="flex justify-between items-center mb-2 border-b py-2 border-black"
-          >
-            <div className="flex items-center gap-2 text-sm">
-              {subItem?.children?.length > 0 && (
-                <button
-                  onClick={() => toggleSubMenu(subItem.id)}
-                  className="bg-[#00C7BE] text-white px-1 rounded w-[20px] py-[0.2px]"
+  // Drag and Drop Handler
+  const onDragEnd = (result) => {
+    if (!result.destination) return;
+
+    const sourceParentId = result.source.droppableId;
+    const destinationParentId = result.destination.droppableId;
+
+    // Check if dragging between parents
+    if (sourceParentId !== destinationParentId) {
+      toast.error("Cannot move department between different parents.");
+      return;
+    }
+
+    // Reordering logic
+    const reorderedDepartments = reorder(
+      filteredDepartments,
+      result.source.index,
+      result.destination.index
+    );
+    setFilteredDepartments(reorderedDepartments);
+    saveDepartmentOrder(reorderedDepartments);
+  };
+
+  const reorder = (list, startIndex, endIndex) => {
+    const result = Array.from(list);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+    return result;
+  };
+
+  const saveDepartmentOrder = async (departments) => {
+    const reorderedData = departments.map((dept, index) => ({
+      id: dept.id,
+      order: index + 1,
+    }));
+
+    try {
+      await departmentService.updateDepartmentOrder(reorderedData);
+      toast.success("დეპარტამენტების ახალი რიგი წარმატებით შეიცვალა.");
+    } catch (error) {
+      toast.error(
+        "დეპარტამენტების რიგის ცვლილება ვერ მოხერხდა: " + error.message
+      );
+    }
+  };
+
+  const renderSubMenu = (subMenu, parentIndex) => (
+    <Droppable droppableId={`subMenu-${parentIndex}`} type="SUBMENU">
+      {(provided) => (
+        <ul
+          ref={provided.innerRef}
+          {...provided.droppableProps}
+          className={`ml-10 transition-all ease-in-out duration-300 overflow-hidden ${
+            openSubmenus[subMenu[0]?.parent_id]
+              ? "opacity-100"
+              : "max-h-0 opacity-0"
+          }`}
+        >
+          {subMenu.map((subItem, index) => (
+            <Draggable
+              key={subItem.id}
+              draggableId={subItem.id.toString()}
+              index={index}
+            >
+              {(provided) => (
+                <li
+                  ref={provided.innerRef}
+                  {...provided.draggableProps}
+                  {...provided.dragHandleProps}
+                  className="cursor-pointer"
                 >
-                  {openSubmenus[subItem.id] ? "-" : "+"}
-                </button>
+                  <div
+                    onClick={(e) => e.stopPropagation()}
+                    className="flex justify-between items-center mb-2 border-b py-2 border-black"
+                  >
+                    <div className="flex items-center gap-2 text-sm">
+                      {subItem?.children?.length > 0 && (
+                        <button
+                          onClick={() => toggleSubMenu(subItem.id)}
+                          className="bg-[#00C7BE] text-white px-1 rounded w-[20px] py-[0.2px]"
+                        >
+                          {openSubmenus[subItem.id] ? "-" : "+"}
+                        </button>
+                      )}
+                      <p className="text-gray-700 font-medium">
+                        {subItem.name}
+                      </p>
+                    </div>
+                    {user.user_type.name === "ადმინისტრატორი" && (
+                      <div className="flex space-x-2">
+                        <button onClick={() => openUpdateModal(subItem)}>
+                          <img src={CreateIcon} alt="Edit Icon" />
+                        </button>
+                        <button onClick={() => handleDelete(subItem.id)}>
+                          <img src={DeleteIcon} alt="Delete Icon" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  {subItem.children &&
+                    renderSubMenu(subItem.children, `${parentIndex}-${index}`)}
+                </li>
               )}
-              <p className="text-gray-700 font-medium">{subItem.name}</p>
-            </div>
-            {user.user_type.name === "ადმინისტრატორი" && (
-              <div className="flex space-x-2">
-                <button onClick={() => openUpdateModal(subItem)}>
-                  <img src={CreateIcon} alt="Edit Icon" />
-                </button>
-                <button onClick={() => handleDelete(subItem.id)}>
-                  <img src={DeleteIcon} alt="Delete Icon" />
-                </button>
-              </div>
-            )}
-          </div>
-          {subItem?.children &&
-            openSubmenus[subItem.id] &&
-            renderSubMenu(subItem.children)}
-        </li>
-      ))}
-    </ul>
+            </Draggable>
+          ))}
+          {provided.placeholder}
+        </ul>
+      )}
+    </Droppable>
   );
 
   return (
@@ -267,40 +321,62 @@ const Department = () => {
           </svg>
         </div>
 
-        <div>
-          {filteredDepartments &&
-            filteredDepartments.map((item, index) => (
-              <div key={index} className="cursor-pointer">
-                <div
-                  onClick={(e) => e.stopPropagation()}
-                  className="flex justify-between items-center mb-2 border-b py-2 border-black"
-                >
-                  <div className="flex items-center gap-2 text-sm">
-                    {item?.children?.length > 0 && (
-                      <button
-                        onClick={() => toggleSubMenu(item.id)}
-                        className="bg-[#00C7BE] text-white px-1 rounded w-[20px] py-[0.2px]"
+        <DragDropContext onDragEnd={onDragEnd}>
+          <Droppable droppableId="departments" type="DEPARTMENT">
+            {(provided) => (
+              <div {...provided.droppableProps} ref={provided.innerRef}>
+                {filteredDepartments.map((item, index) => (
+                  <Draggable
+                    key={item.id}
+                    draggableId={item.id.toString()}
+                    index={index}
+                  >
+                    {(provided) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
                       >
-                        {openSubmenus[item.id] ? "-" : "+"}
-                      </button>
+                        <div className="cursor-pointer">
+                          <div
+                            onClick={(e) => e.stopPropagation()}
+                            className="flex justify-between items-center mb-2 border-b py-2 border-black"
+                          >
+                            <div className="flex items-center gap-2 text-sm">
+                              {item?.children?.length > 0 && (
+                                <button
+                                  onClick={() => toggleSubMenu(item.id)}
+                                  className="bg-[#00C7BE] text-white px-1 rounded w-[20px] py-[0.2px]"
+                                >
+                                  {openSubmenus[item.id] ? "-" : "+"}
+                                </button>
+                              )}
+                              <p className="text-gray-700 font-medium">
+                                {item.name}
+                              </p>
+                            </div>
+                            {user.user_type.name === "ადმინისტრატორი" && (
+                              <div className="flex space-x-2">
+                                <button onClick={() => openUpdateModal(item)}>
+                                  <img src={CreateIcon} alt="Edit Icon" />
+                                </button>
+                                <button onClick={() => handleDelete(item.id)}>
+                                  <img src={DeleteIcon} alt="Delete Icon" />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                          {item.children && renderSubMenu(item.children, index)}
+                        </div>
+                      </div>
                     )}
-                    <p className="text-gray-700 font-medium">{item.name}</p>
-                  </div>
-                  {user.user_type.name === "ადმინისტრატორი" && (
-                    <div className="flex space-x-2">
-                      <button onClick={() => openUpdateModal(item)}>
-                        <img src={CreateIcon} alt="Edit Icon" />
-                      </button>
-                      <button onClick={() => handleDelete(item.id)}>
-                        <img src={DeleteIcon} alt="Delete Icon" />
-                      </button>
-                    </div>
-                  )}
-                </div>
-                {item.children && renderSubMenu(item.children)}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
               </div>
-            ))}
-        </div>
+            )}
+          </Droppable>
+        </DragDropContext>
       </div>
 
       {isAddModalOpen && (

@@ -173,7 +173,9 @@ const CommentAnalyze = () => {
     <AuthenticatedLayout>
       <div className="w-full px-10 py-4 flex flex-col gap-8">
         <div className="flex justify-between w-full">
-          <h1 className="text-[#1976D2] font-medium text-[23px]">კომენტარების ანალიზი</h1>
+          <h1 className="text-[#1976D2] font-medium text-[23px]">
+            კომენტარების ანალიზი
+          </h1>
           <button
             onClick={handleExportToExcel}
             className="bg-[#105D8D] px-7 py-2 rounded flex items-center gap-3 text-white text-[16px] border relative"
@@ -198,23 +200,34 @@ const CommentAnalyze = () => {
             onChange={handleFormDataChange}
           />
           <DepartmentInput
-            value={departments.find((d) => d.id === filters.department_id)?.name || ""}
+            value={
+              departments.find((d) => d.id === filters.department_id)?.name ||
+              ""
+            }
             onClear={() => handleClear("department_id")}
             onSearchClick={() => setOpenNestedDropdown(true)}
           />
           <CustomSelect
             options={forgiveTypes}
-            selectedValue={forgiveTypes.find(
-              (item) => item.id === filters.forgive_type_id
-            )?.name || ""}
+            selectedValue={
+              forgiveTypes.find((item) => item.id === filters.forgive_type_id)
+                ?.name || ""
+            }
             onSelect={(option) =>
               setFormData((prev) => ({
                 ...prev,
                 forgive_type_id: option.id,
               }))
             }
+            onClear={() =>
+              setFormData((prev) => ({
+                ...prev,
+                forgive_type_id: "",
+              }))
+            }
             placeholder="აირჩიეთ პატიების ტიპი"
           />
+
           <EmployeeInput
             value={filters.employee_fullname}
             onClear={() => handleClear("employee_fullname")}
@@ -236,22 +249,34 @@ const CommentAnalyze = () => {
             <table className="table-auto w-full border-collapse border border-gray-300">
               <thead>
                 <tr className="bg-[#1976D2] text-white">
-                  <th className="border border-gray-300 p-2 text-left">თანამშრომელი</th>
-                  <th className="border border-gray-300 p-2 text-left">კომენტარების რაოდენობა</th>
-                  <th className="border border-gray-300 p-2 text-left">გაცდენილი წუთები</th>
+                  <th className="border border-gray-300 p-2 text-left">
+                    თანამშრომელი
+                  </th>
+                  <th className="border border-gray-300 p-2 text-left">
+                    კომენტარების რაოდენობა
+                  </th>
+                  <th className="border border-gray-300 p-2 text-left">
+                    გაცდენილი წუთები
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {Object.entries(groupedComments).length === 0 ? (
                   <tr>
-                    <td colSpan="3" className="text-center py-4">No Data Available</td>
+                    <td colSpan="3" className="text-center py-4">
+                      No Data Available
+                    </td>
                   </tr>
                 ) : (
                   Object.entries(groupedComments).map(([employee, details]) => (
                     <tr key={employee}>
                       <td className="border border-gray-300 p-2">{employee}</td>
-                      <td className="border border-gray-300 p-2">{details.count}</td>
-                      <td className="border border-gray-300 p-2">{details.total}</td>
+                      <td className="border border-gray-300 p-2">
+                        {details.count}
+                      </td>
+                      <td className="border border-gray-300 p-2">
+                        {details.total}
+                      </td>
                     </tr>
                   ))
                 )}
@@ -260,8 +285,12 @@ const CommentAnalyze = () => {
                 <tfoot>
                   <tr className="font-bold">
                     <td className="border border-gray-300 p-2">ჯამი</td>
-                    <td className="border border-gray-300 p-2">{totalCounts}</td>
-                    <td className="border border-gray-300 p-2">{totalMinutes}</td>
+                    <td className="border border-gray-300 p-2">
+                      {totalCounts}
+                    </td>
+                    <td className="border border-gray-300 p-2">
+                      {totalMinutes}
+                    </td>
                   </tr>
                 </tfoot>
               )}
