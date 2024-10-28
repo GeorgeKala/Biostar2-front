@@ -76,11 +76,11 @@ const GeneralReport = () => {
       come_time: { text: "", selected: [] },
       come_early: { text: "", selected: [] },
       come_late: { text: "", selected: [] },
-      penalized_time: { text: "", selected: [] },
       leave_time: { text: "", selected: [] },
       leave_early: { text: "", selected: [] },
       leave_late: { text: "", selected: [] },
       worked_hours: { text: "", selected: [] },
+      penalized_time: { text: "", selected: [] },
       day_type: { text: "", selected: [] },
       week_day: { text: "", selected: [] },
       homorable_minutes: { text: "", selected: [] },
@@ -143,10 +143,8 @@ const GeneralReport = () => {
 
       const response = await reportService.updateOrCreateDayDetail(data);
 
-      // Show success toast when the comment is successfully saved
       toast.success("კომენტარი წარმატებით დაემატა!");
 
-      // Dispatch updated report data to Redux store
       dispatch(
         updateOrAddReport({
           employee_id: editData.employee_id,
@@ -159,7 +157,6 @@ const GeneralReport = () => {
 
       handleModalClose();
     } catch (error) {
-      // Show error toast if there's an issue saving the comment
       toast.error("შეცდომა კომენტარის დამატებისას: " + error.message);
       console.error("Error saving data:", error);
     }
@@ -296,11 +293,7 @@ const GeneralReport = () => {
       key: "come_late",
       extractValue: (report) => report.come_late,
     },
-    {
-      label: "დაგვიანებული წუთები",
-      key: "penalized_time",
-      extractValue: (report) => report.penalized_time,
-    },
+   
     {
       label: "წასვლის დრო",
       key: "leave_time",
@@ -320,6 +313,11 @@ const GeneralReport = () => {
       label: "ნამუშევარი საათები",
       key: "worked_hours",
       extractValue: (report) => report.worked_hours,
+    },
+    {
+      label: "დაგვიანებული წუთები",
+      key: "penalized_time",
+      extractValue: (report) => report.penalized_time,
     },
     {
       label: "დღის ტიპი",
@@ -536,11 +534,11 @@ const lastReportElementRef = useCallback(node => {
             "come_time",
             "come_early",
             "come_late",
-            "penalized_time",
             "leave_time",
             "leave_early",
             "leave_late",
             "worked_hours",
+            "penalized_time",
             "day_type",
             "week_day",
             "homorable_minutes",

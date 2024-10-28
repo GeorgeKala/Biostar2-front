@@ -4,10 +4,11 @@ const LinksModal = ({ isVisible, links, onClose }) => {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed top-20 left-[5%] bg-white shadow-lg p-6 z-2 rounded-lg border border-gray-200 w-64">
-      <div className="flex justify-between items-center mb-4 z-2">
+    <div style={{
+      zIndex:"200"
+    }} className="fixed top-20 left-[5%] bg-white shadow-lg p-6 rounded-lg border border-gray-200 w-64">
+      <div className="flex justify-between items-center mb-4 z-200">
         <h2 className="text-lg font-semibold text-gray-800">Quick Links</h2>
-        {/* Close Button */}
         <button
           onClick={onClose}
           className="text-gray-500 hover:text-red-500 transition duration-300"
@@ -17,7 +18,6 @@ const LinksModal = ({ isVisible, links, onClose }) => {
           </svg>
         </button>
       </div>
-
       <div className="flex flex-col space-y-2">
         {links.map((link, index) => (
           <a

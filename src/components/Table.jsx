@@ -352,7 +352,7 @@ const Table = ({
     <div className="w-full mx-auto overflow-x-auto">
       <div className="min-w-max max-h-[750px] overflow-y-auto" ref={tableRef}>
         <table className="min-w-full divide-y divide-gray-200">
-          <thead className="text-white text-xs sticky top-0 z-20">
+          <thead className="text-white text-xs sticky top-0 ">
             <tr>
               <th className="bg-[#1976D2] w-[30px]"></th>
               {headers &&

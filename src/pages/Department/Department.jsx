@@ -161,28 +161,68 @@ const Department = () => {
   };
 
   // Drag and Drop Handler
+  // const onDragEnd = (result) => {
+  //   if (!result.destination) return;
+
+  //   const sourceParentId = result.source.droppableId;
+  //   const destinationParentId = result.destination.droppableId;
+
+  //   if (sourceParentId !== destinationParentId) {
+  //     toast.error("Cannot move department between different parents.");
+  //     return;
+  //   }
+
+  //   const reorderedDepartments = reorder(
+  //     filteredDepartments,
+  //     result.source.index,
+  //     result.destination.index
+  //   );
+  //   setFilteredDepartments(reorderedDepartments);
+  //   saveDepartmentOrder(reorderedDepartments);
+  // };
+
   const onDragEnd = (result) => {
     if (!result.destination) return;
-
+  
     const sourceParentId = result.source.droppableId;
     const destinationParentId = result.destination.droppableId;
-
-    // Check if dragging between parents
+  
+    // Prevent moving departments between different parents
     if (sourceParentId !== destinationParentId) {
       toast.error("Cannot move department between different parents.");
       return;
     }
-
-    // Reordering logic
-    const reorderedDepartments = reorder(
-      filteredDepartments,
-      result.source.index,
-      result.destination.index
-    );
-    setFilteredDepartments(reorderedDepartments);
-    saveDepartmentOrder(reorderedDepartments);
+  
+    const updatedDepartments = JSON.parse(JSON.stringify(filteredDepartments));
+  
+    if (sourceParentId.startsWith("subMenu-")) {
+      // Handle reordering within a submenu (i.e., sibling child elements)
+      const [_, parentIndex] = sourceParentId.split("-"); // Extract parent index
+      const parent = updatedDepartments[parseInt(parentIndex)]; // Find the parent department
+  
+      if (parent && parent.children) {
+        const reorderedChildren = reorder(
+          parent.children,
+          result.source.index,
+          result.destination.index
+        );
+        parent.children = reorderedChildren; // Reorder the children within the parent
+        setFilteredDepartments(updatedDepartments);
+        saveDepartmentOrder(updatedDepartments); // Persist the order change
+      }
+    } else if (sourceParentId === "departments") {
+      // Handle reordering of top-level departments
+      const reorderedDepartments = reorder(
+        updatedDepartments,
+        result.source.index,
+        result.destination.index
+      );
+      setFilteredDepartments(reorderedDepartments);
+      saveDepartmentOrder(reorderedDepartments); // Persist the order change
+    }
   };
-
+  
+  
   const reorder = (list, startIndex, endIndex) => {
     const result = Array.from(list);
     const [removed] = result.splice(startIndex, 1);
@@ -207,22 +247,20 @@ const Department = () => {
   };
 
   const renderSubMenu = (subMenu, parentIndex) => (
-    <Droppable droppableId={`subMenu-${parentIndex}`} type="SUBMENU">
+    <Droppable droppableId={`subMenu-${parentIndex}`} key={`subMenu-${parentIndex}`}>
       {(provided) => (
         <ul
           ref={provided.innerRef}
           {...provided.droppableProps}
           className={`ml-10 transition-all ease-in-out duration-300 overflow-hidden ${
-            openSubmenus[subMenu[0]?.parent_id]
-              ? "opacity-100"
-              : "max-h-0 opacity-0"
+            openSubmenus[subMenu[0]?.parent_id] ? "opacity-100" : "max-h-0 opacity-0"
           }`}
         >
           {subMenu.map((subItem, index) => (
             <Draggable
               key={subItem.id}
-              draggableId={subItem.id.toString()}
-              index={index}
+              draggableId={`subItem-${subItem.id}`} 
+              index={index} 
             >
               {(provided) => (
                 <li
@@ -231,10 +269,7 @@ const Department = () => {
                   {...provided.dragHandleProps}
                   className="cursor-pointer"
                 >
-                  <div
-                    onClick={(e) => e.stopPropagation()}
-                    className="flex justify-between items-center mb-2 border-b py-2 border-black"
-                  >
+                  <div className="flex justify-between items-center mb-2 border-b py-2 border-black">
                     <div className="flex items-center gap-2 text-sm">
                       {subItem?.children?.length > 0 && (
                         <button
@@ -244,9 +279,7 @@ const Department = () => {
                           {openSubmenus[subItem.id] ? "-" : "+"}
                         </button>
                       )}
-                      <p className="text-gray-700 font-medium">
-                        {subItem.name}
-                      </p>
+                      <p className="text-gray-700 font-medium">{subItem.name}</p>
                     </div>
                     {user.user_type.name === "ადმინისტრატორი" && (
                       <div className="flex space-x-2">
@@ -259,8 +292,7 @@ const Department = () => {
                       </div>
                     )}
                   </div>
-                  {subItem.children &&
-                    renderSubMenu(subItem.children, `${parentIndex}-${index}`)}
+                  {subItem.children && renderSubMenu(subItem.children, `${parentIndex}-${index}`)}
                 </li>
               )}
             </Draggable>
@@ -270,6 +302,8 @@ const Department = () => {
       )}
     </Droppable>
   );
+  
+  
 
   return (
     <AuthenticatedLayout>
